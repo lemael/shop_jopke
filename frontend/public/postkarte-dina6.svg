@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none">
+  <defs><style>.cls-1{fill:none;stroke:#822660;stroke-linecap:round;stroke-linejoin:round;}</style></defs>
+  <rect class="cls-1" x="31.94" y="20.44" width="28.1" height="39.61" transform="translate(86.23 -5.75) rotate(90)"/>
+  <rect class="cls-1" x="54.38" y="30.2" width="7.35" height="7.35"/>
+  <line class="cls-1" x1="50.73" y1="44.68" x2="60.99" y2="44.68"/>
+  <line class="cls-1" x1="50.73" y1="47.31" x2="60.99" y2="47.31"/>
+  <line class="cls-1" x1="50.73" y1="49.94" x2="60.99" y2="49.94"/>
+  <line class="cls-1" x1="45.99" y1="30.65" x2="45.99" y2="50.28"/>
+</svg>

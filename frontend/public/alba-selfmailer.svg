@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" fill="none">
+  <defs><style>.cls-1{fill:none;stroke:#822660;stroke-linecap:round;stroke-linejoin:round;}</style></defs>
+  <polygon class="cls-1" points="26.04 44.29 16.87 62.06 65.93 62.06 75.1 44.29 26.04 44.29"/>
+  <polyline class="cls-1" points="16.87 62.06 16.87 36.11 65.93 36.11 65.93 44.29"/>
+  <polyline class="cls-1" points="16.87 36.11 23.59 18.42 72.65 18.42"/>
+  <line class="cls-1" x1="70.86" y1="23.12" x2="65.93" y2="36.11"/>
+  <polygon class="cls-1" points="75.1 23.12 26.04 23.12 23.59 18.42 72.65 18.42 75.1 23.12"/>
+</svg>
