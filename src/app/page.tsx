@@ -1,132 +1,34 @@
+import type { ProduktKarte } from "@/types/produkt";
+import { CategorySection } from "@/components/CategorySection";
+
 // ─── Product data ────────────────────────────────────────────────────────────
 
-const selfmailerProducts = [
+const selfmailerProducts: ProduktKarte[] = [
   { id: 1, name: "DIN-Lang-Selfmailer LEVI", format: "210 × 100/105 mm", pages: "4–12 Seiten", price: "ab 0,29 €", href: "/shop/levi", image: "/levi-selfmailer.svg" },
-  { id: 2, name: "Maxi-Selfmailer INATA", format: "235 × 125 mm", pages: "4–8 Seiten", price: "ab 0,35 €", image: "/inata-selfmailer.svg" },
-  { id: 3, name: "Maxi-Selfmailer mit Klappe ALBA", format: "235 × 125 mm", pages: "6–8 Seiten", price: "ab 0,39 €", image: "/alba-selfmailer.svg" },
-  { id: 4, name: "DIN-A6-Selfmailer MIKRO", format: "148 × 105 mm", pages: "4–8 Seiten", price: "ab 0,22 €", image: "/mikro-selfmailer.svg" },
-  { id: 5, name: "DIN-A5-Selfmailer MEGALO", format: "210 × 148 mm", pages: "4–8 Seiten", price: "ab 0,38 €", image: "/megalo-selfmailer.svg" },
-  { id: 6, name: "DIN-Lang-Poster-Selfmailer ANDIGO", format: "210 × 100 mm", pages: "12 Seiten", price: "ab 0,45 €", image: "/andigo-selfmailer.svg" },
-  { id: 7, name: "DIN-A5-Poster-Selfmailer AFISA", format: "210 × 148 mm", pages: "8 Seiten Kreuzfalz", price: "ab 0,49 €", image: "/afisa-selfmailer.svg" },
-  { id: 8, name: "DIN-Lang-Minikatalog ALVARO", format: "210 × 105 mm", pages: "16–20 Seiten Rückendrahtheftung", price: "ab 0,55 €", image: "/alvaro-katalog.svg" },
+  { id: 2, name: "Maxi-Selfmailer INATA", format: "235 × 125 mm", pages: "4–8 Seiten", price: "ab 0,35 €", href: "/shop/inata", image: "/inata-selfmailer.svg" },
+  { id: 3, name: "Maxi-Selfmailer mit Klappe ALBA", format: "235 × 125 mm", pages: "6–8 Seiten", price: "ab 0,39 €", href: "/shop/klappe_alba", image: "/alba-selfmailer.svg" },
+  { id: 4, name: "DIN-A6-Selfmailer MIKRO", format: "148 × 105 mm", pages: "4–8 Seiten", price: "ab 0,22 €", href: "/shop/mikro", image: "/mikro-selfmailer.svg" },
+  { id: 5, name: "DIN-A5-Selfmailer MEGALO", format: "210 × 148 mm", pages: "4–8 Seiten", price: "ab 0,38 €", href: "/shop/megalo", image: "/megalo-selfmailer.svg" },
+  { id: 6, name: "DIN-Lang-Poster-Selfmailer ANDIGO", format: "210 × 100 mm", pages: "12 Seiten", price: "ab 0,45 €", href: "/shop/andigo", image: "/andigo-selfmailer.svg" },
+  { id: 7, name: "DIN-A5-Poster-Selfmailer AFISA", format: "210 × 148 mm", pages: "8 Seiten Kreuzfalz", price: "ab 0,49 €", href: "/shop/afisa", image: "/afisa-selfmailer.svg" },
+  { id: 8, name: "DIN-Lang-Minikatalog ALVARO", format: "210 × 105 mm", pages: "16–20 Seiten Rückendrahtheftung", price: "ab 0,55 €", href: "/shop/alvaro", image: "/alvaro-katalog.svg" },
   { id: 9, name: "Bestseller LEVI", format: "210 × 100 mm", pages: "6 Seiten Wickelfalz", price: "ab 0,29 €", image: "/bestseller-levi.svg" },
 ];
 
-const kuvertiertesMailingProducts = [
-  { id: 1, name: "DIN-Lang-Mailing", format: "229 × 114 mm", pages: "kuvertiert", price: "ab 0,39 €", image: "/dinlang-mailing.svg" },
-  { id: 2, name: "DIN-C4-Mailing", format: "324 × 229 mm", pages: "kuvertiert", price: "ab 0,65 €", image: "/dinc4-mailing.svg" },
+const kuvertiertesMailingProducts: ProduktKarte[] = [
+  { id: 1, name: "DIN-Lang-Mailing", format: "229 × 114 mm", pages: "kuvertiert", price: "ab 0,39 €", href: "/shop/lang_mailing", image: "/dinlang-mailing.svg" },
+  { id: 2, name: "DIN-C4-Mailing", format: "324 × 229 mm", pages: "kuvertiert", price: "ab 0,65 €", href: "/shop/c4_mailing", image: "/dinc4-mailing.svg" },
 ];
 
-const kartenMailingProducts = [
-  { id: 1, name: "Postkarte DIN-Lang", format: "210 × 98 mm", pages: "1-seitig", price: "ab 0,19 €", image: "/postkarte-dinlang.svg" },
-  { id: 2, name: "Postkarte DIN-Lang", format: "210 × 105 mm", pages: "1-seitig", price: "ab 0,19 €", image: "/postkarte-dinlang.svg" },
-  { id: 3, name: "Postkarte Maxi", format: "235 × 125 mm", pages: "1-seitig", price: "ab 0,24 €", image: "/postkarte-maxi.svg" },
-  { id: 4, name: "Postkarte DIN A6", format: "148 × 105 mm", pages: "1-seitig", price: "ab 0,15 €", image: "/postkarte-dina6.svg" },
-  { id: 5, name: "Postkarte DIN A5", format: "210 × 148 mm", pages: "1-seitig", price: "ab 0,28 €", image: "/postkarte-dina5.svg" },
-  { id: 6, name: "Postkarte DIN A4", format: "297 × 210 mm", pages: "1-seitig", price: "ab 0,45 €", image: "/postkarte-dina4.svg" },
+const kartenMailingProducts: ProduktKarte[] = [
+  { id: 1, name: "Postkarte DIN-Lang", format: "210 × 98 mm", pages: "1-seitig", price: "ab 0,19 €", href: "/shop/post_din_lan_98", image: "/postkarte-dinlang.svg" },
+  { id: 2, name: "Postkarte DIN-Lang", format: "210 × 105 mm", pages: "1-seitig", price: "ab 0,19 €", href: "/shop/post_din_lan_105", image: "/postkarte-dinlang.svg" },
+  { id: 3, name: "Postkarte Maxi", format: "235 × 125 mm", pages: "1-seitig", price: "ab 0,24 €", href: "/shop/post_maxi", image: "/postkarte-maxi.svg" },
+  { id: 4, name: "Postkarte DIN A6", format: "148 × 105 mm", pages: "1-seitig", price: "ab 0,15 €", href: "/shop/post_din_a6", image: "/postkarte-dina6.svg" },
+  { id: 5, name: "Postkarte DIN A5", format: "210 × 148 mm", pages: "1-seitig", price: "ab 0,28 €", href: "/shop/post_din_a5", image: "/postkarte-dina5.svg" },
+  { id: 6, name: "Postkarte DIN A4", format: "297 × 210 mm", pages: "1-seitig", price: "ab 0,45 €", href: "/shop/post_din_a4", image: "/postkarte-dina4.svg" },
   { id: 7, name: "Bestseller Karte Maxi", format: "235 × 125 mm", pages: "4/4-farbig, UV-Lack VS", price: "ab 0,24 €", image: "/postkarte-maxi.svg" },
 ];
-
-// ─── Reusable card component ──────────────────────────────────────────────────
-
-function ProductCard({
-  name,
-  format,
-  pages,
-  price,
-  href,
-  image,
-}: Readonly<{
-  name: string;
-  format: string;
-  pages: string;
-  price: string;
-  href?: string;
-  image?: string;
-}>) {
-  return (
-    <div className="group flex flex-col bg-white border border-[#dcdcdc] shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-      {/* Image area */}
-      <div className="flex items-center justify-center h-44 bg-[#f4f4f4] border-b border-[#dcdcdc] overflow-hidden">
-        {image ? (
-          <img src={image} alt={name} className="h-full w-full object-contain p-4" />
-        ) : (
-          <svg
-            className="w-14 h-14 text-[#822660] opacity-30"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1}
-              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-            />
-          </svg>
-        )}
-      </div>
-
-      {/* Card content */}
-      <div className="flex flex-col flex-1 p-4 gap-2">
-        <h3 className="font-semibold text-[#2b2b2b] text-sm leading-snug group-hover:text-[#822660] transition-colors">
-          {name}
-        </h3>
-        <p className="text-xs text-[#666666]">{format}</p>
-        <p className="text-xs text-[#888888]">{pages}</p>
-        <p className="text-sm font-bold text-[#822660] mt-auto pt-2">{price}</p>
-        {href ? (
-          <a
-            href={href}
-            className="mt-1 block w-full py-2 px-4 bg-[#822660] hover:bg-[#6b1f50] active:bg-[#5a1a42] text-white text-sm font-semibold transition-colors text-center"
-          >
-            Konfigurieren
-          </a>
-        ) : (
-          <button className="mt-1 w-full py-2 px-4 bg-[#822660] hover:bg-[#6b1f50] active:bg-[#5a1a42] text-white text-sm font-semibold transition-colors cursor-pointer">
-            Konfigurieren
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ─── Section component ────────────────────────────────────────────────────────
-
-function CategorySection({
-  title,
-  subtitle,
-  products,
-  columns,
-}: Readonly<{
-  title: string;
-  subtitle: string;
-  products: { id: number; name: string; format: string; pages: string; price: string; href?: string; image?: string }[];
-  columns: number;
-}>) {
-  const gridClass =
-    columns === 2
-      ? "grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-lg"
-      : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5";
-
-  return (
-    <section className="w-full py-10 border-b border-[#dcdcdc] last:border-0">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-6">
-        <div>
-          <h2 className="text-xl font-bold text-[#2b2b2b] uppercase tracking-wide">{title}</h2>
-          <p className="mt-1 text-sm text-[#666666]">{subtitle}</p>
-        </div>
-      </div>
-      <div className={gridClass}>
-        {products.map((p) => (
-          <ProductCard key={p.id} name={p.name} format={p.format} pages={p.pages} price={p.price} href={p.href} image={(p as { image?: string }).image} />
-        ))}
-      </div>
-    </section>
-  );
-}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
