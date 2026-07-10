@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { OptionTile, StepHeader } from "@/components/ConfiguratorUI";
+import { AuflageAuswahl } from "@/components/AuflageAuswahl";
 import { auflagenFuer } from "@/lib/auflage";
 import type { Produkt } from "@/data/produktkatalog";
 import type { MailingFamilie } from "@/lib/mailing";
@@ -68,7 +69,11 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
   function isStepValid(step: StepName): boolean {
     if (step === "Hüllentyp") return cfg.huellentyp !== null;
     if (step === "Ausstattung") return ausstattung !== null;
-    if (step === "Auflage") return cfg.auflage !== null;
+    if (step === "Auflage") {
+      const min = ausgewaehlteVariante?.mindestmenge ?? null;
+      const max = ausgewaehlteVariante?.maximalmenge ?? null;
+      return cfg.auflage !== null && (min === null || cfg.auflage >= min) && (max === null || cfg.auflage <= max);
+    }
     return true;
   }
 
@@ -200,13 +205,14 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
               {currentStep === "Auflage" && (
                 <>
                   <StepHeader step={3} title="Auflage wählen" />
-                  <div className="flex flex-wrap gap-3">
-                    {auflagen.map((a) => (
-                      <OptionTile key={a} active={cfg.auflage === a}
-                        onClick={() => selectAuflage(a)}
-                        title={a.toLocaleString("de-DE") + " Stück"} />
-                    ))}
-                  </div>
+                  <AuflageAuswahl
+                    auflagen={auflagen}
+                    mindestmenge={ausgewaehlteVariante?.mindestmenge}
+                    maximalmenge={ausgewaehlteVariante?.maximalmenge}
+                    value={cfg.auflage}
+                    onTileSelect={selectAuflage}
+                    onCustomChange={(a) => setCfg((c) => ({ ...c, auflage: a }))}
+                  />
                 </>
               )}
 
