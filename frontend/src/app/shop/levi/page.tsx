@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { AuflageAuswahl } from "@/components/AuflageAuswahl";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const AUFLAGEN = [500, 1000, 2000, 3000, 5000, 10000];
+const MINDESTMENGE = 500;
+const MAXIMALMENGE = 100000;
 
 const UMFANG_DATA: Record<number, { endformat: string; offenes: string; pdf: string | null }> = {
   4:  { endformat: "210 × 105 mm", offenes: "210 × 210 mm", pdf: "https://www.jopke.de/assets/pdf/druckvorlagen/040_DIN%20lang%20Selfmailer%20Levi_4.pdf" },
@@ -115,6 +118,9 @@ const STEP_FIELD: Partial<Record<StepName, keyof Config>> = {
   Perforation: "perforation", Verarbeitung: "verarbeitung",
 };
 function isStepValid(step: StepName, cfg: Config): boolean {
+  if (step === "Auflage") {
+    return cfg.auflage !== null && cfg.auflage >= MINDESTMENGE && cfg.auflage <= MAXIMALMENGE;
+  }
   const field = STEP_FIELD[step];
   return field ? cfg[field] !== null : true;
 }
@@ -126,6 +132,9 @@ export default function LeviKonfigurator() {
   const stepIndex = STEPS.indexOf(currentStep);
   const totals = calcTotals(cfg);
   const umfangInfo = cfg.umfang ? UMFANG_DATA[cfg.umfang] : null;
+  const konfigurationVollstaendig =
+    cfg.auflage !== null && cfg.umfang !== null && cfg.grammatur !== null && cfg.verarbeitung !== null;
+  const individuellePreisAnfrage = konfigurationVollstaendig && totals === null;
 
   function goTo(step: StepName) { setCurrentStep(step); }
   function next() { setCurrentStep(STEPS[Math.min(stepIndex + 1, STEPS.length - 1)]); }
@@ -205,13 +214,14 @@ export default function LeviKonfigurator() {
               {currentStep === "Auflage" && (
                 <>
                   <StepHeader step={1} title="Auflage wählen" />
-                  <div className="flex flex-wrap gap-3">
-                    {AUFLAGEN.map((a) => (
-                      <OptionTile key={a} active={cfg.auflage === a}
-                        onClick={() => setCfg({ ...cfg, auflage: a })}
-                        title={a.toLocaleString("de-DE") + " Stück"} />
-                    ))}
-                  </div>
+                  <AuflageAuswahl
+                    auflagen={AUFLAGEN}
+                    mindestmenge={MINDESTMENGE}
+                    maximalmenge={MAXIMALMENGE}
+                    value={cfg.auflage}
+                    onTileSelect={(a) => setCfg({ ...cfg, auflage: a })}
+                    onCustomChange={(a) => setCfg({ ...cfg, auflage: a })}
+                  />
                 </>
               )}
 
@@ -385,6 +395,13 @@ export default function LeviKonfigurator() {
                         Der oben angegebene Betrag bildet die <strong>maximalen Portokosten ohne Portooptimierung</strong> ab.
                         Sie erhalten innerhalb von 48 Stunden nach Auftragsvergabe eine konkrete Portoabrechnung basierend auf den von Ihnen gelieferten Daten.
                       </p>
+                    </div>
+                  )}
+
+                  {individuellePreisAnfrage && (
+                    <div className="border border-[#dcdcdc] mb-6 p-4 text-sm text-[#666666] bg-[#f4f4f4]">
+                      Für Ihre gewählte Auflage von {cfg.auflage?.toLocaleString("de-DE")} Stück erstellen wir Ihnen ein individuelles Angebot.
+                      Wir melden uns innerhalb eines Werktages mit dem konkreten Preis.
                     </div>
                   )}
 
