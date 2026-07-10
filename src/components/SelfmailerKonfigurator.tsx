@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { OptionTile, StepHeader } from "@/components/ConfiguratorUI";
+import { AuflageAuswahl } from "@/components/AuflageAuswahl";
 import { auflagenFuer } from "@/lib/auflage";
 import type { Produkt } from "@/data/produktkatalog";
 import type { SelfmailerFamilie } from "@/lib/selfmailer";
@@ -87,7 +88,9 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
   }
 
   function isStepValid(step: StepName): boolean {
-    if (step === "Auflage") return cfg.auflage !== null;
+    if (step === "Auflage") {
+      return cfg.auflage !== null && cfg.auflage >= mindestmenge && cfg.auflage <= maximalmenge;
+    }
     if (step === "Umfang") return cfg.umfang !== null;
     if (step === "Grammatur") return grammatur !== null;
     if (step === "Perforation") return perforation !== null;
@@ -194,13 +197,14 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
               {currentStep === "Auflage" && (
                 <>
                   <StepHeader step={1} title="Auflage wählen" />
-                  <div className="flex flex-wrap gap-3">
-                    {auflagen.map((a) => (
-                      <OptionTile key={a} active={cfg.auflage === a}
-                        onClick={() => selectAuflage(a)}
-                        title={a.toLocaleString("de-DE") + " Stück"} />
-                    ))}
-                  </div>
+                  <AuflageAuswahl
+                    auflagen={auflagen}
+                    mindestmenge={mindestmenge}
+                    maximalmenge={maximalmenge}
+                    value={cfg.auflage}
+                    onTileSelect={selectAuflage}
+                    onCustomChange={(a) => setCfg((c) => ({ ...c, auflage: a }))}
+                  />
                 </>
               )}
 
