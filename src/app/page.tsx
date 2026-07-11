@@ -59,7 +59,7 @@ export default function Home() {
               <a href="#selfmailer" className="hover:text-white transition-colors">Selfmailer</a>
               <a href="#kuvertiertes-mailing" className="hover:text-white transition-colors">Kuvertiertes Mailing</a>
               <a href="#kartenmailing" className="hover:text-white transition-colors">Kartenmailing</a>
-              <a href="/preise" className="hover:text-white transition-colors">Preise</a>
+              <a href="/hilfe" className="hover:text-white transition-colors">Hilfe</a>
               <a href="/kontakt" className="hover:text-white transition-colors">Kontakt</a>
             </nav>
 
@@ -188,6 +188,7 @@ export default function Home() {
           </div>
           <div className="flex flex-col gap-2 text-xs">
             <span className="text-white font-semibold uppercase tracking-wide">Unternehmen</span>
+            <a href="/hilfe" className="hover:text-white">Hilfe</a>
             <a href="/kontakt" className="hover:text-white">Kontakt</a>
             <a href="/impressum" className="hover:text-white">Impressum</a>
             <a href="/datenschutz" className="hover:text-white">Datenschutz</a>

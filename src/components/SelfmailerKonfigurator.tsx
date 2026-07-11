@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { OptionTile, StepHeader } from "@/components/ConfiguratorUI";
 import { AuflageAuswahl } from "@/components/AuflageAuswahl";
+import { BestellModal } from "@/components/BestellModal";
 import { auflagenFuer } from "@/lib/auflage";
 import type { Produkt } from "@/data/produktkatalog";
 import type { SelfmailerFamilie } from "@/lib/selfmailer";
@@ -102,9 +103,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
     setCurrentStep(steps[Math.min(idx + 1, steps.length - 1)] as StepName);
   }
 
-  const anfrageHref = `/kontakt?produkt=${encodeURIComponent(name)}${
-    ausgewaehlteVariante ? `&produktNummer=${encodeURIComponent(ausgewaehlteVariante.produktNummer)}` : ""
-  }${cfg.auflage ? `&auflage=${cfg.auflage}` : ""}${cfg.umfang ? `&umfang=${encodeURIComponent(cfg.umfang)}` : ""}${grammatur ? `&grammatur=${encodeURIComponent(grammatur)}` : ""}`;
+  const [bestellOpen, setBestellOpen] = useState(false);
 
   const uebersichtZeilen: [string, string][] = [
     ["Auflage", cfg.auflage ? `${cfg.auflage.toLocaleString("de-DE")} Stück` : "–"],
@@ -196,7 +195,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
 
               {currentStep === "Auflage" && (
                 <>
-                  <StepHeader step={1} title="Auflage wählen" />
+                  <StepHeader step={1} title="Auflage wählen" helpTab="auflage" />
                   <AuflageAuswahl
                     auflagen={auflagen}
                     mindestmenge={mindestmenge}
@@ -210,7 +209,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
 
               {currentStep === "Umfang" && (
                 <>
-                  <StepHeader step={2} title="Umfang wählen" />
+                  <StepHeader step={2} title="Umfang wählen" helpTab="umfang" />
                   <div className="flex flex-wrap gap-3">
                     {umfaenge.map((u) => {
                       const beispiel = varianten.find((v) => v.umfang === u);
@@ -230,7 +229,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
 
               {currentStep === "Grammatur" && (
                 <>
-                  <StepHeader step={3} title="Grammatur wählen" />
+                  <StepHeader step={3} title="Grammatur wählen" helpTab="grammatur" />
                   <div className="flex flex-wrap gap-3">
                     {grammaturen.map((g) => {
                       const beispiel = nachUmfang.find((v) => v.inhalt?.grammatur === g);
@@ -250,7 +249,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
 
               {currentStep === "Perforation" && (
                 <>
-                  <StepHeader step={4} title="Perforation wählen" />
+                  <StepHeader step={4} title="Perforation wählen" helpTab="perforation" />
                   <div className="flex flex-wrap gap-3">
                     {perforationen.map((p) => (
                       <OptionTile key={p} active={perforation === p} onClick={() => selectPerforation(p)} title={p} />
@@ -261,7 +260,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
 
               {currentStep === "Übersicht" && (
                 <>
-                  <StepHeader step={steps.length} title="Übersicht & Anfrage" />
+                  <StepHeader step={steps.length} title="Übersicht & Anfrage" helpTab="uebersicht" />
                   <table className="w-full text-sm mb-6">
                     <tbody className="divide-y divide-[#f0f0f0]">
                       {uebersichtZeilen.map(([label, value]) => (
@@ -284,12 +283,13 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
                         Wir melden uns innerhalb eines Werktages mit einem verbindlichen Angebot inkl. Preis.
                       </p>
                     </div>
-                    <a
-                      href={anfrageHref}
-                      className="inline-flex items-center justify-center px-6 py-3 bg-[#822660] hover:bg-[#6b1f50] text-white font-semibold text-sm transition-colors shrink-0"
+                    <button
+                      type="button"
+                      onClick={() => setBestellOpen(true)}
+                      className="inline-flex items-center justify-center px-6 py-3 bg-[#822660] hover:bg-[#6b1f50] text-white font-semibold text-sm transition-colors shrink-0 cursor-pointer"
                     >
-                      Jetzt anfragen →
-                    </a>
+                      Weiter →
+                    </button>
                   </div>
                 </>
               )}
@@ -329,6 +329,8 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
           </main>
         </div>
       </div>
+
+      <BestellModal open={bestellOpen} onClose={() => setBestellOpen(false)} produkt={name} zeilen={uebersichtZeilen} />
     </div>
   );
 }

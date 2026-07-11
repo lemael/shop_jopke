@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { OptionTile, StepHeader } from "@/components/ConfiguratorUI";
 import { AuflageAuswahl } from "@/components/AuflageAuswahl";
+import { BestellModal } from "@/components/BestellModal";
 import { auflagenFuer } from "@/lib/auflage";
 import type { Produkt } from "@/data/produktkatalog";
 import type { MailingFamilie } from "@/lib/mailing";
@@ -82,9 +83,7 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
     setCurrentStep(STEPS[Math.min(idx + 1, STEPS.length - 1)]);
   }
 
-  const anfrageHref = `/kontakt?produkt=${encodeURIComponent(name)}${
-    ausgewaehlteVariante ? `&produktNummer=${encodeURIComponent(ausgewaehlteVariante.produktNummer)}` : ""
-  }${cfg.auflage ? `&auflage=${cfg.auflage}` : ""}`;
+  const [bestellOpen, setBestellOpen] = useState(false);
 
   const uebersichtZeilen: [string, string][] = [
     ["Auflage", cfg.auflage ? `${cfg.auflage.toLocaleString("de-DE")} Stück` : "–"],
@@ -168,7 +167,7 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
 
               {currentStep === "Hüllentyp" && (
                 <>
-                  <StepHeader step={1} title="Hüllentyp wählen" />
+                  <StepHeader step={1} title="Hüllentyp wählen" helpTab="huellentyp" />
                   <div className="flex flex-wrap gap-3">
                     {huellentypen.map((h) => (
                       <OptionTile key={h} active={cfg.huellentyp === h} onClick={() => selectHuellentyp(h)} title={h} />
@@ -184,7 +183,7 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
 
               {currentStep === "Ausstattung" && (
                 <>
-                  <StepHeader step={2} title="Ausstattung wählen" />
+                  <StepHeader step={2} title="Ausstattung wählen" helpTab="ausstattung" />
                   <div className="flex flex-wrap gap-3">
                     {ausstattungen.map((a) => {
                       const beispiel = nachHuellentyp.find((v) => v.kategorien[3]?.name === a);
@@ -204,7 +203,7 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
 
               {currentStep === "Auflage" && (
                 <>
-                  <StepHeader step={3} title="Auflage wählen" />
+                  <StepHeader step={3} title="Auflage wählen" helpTab="auflage" />
                   <AuflageAuswahl
                     auflagen={auflagen}
                     mindestmenge={ausgewaehlteVariante?.mindestmenge}
@@ -218,7 +217,7 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
 
               {currentStep === "Übersicht" && (
                 <>
-                  <StepHeader step={4} title="Übersicht & Anfrage" />
+                  <StepHeader step={4} title="Übersicht & Anfrage" helpTab="uebersicht" />
                   <table className="w-full text-sm mb-6">
                     <tbody className="divide-y divide-[#f0f0f0]">
                       {uebersichtZeilen.map(([label, value]) => (
@@ -241,12 +240,13 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
                         Wir melden uns innerhalb eines Werktages mit einem verbindlichen Angebot inkl. Preis.
                       </p>
                     </div>
-                    <a
-                      href={anfrageHref}
-                      className="inline-flex items-center justify-center px-6 py-3 bg-[#822660] hover:bg-[#6b1f50] text-white font-semibold text-sm transition-colors shrink-0"
+                    <button
+                      type="button"
+                      onClick={() => setBestellOpen(true)}
+                      className="inline-flex items-center justify-center px-6 py-3 bg-[#822660] hover:bg-[#6b1f50] text-white font-semibold text-sm transition-colors shrink-0 cursor-pointer"
                     >
-                      Jetzt anfragen →
-                    </a>
+                      Weiter →
+                    </button>
                   </div>
                 </>
               )}
@@ -286,6 +286,8 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
           </main>
         </div>
       </div>
+
+      <BestellModal open={bestellOpen} onClose={() => setBestellOpen(false)} produkt={name} zeilen={uebersichtZeilen} />
     </div>
   );
 }

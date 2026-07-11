@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { OptionTile, StepHeader } from "@/components/ConfiguratorUI";
 import { AuflageAuswahl } from "@/components/AuflageAuswahl";
+import { BestellModal } from "@/components/BestellModal";
 import { auflagenFuer } from "@/lib/auflage";
 import type { Produkt } from "@/data/produktkatalog";
 import type { KartenmailingFamilie } from "@/lib/kartenmailing";
@@ -77,9 +78,7 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
     setCurrentStep(STEPS[Math.min(idx + 1, STEPS.length - 1)]);
   }
 
-  const anfrageHref = `/kontakt?produkt=${encodeURIComponent(name)}${
-    ausgewaehlteVariante ? `&produktNummer=${encodeURIComponent(ausgewaehlteVariante.produktNummer)}` : ""
-  }${cfg.auflage ? `&auflage=${cfg.auflage}` : ""}`;
+  const [bestellOpen, setBestellOpen] = useState(false);
 
   const uebersichtZeilen: [string, string][] = [
     ["Auflage", cfg.auflage ? `${cfg.auflage.toLocaleString("de-DE")} Stück` : "–"],
@@ -158,7 +157,7 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
 
               {currentStep === "Papier" && (
                 <>
-                  <StepHeader step={1} title="Papier wählen" />
+                  <StepHeader step={1} title="Papier wählen" helpTab="papier" />
                   <div className="flex flex-wrap gap-3">
                     {papiere.map((p) => (
                       <OptionTile key={p} active={cfg.papier === p} onClick={() => selectPapier(p)} title={p} />
@@ -169,7 +168,7 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
 
               {currentStep === "Veredelung" && (
                 <>
-                  <StepHeader step={2} title="Veredelung wählen" />
+                  <StepHeader step={2} title="Veredelung wählen" helpTab="veredelung" />
                   <div className="flex flex-wrap gap-3">
                     {veredelungen.map((v) => (
                       <OptionTile key={v} active={veredelung === v} onClick={() => selectVeredelung(v)} title={v} />
@@ -180,7 +179,7 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
 
               {currentStep === "Auflage" && (
                 <>
-                  <StepHeader step={3} title="Auflage wählen" />
+                  <StepHeader step={3} title="Auflage wählen" helpTab="auflage" />
                   <AuflageAuswahl
                     auflagen={auflagen}
                     mindestmenge={ausgewaehlteVariante?.mindestmenge}
@@ -194,7 +193,7 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
 
               {currentStep === "Übersicht" && (
                 <>
-                  <StepHeader step={4} title="Übersicht & Anfrage" />
+                  <StepHeader step={4} title="Übersicht & Anfrage" helpTab="uebersicht" />
                   <table className="w-full text-sm mb-6">
                     <tbody className="divide-y divide-[#f0f0f0]">
                       {uebersichtZeilen.map(([label, value]) => (
@@ -217,12 +216,13 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
                         Wir melden uns innerhalb eines Werktages mit einem verbindlichen Angebot inkl. Preis.
                       </p>
                     </div>
-                    <a
-                      href={anfrageHref}
-                      className="inline-flex items-center justify-center px-6 py-3 bg-[#822660] hover:bg-[#6b1f50] text-white font-semibold text-sm transition-colors shrink-0"
+                    <button
+                      type="button"
+                      onClick={() => setBestellOpen(true)}
+                      className="inline-flex items-center justify-center px-6 py-3 bg-[#822660] hover:bg-[#6b1f50] text-white font-semibold text-sm transition-colors shrink-0 cursor-pointer"
                     >
-                      Jetzt anfragen →
-                    </a>
+                      Weiter →
+                    </button>
                   </div>
                 </>
               )}
@@ -262,6 +262,8 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
           </main>
         </div>
       </div>
+
+      <BestellModal open={bestellOpen} onClose={() => setBestellOpen(false)} produkt={name} zeilen={uebersichtZeilen} />
     </div>
   );
 }

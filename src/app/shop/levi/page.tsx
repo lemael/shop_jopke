@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AuflageAuswahl } from "@/components/AuflageAuswahl";
+import { BestellModal } from "@/components/BestellModal";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -90,11 +91,25 @@ function OptionTile({ active, onClick, title, subtitle }: Readonly<{ active: boo
   );
 }
 
-function StepHeader({ step, title }: Readonly<{ step: number; title: string }>) {
+function StepHeader({ step, title, helpTab }: Readonly<{ step: number; title: string; helpTab?: string }>) {
   return (
-    <div className="flex items-center gap-3 mb-6">
-      <span className="w-8 h-8 flex items-center justify-center bg-[#822660] text-white font-bold text-sm shrink-0">{step}</span>
-      <h2 className="text-lg font-bold text-[#2b2b2b] uppercase tracking-wide">{title}</h2>
+    <div className="flex items-center justify-between gap-3 mb-6">
+      <div className="flex items-center gap-3">
+        <span className="w-8 h-8 flex items-center justify-center bg-[#822660] text-white font-bold text-sm shrink-0">{step}</span>
+        <h2 className="text-lg font-bold text-[#2b2b2b] uppercase tracking-wide">{title}</h2>
+      </div>
+      {helpTab && (
+        <a
+          href={`/hilfe#${helpTab}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Hilfe zu diesem Schritt"
+          aria-label="Hilfe zu diesem Schritt"
+          className="w-7 h-7 flex items-center justify-center rounded-full border border-[#dcdcdc] text-[#822660] font-bold text-sm hover:border-[#822660] hover:bg-[#822660] hover:text-white transition-colors shrink-0"
+        >
+          ?
+        </a>
+      )}
     </div>
   );
 }
@@ -128,6 +143,7 @@ function isStepValid(step: StepName, cfg: Config): boolean {
 export default function LeviKonfigurator() {
   const [currentStep, setCurrentStep] = useState<StepName>("Auflage");
   const [cfg, setCfg] = useState<Config>({ auflage: null, umfang: null, grammatur: null, perforation: null, verarbeitung: null, verarbeitungszeit: "Standard" });
+  const [bestellOpen, setBestellOpen] = useState(false);
 
   const stepIndex = STEPS.indexOf(currentStep);
   const totals = calcTotals(cfg);
@@ -135,6 +151,29 @@ export default function LeviKonfigurator() {
   const konfigurationVollstaendig =
     cfg.auflage !== null && cfg.umfang !== null && cfg.grammatur !== null && cfg.verarbeitung !== null;
   const individuellePreisAnfrage = konfigurationVollstaendig && totals === null;
+
+  const bestellZeilen: [string, string][] = [
+    ["Auflage", cfg.auflage ? `${cfg.auflage.toLocaleString("de-DE")} Stück` : "–"],
+    ["Umfang", cfg.umfang ? `${cfg.umfang} Seiten` : "–"],
+    ["Endformat", umfangInfo?.endformat ?? "–"],
+    ["Offenes Format", umfangInfo?.offenes ?? "–"],
+    ["Farbigkeit", "4/4-farbig Euroskala"],
+    ["Grammatur", cfg.grammatur ?? "–"],
+    ["Papier", "Bilderdruck"],
+    ["Oberfläche", "matt"],
+    ["Perforation", cfg.perforation === "Parallel" ? "Parallel zur letzten Seite" : cfg.perforation ?? "–"],
+    ["Verarbeitung", (() => { const v = VERARBEITUNGEN.find((x) => x.value === cfg.verarbeitung); return v ? `${v.label} – ${v.desc}` : "–"; })()],
+    ["Verarbeitungszeit", cfg.verarbeitungszeit === "Express" ? "Express (5 Arbeitstage)" : "Standard (7 Arbeitstage)"],
+    ...(totals
+      ? ([
+          ["Druck (netto)", `${totals.druck.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`],
+          ["Porto (max., ohne Optimierung)", `${totals.porto.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`],
+          ["Express-Aufpreis", totals.express === 0 ? "0,00 €" : `${totals.express.toFixed(2).replace(".", ",")} €`],
+          ["Gesamt (netto)", `${totals.netto.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`],
+          ["Gesamt (brutto)", `${totals.brutto.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`],
+        ] as [string, string][])
+      : []),
+  ];
 
   function goTo(step: StepName) { setCurrentStep(step); }
   function next() { setCurrentStep(STEPS[Math.min(stepIndex + 1, STEPS.length - 1)]); }
@@ -213,7 +252,7 @@ export default function LeviKonfigurator() {
 
               {currentStep === "Auflage" && (
                 <>
-                  <StepHeader step={1} title="Auflage wählen" />
+                  <StepHeader step={1} title="Auflage wählen" helpTab="auflage" />
                   <AuflageAuswahl
                     auflagen={AUFLAGEN}
                     mindestmenge={MINDESTMENGE}
@@ -227,7 +266,7 @@ export default function LeviKonfigurator() {
 
               {currentStep === "Umfang" && (
                 <>
-                  <StepHeader step={2} title="Umfang wählen" />
+                  <StepHeader step={2} title="Umfang wählen" helpTab="umfang" />
                   <p className="text-sm text-[#666666] mb-5">
                     Endformat und offenes Format werden automatisch bestimmt.
                   </p>
@@ -265,7 +304,7 @@ export default function LeviKonfigurator() {
 
               {currentStep === "Grammatur" && (
                 <>
-                  <StepHeader step={3} title="Grammatur wählen" />
+                  <StepHeader step={3} title="Grammatur wählen" helpTab="grammatur" />
                   <p className="text-sm text-[#666666] mb-5">Bilderdruck matt · 4/4-farbig Euroskala</p>
                   <div className="flex flex-wrap gap-3">
                     {GRAMMATUREN.map((g) => (
@@ -279,7 +318,7 @@ export default function LeviKonfigurator() {
 
               {currentStep === "Perforation" && (
                 <>
-                  <StepHeader step={4} title="Perforation wählen" />
+                  <StepHeader step={4} title="Perforation wählen" helpTab="perforation" />
                   <div className="flex flex-wrap gap-3">
                     {PERFORATIONEN.map((p) => (
                       <OptionTile key={p.value} active={cfg.perforation === p.value}
@@ -292,7 +331,7 @@ export default function LeviKonfigurator() {
 
               {currentStep === "Verarbeitung" && (
                 <>
-                  <StepHeader step={5} title="Verarbeitung wählen" />
+                  <StepHeader step={5} title="Verarbeitung wählen" helpTab="verarbeitung" />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {VERARBEITUNGEN.map((v) => (
                       <OptionTile key={v.value} active={cfg.verarbeitung === v.value}
@@ -305,7 +344,7 @@ export default function LeviKonfigurator() {
 
               {currentStep === "Übersicht" && (
                 <>
-                  <StepHeader step={6} title="Übersicht & Bestellung" />
+                  <StepHeader step={6} title="Übersicht & Bestellung" helpTab="uebersicht" />
                   <table className="w-full text-sm mb-6">
                     <tbody className="divide-y divide-[#f0f0f0]">
                       {[
@@ -412,12 +451,13 @@ export default function LeviKonfigurator() {
                         Wir melden uns innerhalb eines Werktages mit einem verbindlichen Angebot.
                       </p>
                     </div>
-                    <a
-                      href={`/kontakt?produkt=DIN-Lang-Selfmailer+LEVI&auflage=${cfg.auflage}&umfang=${cfg.umfang}&grammatur=${encodeURIComponent(cfg.grammatur ?? "")}`}
-                      className="inline-flex items-center justify-center px-6 py-3 bg-[#822660] hover:bg-[#6b1f50] text-white font-semibold text-sm transition-colors shrink-0"
+                    <button
+                      type="button"
+                      onClick={() => setBestellOpen(true)}
+                      className="inline-flex items-center justify-center px-6 py-3 bg-[#822660] hover:bg-[#6b1f50] text-white font-semibold text-sm transition-colors shrink-0 cursor-pointer"
                     >
-                      Jetzt anfragen →
-                    </a>
+                      Weiter →
+                    </button>
                   </div>
 
                   {umfangInfo?.pdf && (
@@ -595,6 +635,12 @@ export default function LeviKonfigurator() {
         </div>
       </div>
 
+      <BestellModal
+        open={bestellOpen}
+        onClose={() => setBestellOpen(false)}
+        produkt="DIN-Lang-Selfmailer LEVI"
+        zeilen={bestellZeilen}
+      />
     </div>
   );
 }
