@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState, useEffect } from "react";
+import { KontaktModal } from "@/components/KontaktModal";
 
 function VideoPlayer() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -51,6 +52,8 @@ function VideoPlayer() {
 }
 
 export default function Kontakt() {
+  const [kontaktOpen, setKontaktOpen] = useState(false);
+
   return (
     <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <h1 className="text-2xl font-bold text-[#2b2b2b] uppercase tracking-wide mb-8 border-l-4 border-[#822660] pl-4">
@@ -105,20 +108,17 @@ export default function Kontakt() {
           Rufen Sie uns an oder schreiben Sie uns eine E-Mail – wir melden uns schnellstmöglich.
         </p>
         <div className="flex flex-col sm:flex-row gap-3">
-          <a
-            href="tel:+4929412868980"
-            className="inline-flex items-center justify-center px-6 py-3 bg-[#822660] hover:bg-[#6b1f50] text-white font-semibold transition-colors"
-          >
-            Jetzt anrufen
-          </a>
-          <a
-            href="mailto:info@jopke.de"
-            className="inline-flex items-center justify-center px-6 py-3 border border-[#555555] text-white font-semibold hover:bg-[#3a3a3a] transition-colors"
+          <button
+            type="button"
+            onClick={() => setKontaktOpen(true)}
+            className="inline-flex items-center justify-center px-6 py-3 bg-[#822660] hover:bg-[#6b1f50] text-white font-semibold transition-colors cursor-pointer"
           >
             E-Mail senden
-          </a>
+          </button>
         </div>
       </div>
+
+      <KontaktModal open={kontaktOpen} onClose={() => setKontaktOpen(false)} />
     </main>
   );
 }
