@@ -23,5 +23,5 @@ Product configurators — see `src/app/shop/CLAUDE.md`.
 ## Static content pages
 
 - `kontakt/page.tsx` — contact page with an autoplay-on-click welcome video (`/jopke-willkommen.mp4`) and a `KontaktModal` trigger.
-- `hilfe/page.tsx` — tabbed help page (`TABS: HilfeTab[]`, one per configurator step: auflage, umfang, grammatur, perforation, verarbeitung, papier, veredelung, huellentyp, ausstattung, uebersicht, porto). Every configurator's `StepHeader` links to `/hilfe#<tabId>` via `helpTab` — **when adding a new configurator step, add a matching tab `id` here** or the help link will 404 to a nonexistent anchor.
+- `hilfe/page.tsx` — tabbed help page (`TABS: HilfeTab[]`, one per configurator step: auflage, endformat, umfang, grammatur, oberflaeche, farbigkeit, perforation, verarbeitung, papier, veredelung, huellentyp, ausstattung, uebersicht, porto). Every configurator's `StepHeader` links to `/hilfe#<tabId>` via `helpTab` — **when adding a new configurator step, add a matching tab `id` here** or the help link will 404 to a nonexistent anchor.
 - `impressum/`, `datenschutz/`, `agb/` — static legal pages (Impressum, Datenschutzerklärung, AGB), plain JSX with no client state, safe to edit as pure copy/content changes.

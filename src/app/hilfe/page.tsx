@@ -25,6 +25,17 @@ const TABS: HilfeTab[] = [
     ],
   },
   {
+    id: "endformat",
+    label: "Endformat",
+    titel: "Endformat",
+    intro:
+      "Das Endformat ist die fertige Größe des Druckstücks, z. B. nach dem Falzen oder Schneiden. Bei manchen Inhaltsteilen (etwa der Antwortkarte) stehen mehrere Endformate zur Auswahl.",
+    punkte: [
+      "Das Endformat wird unabhängig von Grammatur und Oberfläche gewählt.",
+      "Ein passendes Endformat ist Voraussetzung für die maßgenaue Verarbeitung (z. B. Kuvertierung).",
+    ],
+  },
+  {
     id: "umfang",
     label: "Umfang",
     titel: "Umfang",
@@ -47,6 +58,31 @@ const TABS: HilfeTab[] = [
       "Höhere Grammaturen (z. B. 250 g/m²) fühlen sich stabiler und hochwertiger an, erhöhen aber ggf. das Gewicht und damit die Portoklasse.",
       "Alle angebotenen Grammaturen werden in der gleichen Papierart (z. B. Bilderdruck, matt) angeboten, sofern nicht anders angegeben.",
       "Die verfügbaren Grammaturen hängen vom zuvor gewählten Umfang ab.",
+    ],
+  },
+  {
+    id: "oberflaeche",
+    label: "Oberfläche",
+    titel: "Oberfläche",
+    intro:
+      "Die Oberfläche beschreibt die Veredelung des bedruckten Papiers – matt oder glänzend. Sie beeinflusst Optik und Haptik, aber auch Lesbarkeit und Lichtreflexion.",
+    punkte: [
+      "„Matt“ wirkt zurückhaltender und reduziert Blendung beim Lesen.",
+      "„Glänzend“ lässt Farben kräftiger wirken und sorgt für einen edleren Eindruck.",
+      "Die Oberfläche wird unabhängig von Grammatur und Umfang gewählt.",
+    ],
+  },
+  {
+    id: "farbigkeit",
+    label: "Farbigkeit",
+    titel: "Farbigkeit",
+    intro:
+      "Die Farbigkeit gibt an, mit wie vielen Farben Vorder- und Rückseite bedruckt werden, z. B. 4/4-farbig Euroskala (vollfarbig beidseitig) oder 1/0-farbig Schwarz (einseitig schwarz-weiß).",
+    punkte: [
+      "Die erste Ziffer steht für die Anzahl der Farben auf der Vorderseite, die zweite für die Rückseite.",
+      "„Euroskala“ bedeutet Vollfarbdruck (CMYK), „Schwarz“ bedeutet reiner Schwarzdruck.",
+      "Bei einer Fensterhülle kann auch „unbedruckt“ gewählt werden – die Hülle bleibt dann werkseitig weiß.",
+      "Eine höhere Farbigkeit wirkt hochwertiger, kann sich aber auf den Druckpreis auswirken.",
     ],
   },
   {
