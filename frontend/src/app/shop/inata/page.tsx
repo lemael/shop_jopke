@@ -28,6 +28,7 @@ interface Config {
   auflage: number | null;
   umfang: string | null;
   grammatur: string | null;
+  perforation: string | null;
 }
 
 export default function Page() {
@@ -50,7 +51,7 @@ export default function Page() {
     () => unique(varianten.map((v) => v.umfang).filter((u): u is string => Boolean(u))),
     [varianten]
   );
-  const [cfg, setCfg] = useState<Config>({ auflage: null, umfang: null, grammatur: null });
+  const [cfg, setCfg] = useState<Config>({ auflage: null, umfang: null, grammatur: null, perforation: null });
 
   const nachUmfang = useMemo(
     () => varianten.filter((v) => v.umfang === cfg.umfang),
