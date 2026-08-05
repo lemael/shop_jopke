@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { OptionTile, StepHeader } from "@/components/ConfiguratorUI";
 import { AuflageAuswahl } from "@/components/AuflageAuswahl";
@@ -14,6 +15,54 @@ function unique<T>(values: (T | null | undefined)[]): T[] {
     if (v !== null && v !== undefined && !result.includes(v)) result.push(v);
   }
   return result;
+}
+
+const SELFMAILER_PRICE_MATRIX: Record<SelfmailerFamilie["slug"], Record<number, Record<number, number>>> = {
+  inata: {
+    4: { 500: 0.35, 1000: 0.30, 2000: 0.26, 3000: 0.24, 5000: 0.22, 10000: 0.20 },
+    6: { 500: 0.42, 1000: 0.37, 2000: 0.33, 3000: 0.30, 5000: 0.27, 10000: 0.24 },
+    8: { 500: 0.49, 1000: 0.44, 2000: 0.39, 3000: 0.35, 5000: 0.31, 10000: 0.28 },
+  },
+};
+
+const GRAMMATUR_FACTOR: Record<string, number> = {
+  "135 g/m²": 0.92,
+  "170 g/m²": 1,
+  "250 g/m²": 1.15,
+};
+
+const PORTO_RATE = 0.56;
+
+function formatEuro(value: number) {
+  return `${value.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+}
+
+export interface PriceDetails {
+  einheitspreis: number;
+  druck: number;
+  porto: number;
+  netto: number;
+  mwst: number;
+  brutto: number;
+}
+
+export function calcSelfmailerPrice(familieSlug: SelfmailerFamilie["slug"], cfg: Config): PriceDetails | null {
+  if (!cfg.auflage || !cfg.umfang || !cfg.grammatur) return null;
+  const familyMatrix = SELFMAILER_PRICE_MATRIX[familieSlug];
+  if (!familyMatrix) return null;
+  const seiten = Number.parseInt(cfg.umfang, 10);
+  if (Number.isNaN(seiten)) return null;
+  const pages = familyMatrix[seiten];
+  if (!pages) return null;
+  const unitBase = pages[cfg.auflage];
+  if (unitBase === undefined) return null;
+  const factor = GRAMMATUR_FACTOR[cfg.grammatur] ?? 1;
+  const einheitspreis = Math.round(unitBase * factor * 100) / 100;
+  const druck = Math.round(einheitspreis * cfg.auflage * 100) / 100;
+  const porto = Math.round(cfg.auflage * PORTO_RATE * 100) / 100;
+  const netto = Math.round((druck + porto) * 100) / 100;
+  const mwst = Math.round(netto * 0.19 * 100) / 100;
+  return { einheitspreis, druck, porto, netto, mwst, brutto: Math.round((netto + mwst) * 100) / 100 };
 }
 
 interface Config {
@@ -46,9 +95,12 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
   const nachGrammatur = useMemo(() => nachUmfang.filter((v) => v.inhalt?.grammatur === grammatur), [nachUmfang, grammatur]);
   const perforationen = useMemo(() => unique(nachGrammatur.map((v) => v.perforation)), [nachGrammatur]);
   const brauchtPerforationsAuswahl = perforationen.length > 1;
-  const perforation = brauchtPerforationsAuswahl
-    ? (cfg.perforation && perforationen.includes(cfg.perforation) ? cfg.perforation : null)
-    : (perforationen[0] ?? null);
+  let perforation: string | null = null;
+  if (brauchtPerforationsAuswahl) {
+    perforation = cfg.perforation && perforationen.includes(cfg.perforation) ? cfg.perforation : null;
+  } else {
+    perforation = perforationen[0] ?? null;
+  }
 
   const ausgewaehlteVariante: Produkt | undefined = nachGrammatur.find((v) =>
     brauchtPerforationsAuswahl ? v.perforation === perforation : true
@@ -104,6 +156,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
   }
 
   const [bestellOpen, setBestellOpen] = useState(false);
+  const preisdetails = calcSelfmailerPrice(familie.slug, cfg);
 
   const uebersichtZeilen: [string, string][] = [
     ["Auflage", cfg.auflage ? `${cfg.auflage.toLocaleString("de-DE")} Stück` : "–"],
@@ -130,8 +183,8 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         <nav className="text-xs text-[#888888] mb-6">
-          <a href="/" className="hover:text-[#822660]">Startseite</a>{" / "}
-          <a href="/#selfmailer" className="hover:text-[#822660]">Selfmailer</a>{" / "}
+          <Link href="/" className="hover:text-[#822660]">Startseite</Link>{" / "}
+          <Link href="/#selfmailer" className="hover:text-[#822660]">Selfmailer</Link>{" / "}
           <span className="text-[#2b2b2b]">{name}</span>
         </nav>
 
@@ -261,20 +314,61 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
               {currentStep === "Übersicht" && (
                 <>
                   <StepHeader step={steps.length} title="Übersicht & Anfrage" helpTab="uebersicht" />
-                  <table className="w-full text-sm mb-6">
-                    <tbody className="divide-y divide-[#f0f0f0]">
-                      {uebersichtZeilen.map(([label, value]) => (
-                        <tr key={label}>
-                          <td className="py-2 pr-4 font-semibold text-[#2b2b2b] w-40 align-top">{label}</td>
-                          <td className="py-2 text-[#666666]">{value}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] mb-6">
+                    <div>
+                      <table className="w-full text-sm">
+                        <tbody className="divide-y divide-[#f0f0f0]">
+                          {uebersichtZeilen.map(([label, value]) => (
+                            <tr key={label}>
+                              <td className="py-2 pr-4 font-semibold text-[#2b2b2b] w-40 align-top">{label}</td>
+                              <td className="py-2 text-[#666666]">{value}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
 
-                  {ausgewaehlteVariante?.pdf && (
-                    <p className="text-xs text-[#888888] mb-6">Datenblatt: {ausgewaehlteVariante.pdf}</p>
-                  )}
+                      {ausgewaehlteVariante?.pdf && (
+                        <p className="text-xs text-[#888888] mt-6">Datenblatt: {ausgewaehlteVariante.pdf}</p>
+                      )}
+                    </div>
+
+                    {preisdetails ? (
+                      <div className="border border-[#dcdcdc]">
+                        <div className="bg-[#f4f4f4] px-4 py-2 text-xs font-semibold text-[#2b2b2b] uppercase tracking-wide border-b border-[#dcdcdc]">
+                          Inklusive Druck, Portooptimierung, Personalisierung, Verarbeitung und Postauflieferung
+                        </div>
+                        <dl className="text-sm">
+                          <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
+                            <dt className="text-[#666666]">Preis pro Stück</dt>
+                            <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preisdetails.einheitspreis)}</dd>
+                          </div>
+                          <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
+                            <dt className="text-[#666666]">Druck (netto)</dt>
+                            <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preisdetails.druck)}</dd>
+                          </div>
+                          <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
+                            <dt className="text-[#666666]">Porto (max., netto)</dt>
+                            <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preisdetails.porto)}</dd>
+                          </div>
+                          <div className="flex justify-between px-4 py-3 border-t border-[#dcdcdc] bg-[#f9f9f9]">
+                            <dt className="font-bold text-[#2b2b2b]">Gesamt (netto):</dt>
+                            <dd className="font-bold text-[#822660] text-lg">{formatEuro(preisdetails.netto)}</dd>
+                          </div>
+                          <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
+                            <dt className="text-xs text-[#666666]">zzgl. 19% MwSt.:</dt>
+                            <dd className="text-xs text-[#666666]">{formatEuro(preisdetails.mwst)}</dd>
+                          </div>
+                          <div className="flex justify-between px-4 py-2">
+                            <dt className="font-semibold text-[#2b2b2b]">Gesamt (brutto):</dt>
+                            <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preisdetails.brutto)}</dd>
+                          </div>
+                        </dl>
+                        <p className="px-4 py-3 text-xs text-[#888888] border-t border-[#f0f0f0] leading-relaxed">
+                          Der oben angegebene Betrag bildet die maximalen Portokosten ohne Portooptimierung ab. Sie erhalten innerhalb von 48 Stunden nach Auftragsvergabe eine konkrete Portoabrechnung basierend auf den von Ihnen gelieferten Daten.
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
 
                   <div className="bg-[#2b2b2b] text-white p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
