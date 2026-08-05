@@ -18,18 +18,58 @@ const UMFANG_DATA: Record<number, { endformat: string; offenes: string; pdf: str
   12: { endformat: "210 × 100 mm", offenes: "210 × 580 mm", pdf: null },
 };
 
+const GRAMMATUREN_BY_UMFANG: Record<number, string[]> = {
+  4:  ["170 g/m²", "250 g/m²"],
+  6:  ["135 g/m²", "170 g/m²", "250 g/m²"],
+  8:  ["135 g/m²", "170 g/m²"],
+  10: ["135 g/m²", "170 g/m²"],
+  12: ["135 g/m²", "170 g/m²"],
+};
+
 const GRAMMATUREN = ["135 g/m²", "170 g/m²", "250 g/m²"];
+
+function getGrammaturenForUmfang(umfang: number | null) {
+  return umfang ? GRAMMATUREN_BY_UMFANG[umfang] ?? [] : [];
+}
+
+function getVerarbeitungenForUmfang(umfang: number | null) {
+  if (!umfang) return [];
+  const wickelfalz = VERARBEITUNGEN.filter((v) => v.value === "Wickelfalz");
+  const mittelfalz = VERARBEITUNGEN.filter((v) => v.value === "Mittelfalz");
+  return umfang === 4 ? mittelfalz : wickelfalz;
+}
 
 const PERFORATIONEN = [
   { value: "Ohne",    label: "Ohne Perforation" },
   { value: "Parallel", label: "Parallel zur letzten Seite" },
 ];
 
+function getPerforationenForSelection(umfang: number | null, grammatur: string | null) {
+  if (!umfang || !grammatur) return [];
+  if (umfang === 4) {
+    return PERFORATIONEN.filter((p) => p.value === "Ohne");
+  }
+  if (umfang === 6) {
+    return grammatur === "135 g/m²"
+      ? PERFORATIONEN.filter((p) => p.value === "Ohne")
+      : PERFORATIONEN;
+  }
+  if (umfang === 8) {
+    return grammatur === "135 g/m²"
+      ? PERFORATIONEN.filter((p) => p.value === "Ohne")
+      : PERFORATIONEN;
+  }
+  if (umfang === 10 || umfang === 12) {
+    return grammatur === "135 g/m²" || grammatur === "170 g/m²"
+      ? PERFORATIONEN.filter((p) => p.value === "Ohne")
+      : [];
+  }
+  return [];
+}
+
 const VERARBEITUNGEN = [
-  { value: "Mittelfalz_Leim",    label: "Mittelfalz auf DIN lang", desc: "mit ablösbarem Leim verschlossen" },
-  { value: "Mittelfalz_Etikett", label: "Mittelfalz auf DIN lang", desc: "mit transparenten perforierten Etiketten verschlossen" },
-  { value: "Wickelfalz_Leim",    label: "Wickelfalz auf DIN lang", desc: "mit ablösbarem Leim verschlossen" },
-  { value: "Wickelfalz_Etikett", label: "Wickelfalz auf DIN lang", desc: "mit transparenten perforierten Etiketten verschlossen" },
+  { value: "Mittelfalz", label: "Mittelfalz auf DIN lang", desc: "mit ablösb. Leim oder transp. perforierten Etiketten verschlossen" },
+  { value: "Wickelfalz", label: "Wickelfalz auf DIN lang", desc: "mit ablösb. Leim oder transp. perforierten Etiketten verschlossen" },
 ];
 
 // Druckpreis inkl. Portooptimierung, Personalisierung, Verarbeitung & Postauflieferung
@@ -53,7 +93,8 @@ const GRAMMATUR_FACTOR: Record<string, number> = {
 };
 
 const VERARBEITUNG_SURCHARGE: Record<string, number> = {
-  Mittelfalz_Leim: 0, Mittelfalz_Etikett: 10, Wickelfalz_Leim: 0, Wickelfalz_Etikett: 10,
+  Mittelfalz: 0,
+  Wickelfalz: 0,
 };
 
 const STEPS = ["Auflage", "Umfang", "Grammatur", "Perforation", "Verarbeitung", "Übersicht"] as const;
@@ -273,7 +314,18 @@ export default function LeviKonfigurator() {
                   <div className="flex flex-wrap gap-3">
                     {Object.entries(UMFANG_DATA).map(([seiten, info]) => (
                       <OptionTile key={seiten} active={cfg.umfang === Number(seiten)}
-                        onClick={() => setCfg({ ...cfg, umfang: Number(seiten) })}
+                        onClick={() => {
+                          const selected = Number(seiten);
+                          const grammaturAllowed = getGrammaturenForUmfang(selected);
+                          const verarbeitungAllowed = getVerarbeitungenForUmfang(selected).map((v) => v.value);
+                          setCfg({
+                            ...cfg,
+                            umfang: selected,
+                            grammatur: grammaturAllowed.includes(cfg.grammatur ?? "") ? cfg.grammatur : null,
+                            verarbeitung: verarbeitungAllowed.includes(cfg.verarbeitung ?? "") ? cfg.verarbeitung : null,
+                            perforation: null,
+                          });
+                        }}
                         title={`${seiten} Seiten`} subtitle={`Endformat: ${info.endformat}`} />
                     ))}
                   </div>
@@ -307,11 +359,15 @@ export default function LeviKonfigurator() {
                   <StepHeader step={3} title="Grammatur wählen" helpTab="grammatur" />
                   <p className="text-sm text-[#666666] mb-5">Bilderdruck matt · 4/4-farbig Euroskala</p>
                   <div className="flex flex-wrap gap-3">
-                    {GRAMMATUREN.map((g) => (
-                      <OptionTile key={g} active={cfg.grammatur === g}
-                        onClick={() => setCfg({ ...cfg, grammatur: g })}
-                        title={g} subtitle="Bilderdruck matt" />
-                    ))}
+                    {cfg.umfang === null ? (
+                      <p className="text-sm text-[#666666]">Bitte wählen Sie zuerst den Umfang.</p>
+                    ) : (
+                      getGrammaturenForUmfang(cfg.umfang).map((g) => (
+                        <OptionTile key={g} active={cfg.grammatur === g}
+                          onClick={() => setCfg({ ...cfg, grammatur: g })}
+                          title={g} subtitle="Bilderdruck matt" />
+                      ))
+                    )}
                   </div>
                 </>
               )}
@@ -320,11 +376,15 @@ export default function LeviKonfigurator() {
                 <>
                   <StepHeader step={4} title="Perforation wählen" helpTab="perforation" />
                   <div className="flex flex-wrap gap-3">
-                    {PERFORATIONEN.map((p) => (
-                      <OptionTile key={p.value} active={cfg.perforation === p.value}
-                        onClick={() => setCfg({ ...cfg, perforation: p.value })}
-                        title={p.label} />
-                    ))}
+                    {cfg.umfang === null || cfg.grammatur === null ? (
+                      <p className="text-sm text-[#666666]">Bitte wählen Sie zuerst Umfang und Grammatur.</p>
+                    ) : (
+                      getPerforationenForSelection(cfg.umfang, cfg.grammatur).map((p) => (
+                        <OptionTile key={p.value} active={cfg.perforation === p.value}
+                          onClick={() => setCfg({ ...cfg, perforation: p.value })}
+                          title={p.label} />
+                      ))
+                    )}
                   </div>
                 </>
               )}
@@ -333,11 +393,15 @@ export default function LeviKonfigurator() {
                 <>
                   <StepHeader step={5} title="Verarbeitung wählen" helpTab="verarbeitung" />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {VERARBEITUNGEN.map((v) => (
-                      <OptionTile key={v.value} active={cfg.verarbeitung === v.value}
-                        onClick={() => setCfg({ ...cfg, verarbeitung: v.value })}
-                        title={v.label} subtitle={v.desc} />
-                    ))}
+                    {cfg.umfang === null ? (
+                      <p className="text-sm text-[#666666]">Bitte wählen Sie zuerst den Umfang.</p>
+                    ) : (
+                      getVerarbeitungenForUmfang(cfg.umfang).map((v) => (
+                        <OptionTile key={v.value} active={cfg.verarbeitung === v.value}
+                          onClick={() => setCfg({ ...cfg, verarbeitung: v.value })}
+                          title={v.label} subtitle={v.desc} />
+                      ))
+                    )}
                   </div>
                 </>
               )}
@@ -430,12 +494,17 @@ export default function LeviKonfigurator() {
                           <dd className="font-semibold text-[#2b2b2b]">{totals.brutto.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</dd>
                         </div>
                       </dl>
-                      <p className="px-4 py-3 text-xs text-[#888888] border-t border-[#f0f0f0] leading-relaxed">
-                        Der oben angegebene Betrag bildet die <strong>maximalen Portokosten ohne Portooptimierung</strong> ab.
-                        Sie erhalten innerhalb von 48 Stunden nach Auftragsvergabe eine konkrete Portoabrechnung basierend auf den von Ihnen gelieferten Daten.
-                      </p>
+                      <div className="px-4 py-3 text-xs text-[#888888] border-t border-[#f0f0f0] leading-relaxed space-y-2">
+                        <p>
+                          Sendungen <a href="/hilfe#dialogpost" className="text-[#822660] underline">müssen werblichen Inhalt</a> enthalten, ansonsten kann es zu Preisaufschlägen durch die Deutsche Post AG kommen.
+                        </p>
+                        <p>Der oben angegebene Betrag bildet die maximalen Portokosten ohne Portooptimierung ab. Sie erhalten innerhalb von 48 Stunden nach Auftragsvergabe eine konkrete Portoabrechnung basierend auf den von Ihnen gelieferten Daten.</p>
+                        <p>Alle Produktionszeiten basieren auf der Annahme, dass die Materialverfügbarkeit am Markt gewährleistet ist.</p>
+                        <p>Nach Eingang der Portokosten beginnen wir mit der Bearbeitung Ihres Auftrags. Die Verarbeitungszeit bezieht sich auf diesen Startzeitpunkt.</p>
+                        <p><a href="/hilfe#portooptimierung" className="text-[#822660] underline">Infos zur Portooptimierung</a></p>
+                      </div>
                     </div>
-                  )}
+                    )}
 
                   {individuellePreisAnfrage && (
                     <div className="border border-[#dcdcdc] mb-6 p-4 text-sm text-[#666666] bg-[#f4f4f4]">
@@ -508,132 +577,7 @@ export default function LeviKonfigurator() {
         </div>
       </div>
 
-      {/* ─── Info sections below wizard ──────────────────────────────────────── */}
-
-      {/* 1 — Vorteile */}
-      <div className="grid grid-cols-1 md:grid-cols-2">
-        {/* Image placeholder – left */}
-        <div className="bg-[#5ba3b8] min-h-64 flex items-center justify-center p-10">
-          <div className="text-white text-center">
-            <div className="w-24 h-24 mx-auto mb-4 border-4 border-white/40 flex items-center justify-center">
-              <svg viewBox="0 0 64 64" className="w-12 h-12 fill-white/80"><path d="M8 8h48v8H8zm0 12h32v6H8zm0 10h40v6H8zm0 10h28v6H8z"/></svg>
-            </div>
-            <p className="text-white/70 text-sm font-medium uppercase tracking-wider">DIN-Lang-Selfmailer LEVI</p>
-          </div>
-        </div>
-        {/* Text – right */}
-        <div className="bg-white flex items-center px-10 py-12">
-          <div>
-            <h2 className="text-xl font-bold text-[#2b2b2b] mb-4">Selfmailer-Druck – Schnell, einfach &amp; professionell</h2>
-            <p className="text-sm text-[#555555] leading-relaxed">
-              Nutzen Sie unseren Online-Konfigurator, um Ihren DIN-Lang-Selfmailer LEVI unkompliziert zu bestellen.
-              Wählen Sie Auflage, Grammatur und Verarbeitung – wir übernehmen Druck, Kuvertierung und Postauflieferung.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* 2 — Ihre Vorteile */}
-      <div className="grid grid-cols-1 md:grid-cols-2">
-        {/* Text – left */}
-        <div className="bg-white flex items-center px-10 py-12">
-          <div>
-            <h2 className="text-lg font-bold text-[#2b2b2b] mb-4">Ihre Vorteile auf einen Blick:</h2>
-            <p className="text-sm text-[#555555] mb-4">Wählen Sie aus verschiedenen Umfängen und Grammaturen für Ihren Selfmailer:</p>
-            <ul className="text-sm text-[#555555] space-y-2">
-              <li><strong>Portooptimierte Zustellung</strong> – Dialogpost-fähig, maximale Kosteneffizienz</li>
-              <li><strong>4/4-farbiger Druck</strong> – Bilderdruck matt, Euroskala</li>
-              <li><strong>Personalisierung inklusive</strong> – Adress- und Datendruck im Preis enthalten</li>
-              <li><strong>Postauflieferung inklusive</strong> – Komplettservice aus einer Hand</li>
-            </ul>
-          </div>
-        </div>
-        {/* Image placeholder – right */}
-        <div className="bg-[#5ba3b8] min-h-64 flex items-center justify-center p-10">
-          <div className="text-white text-center">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full border-4 border-white/40 flex items-center justify-center">
-              <svg viewBox="0 0 64 64" className="w-10 h-10 fill-white/80"><path d="M32 4C16.536 4 4 16.536 4 32s12.536 28 28 28 28-12.536 28-28S47.464 4 32 4zm-4 42L14 32l4-4 10 10 22-22 4 4-22 22z"/></svg>
-            </div>
-            <p className="text-white/70 text-sm font-medium uppercase tracking-wider">Komplettservice</p>
-          </div>
-        </div>
-      </div>
-
-      {/* 3 — Ideal für */}
-      <div className="grid grid-cols-1 md:grid-cols-2">
-        {/* Image placeholder – left */}
-        <div className="bg-[#5ba3b8] min-h-64 flex items-center justify-center p-10">
-          <div className="text-white text-center">
-            <div className="w-24 h-24 mx-auto mb-4 border-4 border-white/40 flex items-center justify-center">
-              <svg viewBox="0 0 64 64" className="w-12 h-12 fill-white/80"><path d="M10 6h44v52H10zm6 8v6h32v-6zm0 10v6h32v-6zm0 10v6h20v-6z"/></svg>
-            </div>
-            <p className="text-white/70 text-sm font-medium uppercase tracking-wider">Vielseitig einsetzbar</p>
-          </div>
-        </div>
-        {/* Text – right */}
-        <div className="bg-white flex items-center px-10 py-12">
-          <div>
-            <h2 className="text-lg font-bold text-[#2b2b2b] mb-4">Ideal für:</h2>
-            <ul className="text-sm text-[#555555] space-y-2">
-              <li><strong>Kataloge &amp; Produktneuheiten</strong> – Perfekt gestaltet &amp; sofort versandfertig</li>
-              <li><strong>Kundenakquise &amp; Kampagnen</strong> – Professioneller Direktmailing-Druck</li>
-              <li><strong>Events &amp; Einladungen</strong> – Hochwertig gedruckt, portooptimiert zugestellt</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* 4 — Weitere Optionen */}
-      <div className="grid grid-cols-1 md:grid-cols-2">
-        {/* Text – left */}
-        <div className="bg-white flex items-center px-10 py-12">
-          <div>
-            <h2 className="text-lg font-bold text-[#2b2b2b] mb-3">Sie suchen weitere Optionen?</h2>
-            <p className="text-sm text-[#555555] leading-relaxed mb-6">
-              Für höhere Auflagen oder andere Formate empfehlen wir unsere weiteren Selfmailer-Produkte.
-              Größere Auswahl an Formaten sowie vielfältige Falz- und Verschlussoptionen, um Ihren individuellen Bedürfnissen gerecht zu werden.
-            </p>
-            <a href="/#selfmailer"
-              className="inline-block px-6 py-3 border-2 border-[#822660] text-[#822660] text-xs font-bold uppercase tracking-widest hover:bg-[#822660] hover:text-white transition-colors">
-              Alle Selfmailer
-            </a>
-          </div>
-        </div>
-        {/* Image placeholder – right */}
-        <div className="bg-[#5ba3b8] min-h-64 flex items-center justify-center p-10">
-          <div className="text-center text-white space-y-3">
-            {["LEVI", "INATA", "ALBA", "MIKRO"].map((name) => (
-              <div key={name} className="bg-white/20 px-6 py-2 text-sm font-semibold tracking-wide">{name}</div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* 5 — CTA */}
-      <div className="grid grid-cols-1 md:grid-cols-2">
-        {/* Image placeholder – left */}
-        <div className="bg-[#5ba3b8] min-h-64 flex items-center justify-center p-10">
-          <div className="text-white text-center">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full border-4 border-white/40 flex items-center justify-center">
-              <svg viewBox="0 0 64 64" className="w-10 h-10 fill-white/80"><path d="M52 8H12a4 4 0 0 0-4 4v40a4 4 0 0 0 4 4h40a4 4 0 0 0 4-4V12a4 4 0 0 0-4-4zm-4 26H34v14h-4V34H16v-4h14V16h4v14h14v4z"/></svg>
-            </div>
-            <p className="text-white/70 text-sm font-medium uppercase tracking-wider">Online konfigurieren</p>
-          </div>
-        </div>
-        {/* Text – right */}
-        <div className="bg-white flex items-center px-10 py-12">
-          <div>
-            <h2 className="text-xl font-bold text-[#2b2b2b] mb-4">Bestellen Sie jetzt – einfach, schnell und zuverlässig!</h2>
-            <p className="text-sm text-[#555555] leading-relaxed mb-3">
-              Nutzen Sie unseren Online-Konfigurator, um Ihren DIN-Lang-Selfmailer LEVI schnell und in bester Qualität zu bestellen.
-              Profitieren Sie von unserem benutzerfreundlichen Bestellverfahren und gestalten Sie Ihr Mailing ganz nach Ihren Vorstellungen.
-            </p>
-            <p className="text-sm text-[#555555]">
-              Setzen Sie auf <strong>Flexibilität &amp; Qualität</strong> mit unserem <strong>DIN-Lang-Selfmailer LEVI</strong>.
-            </p>
-          </div>
-        </div>
-      </div>
+      
 
       <BestellModal
         open={bestellOpen}

@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 interface HilfeTab {
   id: string;
   label: string;
   titel: string;
   intro: string;
-  punkte: string[];
+  punkte?: string[];
+  content?: ReactNode;
 }
 
 const TABS: HilfeTab[] = [
@@ -171,6 +172,305 @@ const TABS: HilfeTab[] = [
     ],
   },
   {
+    id: "dialogpost",
+    label: "Dialogpost",
+    titel: "Was ist Dialogpost?",
+    intro:
+      "Dialogpost ist ein kostengünstiges Werbeformat der Deutschen Post, das sich besonders für adressierte Werbesendungen eignet.",
+    content: (
+      <div className="space-y-6 text-sm text-[#333333] leading-7">
+        <p>
+          Mit DIALOGPOST verschicken Sie adressierte, schriftliche Informationen sowie Werbesendungen und Kataloge zu einem besonders günstigen Preis an Ihre Kunden.
+          Mit der Beilage von kostenlosen Proben, Produktmustern, Werbeartikeln oder Prospekten anderer Absender können Sie Ihre DIALOGPOST noch attraktiver gestalten.
+        </p>
+
+        <div>
+          <h3 className="font-semibold text-base mb-2">Voraussetzungen</h3>
+          <p>Die Sendungen müssen werblichen Charakter haben und die formalen Anforderungen der Deutschen Post erfüllen.</p>
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-base mb-2">Das können Sie mit DIALOGPOST versenden:</h3>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Sendungen mit ausschließlich werblichen Inhalten</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-base mb-2">Das können Sie nicht mit DIALOGPOST versenden:</h3>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Verkaufswaren</li>
+            <li>Zahlungsaufforderungen (z. B. Rechnungen, Mahnungen)</li>
+            <li>Sendungen mit nicht-werblichen Inhalten</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-base mb-2">Alle Sendungen haben</h3>
+          <ul className="list-disc list-inside space-y-1">
+            <li>den gleichen einzigen Absender</li>
+            <li>die gleiche innere und äußere Anschrift</li>
+            <li>das gleiche Hüllenformat*</li>
+            <li>die gleiche Frankierung innerhalb einer Einlieferung</li>
+            <li>das gleiche Basisformat</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-base mb-2">Anforderungen an werbliche Inhalte</h3>
+          <p>
+            Werbliche Sendungen im Sinne der DIALOGPOST sind insbesondere schriftliche Mitteilungen, die der Kunden-/Mitgliederbindung und/oder -gewinnung dienen.
+            Weiterhin ist der Zweck dieser Mitteilungen, Kunden oder Mitglieder zum Kauf oder zur Nutzung von Produkten und Dienstleistungen zu motivieren.
+            Ebenso können kostenlose Angebote unterbreitet oder spezielle Informationen gegeben werden, die einer positiven Darstellung von z. B. Unternehmen, Marken, Produkten oder auch Personen dienen (auch ohne Kaufangebote).
+          </p>
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-base mb-2">Beispiele für werbliche Inhalte</h3>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Angebote, die Kunden zum Kauf oder zur Nutzung von Produkten und Dienstleistungen motivieren sollen und denen Gratisproben, -muster und -werbeartikel beigelegt werden können</li>
+            <li>Imagewerbung, Parteienwerbung</li>
+            <li>Einladungen zur Teilnahme an Veranstaltungen (z. B. Tag der offenen Tür, Stadtfeste, Ausstellungen, Verkaufspräsentationen)</li>
+            <li>Einladungen zur Teilnahme an Gewinnspielen</li>
+            <li>Mitteilungen im Rahmen von Bonusprogrammen in Verbindung mit Angeboten</li>
+            <li>Kundenmagazine</li>
+            <li>Spendenaufrufe</li>
+            <li>Glückwünsche</li>
+            <li>werbliche Kundenkarten ohne Bezahlfunktion (keine Ersatzkarten)</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-base mb-2">Mindestmengen</h3>
+          <div className="overflow-x-auto border rounded border-[#e5e7eb]">
+            <table className="min-w-full text-sm text-left">
+              <thead className="bg-[#f9fafb]">
+                <tr>
+                  <th className="px-3 py-2">Menge</th>
+                  <th className="px-3 py-2">Region</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2">5.000 Sendungen DIALOGPOST</td>
+                  <td className="px-3 py-2">bundesweit</td>
+                </tr>
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2">200 Sendungen DIALOGPOST</td>
+                  <td className="px-3 py-2">Für dieselbe Leitregion<br /><span className="text-xs text-[#666666]">(Übereinstimmung der ersten beiden Stellen der Postleitzahl)</span></td>
+                </tr>
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2">500 Sendungen DIALOGPOST EASY</td>
+                  <td className="px-3 py-2">bundesweit (mit Zuschlag Kleinmenge)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-base mb-2">Internationale Sendungen</h3>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Mindestens 50 Sendungen in beliebig viele Länder pro Auftrag, eine Aufzahlung zur Mindestmenge ist möglich.</li>
+            <li>Alle Sendungen sind inhalts-, format- und gewichtsgleich (gilt auch für die Beilagen).</li>
+            <li>Es gelten die Höchst- und Mindestmaße wie für MAXIBRIEF INTERNATIONAL.</li>
+            <li>Bücher und Broschüren dürfen ein Einzelgewicht bis 5.000 g haben.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-base mb-2">Laufzeiten</h3>
+          <p>
+            <strong>DIALOGPOST NATIONAL</strong><br />
+            Die Sendungen werden von der Deutschen Post in der Regel innerhalb von vier Werktagen nach dem Einlieferungstag von dienstags bis samstags zugestellt. Dabei handelt es sich um ein Qualitätsziel und nicht um eine Laufzeitzusage.
+          </p>
+          <p>
+            <strong>DIALOGPOST INTERNATIONAL</strong><br />
+            Europaweit beträgt die Laufzeit im Tarif „PRIORITY“ 3-5 Werktage.
+          </p>
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-base mb-2">Maße und Gewichte</h3>
+          <div className="overflow-x-auto border rounded border-[#e5e7eb]">
+            <table className="min-w-full text-sm text-left">
+              <thead className="bg-[#f9fafb]">
+                <tr>
+                  <th className="px-3 py-2">Basisformat</th>
+                  <th className="px-3 py-2">Länge</th>
+                  <th className="px-3 py-2">Breite</th>
+                  <th className="px-3 py-2">Dicke</th>
+                  <th className="px-3 py-2">Gewicht</th>
+                  <th className="px-3 py-2">Form</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2">Standard*</td>
+                  <td className="px-3 py-2">150 - 235 mm</td>
+                  <td className="px-3 py-2">90 - 125 mm</td>
+                  <td className="px-3 py-2">bis 5 mm</td>
+                  <td className="px-3 py-2">bis 50 g</td>
+                  <td className="px-3 py-2">rechteckig (verbindlich)</td>
+                </tr>
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2">Groß</td>
+                  <td className="px-3 py-2">140 – 353 mm</td>
+                  <td className="px-3 py-2">90 – 250 mm</td>
+                  <td className="px-3 py-2">bis 30 mm</td>
+                  <td className="px-3 py-2">bis 1.000 g</td>
+                  <td className="px-3 py-2">rechteckig (quadratisch möglich**)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="text-xs text-[#666666] mt-3">
+            * Bei DIALOGPOST im Basisformat Standard (inkl. der DIALOGPOST Karte) muss die Länge mindestens das 1,4-fache der Breite betragen. DIALOGPOST Sendungen sind auch mit einer Länge von 148 mm (A6-Format) zulässig. Dies trifft nicht für kreative Sonderformate zu.<br />
+            ** Quadratische Sendungen sind möglich, wenn die Seitenmaße mindestens 140 mm betragen.
+          </p>
+        </div>
+
+        <div>
+          <h3 className="font-semibold text-base mb-2">Basisentgelte DIALOGPOST National</h3>
+          <div className="overflow-x-auto border rounded border-[#e5e7eb]">
+            <table className="min-w-full text-sm text-left">
+              <thead className="bg-[#f9fafb]">
+                <tr>
+                  <th className="px-3 py-2"></th>
+                  <th className="px-3 py-2 text-right">Preis</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2">Karte</td>
+                  <td className="px-3 py-2 text-right">0,36 € / Sendung</td>
+                </tr>
+                
+              </tbody>
+            </table>
+            <table className="min-w-full text-sm text-left">
+              <thead className="bg-[#f9fafb]">
+                <tr>
+                  <th className="px-3 py-2">Standard***</th>
+                  <th className="px-3 py-2 text-right">Preis</th>
+                </tr>
+              </thead>
+              <tbody>
+               
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2"> 0 g bis 20 g</td>
+                  <td className="px-3 py-2 text-right">0,38 € / Sendung</td>
+                </tr>
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2">21 g bis 50 g</td>
+                  <td className="px-3 py-2 text-right">0,42 € / Sendung</td>
+                </tr>
+              </tbody>
+            </table>
+            <table className="min-w-full text-sm text-left">
+              <thead className="bg-[#f9fafb]">
+                <tr>
+                  <th className="px-3 py-2">Groß***</th>
+                  <th className="px-3 py-2 text-right">Preis</th>
+                </tr>
+              </thead>
+              <tbody>
+               
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2"> 0 g bis 50 g</td>
+                  <td className="px-3 py-2 text-right">0,54 € / Sendung</td>
+                </tr>
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2">51 g bis 100 g</td>
+                  <td className="px-3 py-2 text-right">0,67 € / Sendung</td>
+                </tr>
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2">101 g bis 250 g</td>
+                  <td className="px-3 py-2 text-right">0,82 € / Sendung</td>
+                </tr>
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2">251 g bis 500 g</td>
+                  <td className="px-3 py-2 text-right">0,94 € / Sendung</td>
+                </tr>
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2">501 g bis 1.000 g</td>
+                  <td className="px-3 py-2 text-right">1,11 € / Sendung</td>
+                </tr>
+              </tbody>
+            </table>
+            <table className="min-w-full text-sm text-left">
+              <thead className="bg-[#f9fafb]">
+                <tr>
+                  <th className="px-3 py-2">Zuschläge</th>
+                  <th className="px-3 py-2 text-right">Preis</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2">Produktionszuschlag</td>
+                  <td className="px-3 py-2 text-right">+ 0,05 € / Sendung</td>
+                </tr>
+                 <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2">EASY (Kleinmengen ab 500 bis 4.999 Sendungen)</td>
+                  <td className="px-3 py-2 text-right">+ 0,18 € / Sendung</td>
+                </tr>
+                <tr className="border-t border-[#e5e7eb]">
+                  <td className="px-3 py-2">Zuschlag in Starkverkehrsmonaten September - Dezember über alle Formate (Karte, Standard, Groß)</td>
+                  <td className="px-3 py-2 text-right">+ 0,01 € / Sendung</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+         
+        </div>
+
+        <div>
+          <p className="text-xs text-[#666666] mt-3">
+            * Alle Entgelte verstehen sich zuzüglich der gesetzlichen Umsatzsteuer.<br />
+            ** Der Preis der DIALOGPOST Karte richtet sich nach der jeweils gewählten Kartengröße und dem jeweils zulässigen Papierflächengewicht. Das max. Papierflächengewicht von 500 g/m² ist zwingend einzuhalten.<br />
+            *** Bruchteile beim Gewicht sind auf ganze Gramm aufzurunden.
+          </p>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "portooptimierung",
+    label: "Portooptimierung",
+    titel: "Was bedeutet Portooptimierung?",
+    intro:
+      "Um das günstigste Porto und einen Rabatt auf Portokosten zu erhalten, ist neben gewissen Mindestmengen eine Vorsortierung und Gruppierung der Sendungen auf Leitzonen, Leitregionen und Leitbereiche der Post erforderlich. Wir sortieren, gruppieren und analysieren Ihren Adressbestand und ermitteln für Sie die maximale Portoersparnis.",
+    content: (
+      <div className="space-y-6 text-sm text-[#333333] leading-7">
+        <p>
+          Wir sind zertifizierter Partner der Deutschen Post und nutzen alle von der Deutschen Post gegebenen Möglichkeiten zur Reduzierung Ihrer Versandkosten.
+        </p>
+
+        <div>
+          <h3 className="font-semibold text-base mb-2">Die Portooptimierung erfolgt in 3 Schritten</h3>
+          <ol className="list-decimal list-inside space-y-2 text-sm text-[#333333]">
+            <li>
+              Die Empfängeradressen werden in einem EDV-gestützten Verfahren qualifiziert und aufbereitet. Dabei wird u. a. geprüft, ob die vorliegenden Adressen postkonform sind, fehlerhafte Adressen werden eliminiert oder korrigiert.
+              Sie sparen dabei doppelt: zum einen durch den gewährten Rabatt, zum anderen sparen Sie sich das Porto für unzustellbare Sendungen. Danach werden die Adressen in die richtige Reihenfolge gebracht, um die weitere Verarbeitung im Lettershop zu gewährleisten.
+            </li>
+            <li>
+              Neben der Sortierung ist auch die korrekte Markierung auf dem Produkt oder im Adressfeld notwendig. Dies wird schon bei der Produktion und später in der Konfektionierung genau berücksichtigt.
+            </li>
+            <li>
+              In der anschließenden Portooptimierung werden die Briefe physisch zu sog. Gebinden zusammengefasst, also die korrekte Bündelung und die Ablage in Behältern oder auf Paletten.
+            </li>
+          </ol>
+        </div>
+
+        <p>
+          Hintergrund all dieser Optimierungen ist die vollautomatische Verarbeitung der Briefsendungen durch die Deutsche Post.
+          Je besser die Briefe hinsichtlich der Automationsfähigkeit sind, umso höher sind die gewährten Rabatte.
+          Weil die Post damit auch die Briefe deutlich effizienter transportieren und zustellen kann.
+        </p>
+      </div>
+    ),
+  },
+  {
     id: "porto",
     label: "Porto",
     titel: "Porto",
@@ -242,14 +542,18 @@ export default function Hilfe() {
       <div role="tabpanel" className="bg-white border border-[#dcdcdc] p-8">
         <h2 className="text-lg font-bold text-[#2b2b2b] mb-4">{active.titel}</h2>
         <p className="text-sm text-[#333333] leading-7 mb-6">{active.intro}</p>
-        <ul className="space-y-3">
-          {active.punkte.map((punkt) => (
-            <li key={punkt} className="flex gap-3 text-sm text-[#333333] leading-6">
-              <span className="text-[#822660] font-bold shrink-0">›</span>
-              <span>{punkt}</span>
-            </li>
-          ))}
-        </ul>
+        {active.content ? (
+          <div>{active.content}</div>
+        ) : (
+          <ul className="space-y-3">
+            {active.punkte?.map((punkt) => (
+              <li key={punkt} className="flex gap-3 text-sm text-[#333333] leading-6">
+                <span className="text-[#822660] font-bold shrink-0">›</span>
+                <span>{punkt}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </main>
   );
