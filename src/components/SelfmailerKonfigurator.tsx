@@ -17,7 +17,7 @@ function unique<T>(values: (T | null | undefined)[]): T[] {
   return result;
 }
 
-const SELFMAILER_PRICE_MATRIX: Record<SelfmailerFamilie["slug"], Record<number, Record<number, number>>> = {
+const SELFMAILER_PRICE_MATRIX: Partial<Record<SelfmailerFamilie["slug"], Record<number, Record<number, number>>>> = {
   inata: {
     4: { 500: 0.35, 1000: 0.30, 2000: 0.26, 3000: 0.24, 5000: 0.22, 10000: 0.20 },
     6: { 500: 0.42, 1000: 0.37, 2000: 0.33, 3000: 0.30, 5000: 0.27, 10000: 0.24 },
