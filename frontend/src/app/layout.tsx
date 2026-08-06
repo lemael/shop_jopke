@@ -11,6 +11,10 @@ const openSans = Open_Sans({
 export const metadata: Metadata = {
   title: "Mailing Online – Ihr Partner für Direktmailing",
   description: "Professionelle Mailings online bestellen: Selfmailer, Kuvertiertes Mailing, Kartenmailing – schnell, günstig und zuverlässig.",
+  icons: {
+    icon: "https://www.jopke.de/assets/images/icon/apple-touch-icon.png",
+    apple: "https://www.jopke.de/assets/images/icon/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({

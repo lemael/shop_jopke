@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start -p ${PORT:-3000}",
-    "lint": "eslint"
+    "lint": "eslint",
+    "extract:jopke-fensterhuelle": "node scripts/extract-jopke-fensterhuelle.mjs",
+    "extract:jopke-fensterhuelle-antwortkarte": "node scripts/extract-jopke-fensterhuelle-antwortkarte.mjs"
   },
   "dependencies": {
     "next": "16.2.9",
@@ -21,6 +23,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "playwright": "^1.51.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

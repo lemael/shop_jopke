@@ -1,0 +1,1952 @@
+[
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=unbedruckt",
+        "label": "unbedruckt",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "671,54 €",
+    "gesamt(netto)": "564,32 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "107,22 €",
+    "Express(4 Arbeitstage)": "71,08 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=unbedruckt",
+        "label": "unbedruckt",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "686,30 €",
+    "gesamt(netto)": "576,72 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "109,58 €",
+    "Express(4 Arbeitstage)": "74,18 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=unbedruckt",
+        "label": "unbedruckt",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/1-farbig Euroskala/Schwarz",
+        "label": "4/1-farbig Euroskala/Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "687,82 €",
+    "gesamt(netto)": "578,00 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "109,82 €",
+    "Express(4 Arbeitstage)": "74,50 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=unbedruckt",
+        "label": "unbedruckt",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "672,02 €",
+    "gesamt(netto)": "564,72 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "107,30 €",
+    "Express(4 Arbeitstage)": "71,18 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=unbedruckt",
+        "label": "unbedruckt",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "681,63 €",
+    "gesamt(netto)": "572,80 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "108,83 €",
+    "Express(4 Arbeitstage)": "73,20 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=unbedruckt",
+        "label": "unbedruckt",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "672,40 €",
+    "gesamt(netto)": "565,04 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "107,36 €",
+    "Express(4 Arbeitstage)": "71,26 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=unbedruckt",
+        "label": "unbedruckt",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "687,53 €",
+    "gesamt(netto)": "577,76 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "109,77 €",
+    "Express(4 Arbeitstage)": "74,44 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=unbedruckt",
+        "label": "unbedruckt",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/1-farbig Euroskala/Schwarz",
+        "label": "4/1-farbig Euroskala/Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "688,87 €",
+    "gesamt(netto)": "578,88 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "109,99 €",
+    "Express(4 Arbeitstage)": "74,72 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=unbedruckt",
+        "label": "unbedruckt",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "672,68 €",
+    "gesamt(netto)": "565,28 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "107,40 €",
+    "Express(4 Arbeitstage)": "71,32 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=unbedruckt",
+        "label": "unbedruckt",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "682,58 €",
+    "gesamt(netto)": "573,60 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "108,98 €",
+    "Express(4 Arbeitstage)": "73,40 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "761,22 €",
+    "gesamt(netto)": "639,68 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "121,54 €",
+    "Express(4 Arbeitstage)": "89,92 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "775,98 €",
+    "gesamt(netto)": "652,08 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "123,90 €",
+    "Express(4 Arbeitstage)": "93,02 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/1-farbig Euroskala/Schwarz",
+        "label": "4/1-farbig Euroskala/Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "777,50 €",
+    "gesamt(netto)": "653,36 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "124,14 €",
+    "Express(4 Arbeitstage)": "93,34 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "761,70 €",
+    "gesamt(netto)": "640,08 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "121,62 €",
+    "Express(4 Arbeitstage)": "90,02 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "771,31 €",
+    "gesamt(netto)": "648,16 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "123,15 €",
+    "Express(4 Arbeitstage)": "92,04 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "762,08 €",
+    "gesamt(netto)": "640,40 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "121,68 €",
+    "Express(4 Arbeitstage)": "90,10 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "777,21 €",
+    "gesamt(netto)": "653,12 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "124,09 €",
+    "Express(4 Arbeitstage)": "93,28 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/1-farbig Euroskala/Schwarz",
+        "label": "4/1-farbig Euroskala/Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "778,55 €",
+    "gesamt(netto)": "654,24 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "124,31 €",
+    "Express(4 Arbeitstage)": "93,56 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "762,36 €",
+    "gesamt(netto)": "640,64 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "121,72 €",
+    "Express(4 Arbeitstage)": "90,16 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "772,26 €",
+    "gesamt(netto)": "648,96 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "123,30 €",
+    "Express(4 Arbeitstage)": "92,24 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "771,50 €",
+    "gesamt(netto)": "648,32 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "123,18 €",
+    "Express(4 Arbeitstage)": "92,08 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "786,26 €",
+    "gesamt(netto)": "660,72 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "125,54 €",
+    "Express(4 Arbeitstage)": "95,18 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/1-farbig Euroskala/Schwarz",
+        "label": "4/1-farbig Euroskala/Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "787,78 €",
+    "gesamt(netto)": "662,00 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "125,78 €",
+    "Express(4 Arbeitstage)": "95,50 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "771,98 €",
+    "gesamt(netto)": "648,72 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "123,26 €",
+    "Express(4 Arbeitstage)": "92,18 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "781,59 €",
+    "gesamt(netto)": "656,80 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "124,79 €",
+    "Express(4 Arbeitstage)": "94,20 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "772,36 €",
+    "gesamt(netto)": "649,04 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "123,32 €",
+    "Express(4 Arbeitstage)": "92,26 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "787,49 €",
+    "gesamt(netto)": "661,76 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "125,73 €",
+    "Express(4 Arbeitstage)": "95,44 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/1-farbig Euroskala/Schwarz",
+        "label": "4/1-farbig Euroskala/Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "788,83 €",
+    "gesamt(netto)": "662,88 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "125,95 €",
+    "Express(4 Arbeitstage)": "95,72 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "772,64 €",
+    "gesamt(netto)": "649,28 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "123,36 €",
+    "Express(4 Arbeitstage)": "92,32 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "782,54 €",
+    "gesamt(netto)": "657,60 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "124,94 €",
+    "Express(4 Arbeitstage)": "94,40 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "766,26 €",
+    "gesamt(netto)": "643,92 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "122,34 €",
+    "Express(4 Arbeitstage)": "90,98 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "781,02 €",
+    "gesamt(netto)": "656,32 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "124,70 €",
+    "Express(4 Arbeitstage)": "94,08 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/1-farbig Euroskala/Schwarz",
+        "label": "4/1-farbig Euroskala/Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "782,54 €",
+    "gesamt(netto)": "657,60 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "124,94 €",
+    "Express(4 Arbeitstage)": "94,40 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "766,74 €",
+    "gesamt(netto)": "644,32 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "122,42 €",
+    "Express(4 Arbeitstage)": "91,08 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "776,36 €",
+    "gesamt(netto)": "652,40 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "123,96 €",
+    "Express(4 Arbeitstage)": "93,10 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "767,12 €",
+    "gesamt(netto)": "644,64 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "122,48 €",
+    "Express(4 Arbeitstage)": "91,16 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "782,26 €",
+    "gesamt(netto)": "657,36 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "124,90 €",
+    "Express(4 Arbeitstage)": "94,34 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/1-farbig Euroskala/Schwarz",
+        "label": "4/1-farbig Euroskala/Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "783,59 €",
+    "gesamt(netto)": "658,48 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "125,11 €",
+    "Express(4 Arbeitstage)": "94,62 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "767,41 €",
+    "gesamt(netto)": "644,88 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "122,53 €",
+    "Express(4 Arbeitstage)": "91,22 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "777,31 €",
+    "gesamt(netto)": "653,20 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "124,11 €",
+    "Express(4 Arbeitstage)": "93,30 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "766,26 €",
+    "gesamt(netto)": "643,92 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "122,34 €",
+    "Express(4 Arbeitstage)": "90,98 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "781,02 €",
+    "gesamt(netto)": "656,32 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "124,70 €",
+    "Express(4 Arbeitstage)": "94,08 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/1-farbig Euroskala/Schwarz",
+        "label": "4/1-farbig Euroskala/Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "782,54 €",
+    "gesamt(netto)": "657,60 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "124,94 €",
+    "Express(4 Arbeitstage)": "94,40 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "766,74 €",
+    "gesamt(netto)": "644,32 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "122,42 €",
+    "Express(4 Arbeitstage)": "91,08 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=80 g/m²",
+        "label": "80 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "776,36 €",
+    "gesamt(netto)": "652,40 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "123,96 €",
+    "Express(4 Arbeitstage)": "93,10 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/0-farbig Euroskala",
+        "label": "4/0-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "767,12 €",
+    "gesamt(netto)": "644,64 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "122,48 €",
+    "Express(4 Arbeitstage)": "91,16 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "782,26 €",
+    "gesamt(netto)": "657,36 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "124,90 €",
+    "Express(4 Arbeitstage)": "94,34 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/1-farbig Euroskala/Schwarz",
+        "label": "4/1-farbig Euroskala/Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "783,59 €",
+    "gesamt(netto)": "658,48 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "125,11 €",
+    "Express(4 Arbeitstage)": "94,62 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/0-farbig Schwarz",
+        "label": "1/0-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "767,41 €",
+    "gesamt(netto)": "644,88 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "122,53 €",
+    "Express(4 Arbeitstage)": "91,22 €"
+  },
+  {
+    "pathChoices": [
+      {
+        "kind": "checkbox-set",
+        "id": "toggle-FH1000+toggle-A1000",
+        "label": "",
+        "value": ""
+      },
+      {
+        "kind": "number",
+        "id": "amount",
+        "label": "",
+        "value": "500"
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=4/4-farbig Euroskala",
+        "label": "4/4-farbig Euroskala",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "grammage=90 g/m²",
+        "label": "90 g/m²",
+        "value": ""
+      },
+      {
+        "kind": "submit-button",
+        "id": "color=1/1-farbig Schwarz",
+        "label": "1/1-farbig Schwarz",
+        "value": ""
+      }
+    ],
+    "gesamt(brutto)": "777,31 €",
+    "gesamt(netto)": "653,20 €",
+    "porto": "280,00 €",
+    "zzgl. 19% Mwst": "124,11 €",
+    "Express(4 Arbeitstage)": "93,30 €"
+  }
+]
