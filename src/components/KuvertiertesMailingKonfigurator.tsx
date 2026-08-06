@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Fragment, useMemo, useState } from "react";
 import { OptionTile, StepHeader } from "@/components/ConfiguratorUI";
 import { AuflageAuswahl } from "@/components/AuflageAuswahl";
@@ -168,9 +169,53 @@ const ALL_STEPS = [
   "Übersicht",
 ] as const;
 type StepName = (typeof ALL_STEPS)[number];
-const FLYER_STEPS: readonly StepName[] = ["Umfang Flyer", "Grammatur Flyer", "Oberfläche Flyer"];
-const BROSCHUERE_STEPS: readonly StepName[] = ["Umfang Broschüre", "Oberfläche Broschüre"];
-const ANTWORTKARTE_STEPS: readonly StepName[] = ["Endformat Antwortkarte", "Grammatur Antwortkarte", "Oberfläche Antwortkarte"];
+const FLYER_STEPS = new Set<StepName>(["Umfang Flyer", "Grammatur Flyer", "Oberfläche Flyer"]);
+const BROSCHUERE_STEPS = new Set<StepName>(["Umfang Broschüre", "Oberfläche Broschüre"]);
+const ANTWORTKARTE_STEPS = new Set<StepName>(["Endformat Antwortkarte", "Grammatur Antwortkarte", "Oberfläche Antwortkarte"]);
+
+function getVisibleSteps(args: {
+  hatAnschreiben: boolean;
+  flyerIstInteraktiv: boolean;
+  broschuereIstInteraktiv: boolean;
+  antwortkarteIstInteraktiv: boolean;
+}): StepName[] {
+  return ALL_STEPS.filter((step) => {
+    if (step === "Grammatur Anschreiben" || step === "Farbigkeit Anschreiben") return args.hatAnschreiben;
+    if (FLYER_STEPS.has(step)) return args.flyerIstInteraktiv;
+    if (BROSCHUERE_STEPS.has(step)) return args.broschuereIstInteraktiv;
+    if (ANTWORTKARTE_STEPS.has(step)) return args.antwortkarteIstInteraktiv;
+    return true;
+  });
+}
+
+function isStepValidForConfig(args: {
+  step: StepName;
+  cfg: Config;
+  ausstattung: string | null;
+  ausgewaehlteVariante?: Produkt;
+}): boolean {
+  const { step, cfg, ausstattung, ausgewaehlteVariante } = args;
+
+  if (step === "Hüllentyp") return cfg.huellentyp !== null;
+  if (step === "Ausstattung") return ausstattung !== null;
+  if (step === "Auflage") {
+    const min = ausgewaehlteVariante?.mindestmenge ?? null;
+    const max = ausgewaehlteVariante?.maximalmenge ?? null;
+    return cfg.auflage !== null && (min === null || cfg.auflage >= min) && (max === null || cfg.auflage <= max);
+  }
+  if (step === "Farbigkeit Hülle") return cfg.fensterhuelleFarbigkeit !== null;
+  if (step === "Grammatur Anschreiben") return cfg.anschreibenGrammatur !== null;
+  if (step === "Farbigkeit Anschreiben") return cfg.anschreibenFarbigkeit !== null;
+  if (step === "Umfang Flyer") return cfg.flyerUmfang !== null;
+  if (step === "Grammatur Flyer") return cfg.flyerGrammatur !== null;
+  if (step === "Oberfläche Flyer") return cfg.flyerOberflaeche !== null;
+  if (step === "Umfang Broschüre") return cfg.broschuereUmfang !== null;
+  if (step === "Oberfläche Broschüre") return cfg.broschuereOberflaeche !== null;
+  if (step === "Endformat Antwortkarte") return cfg.antwortkarteEndformat !== null;
+  if (step === "Grammatur Antwortkarte") return cfg.antwortkarteGrammatur !== null;
+  if (step === "Oberfläche Antwortkarte") return cfg.antwortkarteOberflaeche !== null;
+  return true;
+}
 
 export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie: MailingFamilie }>) {
   const { varianten, name, beschreibung } = familie;
@@ -225,12 +270,11 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
 
   const STEPS = useMemo(
     () =>
-      ALL_STEPS.filter((s) => {
-        if (s === "Grammatur Anschreiben" || s === "Farbigkeit Anschreiben") return hatAnschreiben;
-        if (FLYER_STEPS.includes(s)) return flyerIstInteraktiv;
-        if (BROSCHUERE_STEPS.includes(s)) return broschuereIstInteraktiv;
-        if (ANTWORTKARTE_STEPS.includes(s)) return antwortkarteIstInteraktiv;
-        return true;
+      getVisibleSteps({
+        hatAnschreiben,
+        flyerIstInteraktiv,
+        broschuereIstInteraktiv,
+        antwortkarteIstInteraktiv,
       }),
     [hatAnschreiben, flyerIstInteraktiv, broschuereIstInteraktiv, antwortkarteIstInteraktiv]
   );
@@ -335,25 +379,12 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
   }
 
   function isStepValid(step: StepName): boolean {
-    if (step === "Hüllentyp") return cfg.huellentyp !== null;
-    if (step === "Ausstattung") return ausstattung !== null;
-    if (step === "Auflage") {
-      const min = ausgewaehlteVariante?.mindestmenge ?? null;
-      const max = ausgewaehlteVariante?.maximalmenge ?? null;
-      return cfg.auflage !== null && (min === null || cfg.auflage >= min) && (max === null || cfg.auflage <= max);
-    }
-    if (step === "Farbigkeit Hülle") return cfg.fensterhuelleFarbigkeit !== null;
-    if (step === "Grammatur Anschreiben") return cfg.anschreibenGrammatur !== null;
-    if (step === "Farbigkeit Anschreiben") return cfg.anschreibenFarbigkeit !== null;
-    if (step === "Umfang Flyer") return cfg.flyerUmfang !== null;
-    if (step === "Grammatur Flyer") return cfg.flyerGrammatur !== null;
-    if (step === "Oberfläche Flyer") return cfg.flyerOberflaeche !== null;
-    if (step === "Umfang Broschüre") return cfg.broschuereUmfang !== null;
-    if (step === "Oberfläche Broschüre") return cfg.broschuereOberflaeche !== null;
-    if (step === "Endformat Antwortkarte") return cfg.antwortkarteEndformat !== null;
-    if (step === "Grammatur Antwortkarte") return cfg.antwortkarteGrammatur !== null;
-    if (step === "Oberfläche Antwortkarte") return cfg.antwortkarteOberflaeche !== null;
-    return true;
+    return isStepValidForConfig({
+      step,
+      cfg,
+      ausstattung,
+      ausgewaehlteVariante,
+    });
   }
 
   function next() {
@@ -449,6 +480,9 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
     huellentyp: cfg.huellentyp,
     ausstattung,
     auflage: cfg.auflage,
+    fensterhuelleFarbigkeit: cfg.fensterhuelleFarbigkeit,
+    anschreibenGrammatur: cfg.anschreibenGrammatur,
+    anschreibenFarbigkeit: cfg.anschreibenFarbigkeit,
   });
 
   const uebersichtZeilen: [string, string][] = [
@@ -473,8 +507,8 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         <nav className="text-xs text-[#888888] mb-6">
-          <a href="/" className="hover:text-[#822660]">Startseite</a>{" / "}
-          <a href="/#kuvertiertes-mailing" className="hover:text-[#822660]">Kuvertiertes Mailing</a>{" / "}
+          <Link href="/" className="hover:text-[#822660]">Startseite</Link>{" / "}
+          <Link href="/#kuvertiertes-mailing" className="hover:text-[#822660]">Kuvertiertes Mailing</Link>{" / "}
           <span className="text-[#2b2b2b]">{name}</span>
         </nav>
 

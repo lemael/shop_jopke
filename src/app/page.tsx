@@ -1,33 +1,40 @@
+import Image from "next/image";
+import Link from "next/link";
 import type { ProduktKarte } from "@/types/produkt";
 import { CategorySection } from "@/components/CategorySection";
+import {
+  getKartenmailingHomepagePrice,
+  getMailingHomepagePrice,
+  getSelfmailerHomepagePrice,
+} from "@/lib/homepagePreise";
 
 // ─── Product data ────────────────────────────────────────────────────────────
 
 const selfmailerProducts: ProduktKarte[] = [
-  { id: 1, name: "DIN-Lang-Selfmailer LEVI", format: "210 × 100/105 mm", pages: "4–12 Seiten", price: "ab 0,29 €", href: "/shop/levi", image: "/levi-selfmailer.svg" },
-  { id: 2, name: "Maxi-Selfmailer INATA", format: "235 × 125 mm", pages: "4–8 Seiten", price: "ab 0,35 €", href: "/shop/inata", image: "/inata-selfmailer.svg" },
-  { id: 3, name: "Maxi-Selfmailer mit Klappe ALBA", format: "235 × 125 mm", pages: "6–8 Seiten", price: "ab 0,39 €", href: "/shop/klappe_alba", image: "/alba-selfmailer.svg" },
-  { id: 4, name: "DIN-A6-Selfmailer MIKRO", format: "148 × 105 mm", pages: "4–8 Seiten", price: "ab 0,22 €", href: "/shop/mikro", image: "/mikro-selfmailer.svg" },
-  { id: 5, name: "DIN-A5-Selfmailer MEGALO", format: "210 × 148 mm", pages: "4–8 Seiten", price: "ab 0,38 €", href: "/shop/megalo", image: "/megalo-selfmailer.svg" },
-  { id: 6, name: "DIN-Lang-Poster-Selfmailer ANDIGO", format: "210 × 100 mm", pages: "12 Seiten", price: "ab 0,45 €", href: "/shop/andigo", image: "/andigo-selfmailer.svg" },
-  { id: 7, name: "DIN-A5-Poster-Selfmailer AFISA", format: "210 × 148 mm", pages: "8 Seiten Kreuzfalz", price: "ab 0,49 €", href: "/shop/afisa", image: "/afisa-selfmailer.svg" },
-  { id: 8, name: "DIN-Lang-Minikatalog ALVARO", format: "210 × 105 mm", pages: "16–20 Seiten Rückendrahtheftung", price: "ab 0,55 €", href: "/shop/alvaro", image: "/alvaro-katalog.svg" },
-  { id: 9, name: "Bestseller LEVI", format: "210 × 100 mm", pages: "6 Seiten Wickelfalz", price: "ab 0,29 €", image: "/bestseller-levi.svg" },
+  { id: 1, name: "DIN-Lang-Selfmailer LEVI", format: "210 × 100/105 mm", pages: "4–12 Seiten", price: getSelfmailerHomepagePrice("levi"), href: "/shop/levi", image: "/levi-selfmailer.svg" },
+  { id: 2, name: "Maxi-Selfmailer INATA", format: "235 × 125 mm", pages: "4–8 Seiten", price: getSelfmailerHomepagePrice("inata"), href: "/shop/inata", image: "/inata-selfmailer.svg" },
+  { id: 3, name: "Maxi-Selfmailer mit Klappe ALBA", format: "235 × 125 mm", pages: "6–8 Seiten", price: getSelfmailerHomepagePrice("klappe_alba"), href: "/shop/klappe_alba", image: "/alba-selfmailer.svg" },
+  { id: 4, name: "DIN-A6-Selfmailer MIKRO", format: "148 × 105 mm", pages: "4–8 Seiten", price: getSelfmailerHomepagePrice("mikro"), href: "/shop/mikro", image: "/mikro-selfmailer.svg" },
+  { id: 5, name: "DIN-A5-Selfmailer MEGALO", format: "210 × 148 mm", pages: "4–8 Seiten", price: getSelfmailerHomepagePrice("megalo"), href: "/shop/megalo", image: "/megalo-selfmailer.svg" },
+  { id: 6, name: "DIN-Lang-Poster-Selfmailer ANDIGO", format: "210 × 100 mm", pages: "12 Seiten", price: getSelfmailerHomepagePrice("andigo"), href: "/shop/andigo", image: "/andigo-selfmailer.svg" },
+  { id: 7, name: "DIN-A5-Poster-Selfmailer AFISA", format: "210 × 148 mm", pages: "8 Seiten Kreuzfalz", price: getSelfmailerHomepagePrice("afisa"), href: "/shop/afisa", image: "/afisa-selfmailer.svg" },
+  { id: 8, name: "DIN-Lang-Minikatalog ALVARO", format: "210 × 105 mm", pages: "16–20 Seiten Rückendrahtheftung", price: getSelfmailerHomepagePrice("alvaro"), href: "/shop/alvaro", image: "/alvaro-katalog.svg" },
+  { id: 9, name: "Bestseller LEVI", format: "210 × 100 mm", pages: "6 Seiten Wickelfalz", price: getSelfmailerHomepagePrice("levi"), image: "/bestseller-levi.svg" },
 ];
 
 const kuvertiertesMailingProducts: ProduktKarte[] = [
-  { id: 1, name: "DIN-Lang-Mailing", format: "229 × 114 mm", pages: "kuvertiert", price: "ab 0,39 €", href: "/shop/lang_mailing", image: "/dinlang-mailing.svg" },
-  { id: 2, name: "DIN-C4-Mailing", format: "324 × 229 mm", pages: "kuvertiert", price: "ab 0,65 €", href: "/shop/c4_mailing", image: "/dinc4-mailing.svg" },
+  { id: 1, name: "DIN-Lang-Mailing", format: "229 × 114 mm", pages: "kuvertiert", price: getMailingHomepagePrice("lang_mailing"), href: "/shop/lang_mailing", image: "/dinlang-mailing.svg" },
+  { id: 2, name: "DIN-C4-Mailing", format: "324 × 229 mm", pages: "kuvertiert", price: getMailingHomepagePrice("c4_mailing"), href: "/shop/c4_mailing", image: "/dinc4-mailing.svg" },
 ];
 
 const kartenMailingProducts: ProduktKarte[] = [
-  { id: 1, name: "Postkarte DIN-Lang", format: "210 × 98 mm", pages: "1-seitig", price: "ab 0,19 €", href: "/shop/post_din_lan_98", image: "/postkarte-dinlang.svg" },
-  { id: 2, name: "Postkarte DIN-Lang", format: "210 × 105 mm", pages: "1-seitig", price: "ab 0,19 €", href: "/shop/post_din_lan_105", image: "/postkarte-dinlang.svg" },
-  { id: 3, name: "Postkarte Maxi", format: "235 × 125 mm", pages: "1-seitig", price: "ab 0,24 €", href: "/shop/post_maxi", image: "/postkarte-maxi.svg" },
-  { id: 4, name: "Postkarte DIN A6", format: "148 × 105 mm", pages: "1-seitig", price: "ab 0,15 €", href: "/shop/post_din_a6", image: "/postkarte-dina6.svg" },
-  { id: 5, name: "Postkarte DIN A5", format: "210 × 148 mm", pages: "1-seitig", price: "ab 0,28 €", href: "/shop/post_din_a5", image: "/postkarte-dina5.svg" },
-  { id: 6, name: "Postkarte DIN A4", format: "297 × 210 mm", pages: "1-seitig", price: "ab 0,45 €", href: "/shop/post_din_a4", image: "/postkarte-dina4.svg" },
-  { id: 7, name: "Bestseller Karte Maxi", format: "235 × 125 mm", pages: "4/4-farbig, UV-Lack VS", price: "ab 0,24 €", image: "/postkarte-maxi.svg" },
+  { id: 1, name: "Postkarte DIN-Lang", format: "210 × 98 mm", pages: "1-seitig", price: getKartenmailingHomepagePrice("post_din_lan_98"), href: "/shop/post_din_lan_98", image: "/postkarte-dinlang.svg" },
+  { id: 2, name: "Postkarte DIN-Lang", format: "210 × 105 mm", pages: "1-seitig", price: getKartenmailingHomepagePrice("post_din_lan_105"), href: "/shop/post_din_lan_105", image: "/postkarte-dinlang.svg" },
+  { id: 3, name: "Postkarte Maxi", format: "235 × 125 mm", pages: "1-seitig", price: getKartenmailingHomepagePrice("post_maxi"), href: "/shop/post_maxi", image: "/postkarte-maxi.svg" },
+  { id: 4, name: "Postkarte DIN A6", format: "148 × 105 mm", pages: "1-seitig", price: getKartenmailingHomepagePrice("post_din_a6"), href: "/shop/post_din_a6", image: "/postkarte-dina6.svg" },
+  { id: 5, name: "Postkarte DIN A5", format: "210 × 148 mm", pages: "1-seitig", price: getKartenmailingHomepagePrice("post_din_a5"), href: "/shop/post_din_a5", image: "/postkarte-dina5.svg" },
+  { id: 6, name: "Postkarte DIN A4", format: "297 × 210 mm", pages: "1-seitig", price: getKartenmailingHomepagePrice("post_din_a4"), href: "/shop/post_din_a4", image: "/postkarte-dina4.svg" },
+  { id: 7, name: "Bestseller Karte Maxi", format: "235 × 125 mm", pages: "4/4-farbig, UV-Lack VS", price: getKartenmailingHomepagePrice("post_maxi"), image: "/postkarte-maxi.svg" },
 ];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -50,9 +57,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 gap-6">
             {/* Logo */}
-            <a href="/" className="flex items-center shrink-0">
-              <img src="/jopke-logo.svg" alt="Jopke Dialog Services" className="h-8 w-auto" />
-            </a>
+            <Link href="/" className="flex items-center shrink-0">
+              <Image src="/jopke-logo.svg" alt="Jopke Dialog Services" width={128} height={32} className="h-8 w-auto" />
+            </Link>
 
             {/* Nav links */}
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-[#cccccc]">

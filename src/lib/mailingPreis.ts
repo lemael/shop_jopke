@@ -1,73 +1,203 @@
 /**
  * Preisberechnung für Kuvertiertes Mailing (DIN-Lang-Mailing).
  *
- * Alle Basiswerte stammen aus echten Preisübersicht-Abfragen im Konfigurator auf
- * jopke.de (günstigste Farbigkeit/Grammatur je Hüllentyp), abgerufen am 2026-07-30.
- * Für DIN-C4-Mailing liefert der Konfigurator auf jopke.de selbst keine
- * Preisübersicht (Serverfehler 500 bei jeder getesteten Kombination) — für diesen
- * Fall gibt berechnePreis() `null` zurück, die UI zeigt dann "Preis auf Anfrage"
- * statt erfundener Zahlen.
+ * Die Staffelwerte für 1-5.000 Stück stammen aus echten Preisübersicht-Abfragen
+ * im jopke.de-Konfigurator (500 und 1.000 Stück, daraus Fixpreis + Preis pro
+ * 1.000 Stück abgeleitet). Die Staffeln ab 5.001 Stück stammen direkt aus dem
+ * Excel-Stammdatensatz. Für DIN-C4-Mailing liegen weiterhin keine verifizierten
+ * Konfiguratorwerte vor; in diesem Fall gibt berechnePreis() `null` zurück.
  */
 
 const AUFLAGE_STAFFEL = [500, 1000, 2000, 3000, 5000, 10000, 20000, 50000, 100000];
 
-type Basiskurve = Record<number, number>;
+interface StaffelPreis {
+  maxAuflage: number;
+  fixpreis: number;
+  preisPro1000: number;
+  expressProzent?: number;
+}
 
-/**
- * Druckpreis-Basiskurven (netto, €) je Hüllentyp und Leit-Ausstattung, verifiziert
- * über alle Standard-Auflagenstaffeln (günstigste Farbigkeit/Grammatur, "bis zu 3
- * Flyer"-Kombinationen mit 1 Flyer getestet — Minimalpreis der Kombination, da der
- * Konfigurator keine Flyer-Anzahl abfragt). Broschüre-Kurven enden bei 20.000 Stück,
- * da Broschüre-Kombinationen auf jopke.de nur bis dahin bestellbar sind.
- */
-const DRUCK_KURVEN: Record<string, Basiskurve> = {
-  fensterhuelle_anschreiben: {
-    500: 284.72, 1000: 352.29, 2000: 487.43, 3000: 622.57, 5000: 892.85,
-    10000: 1512.62, 20000: 2709.85, 50000: 6353.65, 100000: 12021.84,
-  },
-  panorama_flyer: {
-    500: 420.86, 1000: 541.96, 2000: 784.17, 3000: 1026.38, 5000: 1510.80,
-    10000: 2586.82, 20000: 4655.73, 50000: 10980.33, 100000: 20704.44,
-  },
-  panorama_broschuere: {
-    500: 602.10, 1000: 773.08, 2000: 1115.05, 3000: 1457.02, 5000: 2140.96,
-    10000: 3541.54, 20000: 6841.17,
-  },
-  ohnefenster_flyer: {
-    500: 263.36, 1000: 319.68, 2000: 432.33, 3000: 544.98, 5000: 770.28,
-    10000: 1280.42, 20000: 2246.69, 50000: 5301.29, 100000: 9987.80,
-  },
-  ohnefenster_broschuere: {
-    500: 470.37, 1000: 583.74, 2000: 810.49, 3000: 1037.24, 5000: 1490.74,
-    10000: 2388.34, 20000: 4704.73,
-  },
-};
+type DeltaKurve = Partial<Record<number, number>>;
 
 interface AusstattungConfig {
-  basis: keyof typeof DRUCK_KURVEN;
-  /** Faktor relativ zur Basiskurve, verifiziert bei 1.000 Stück (1 = ist die Basiskurve selbst). */
-  faktor: number;
+  staffeln: StaffelPreis[];
   hatBroschuere: boolean;
 }
 
+const DETAIL_STAFFEL_PUNKTE = [500, 1000, 5000, 10000, 50000, 100000] as const;
+
 /** Schlüssel: `${Hüllentyp}|${Ausstattung}` (siehe kategorien[2]/[3] in produktkatalog.ts). */
 const AUSSTATTUNG_CONFIG: Record<string, AusstattungConfig> = {
-  "Fensterhülle|Anschreiben": { basis: "fensterhuelle_anschreiben", faktor: 1, hatBroschuere: false },
-  "Fensterhülle|Anschreiben + Antwortkarte": { basis: "fensterhuelle_anschreiben", faktor: 397.23 / 352.29, hatBroschuere: false },
-  "Fensterhülle|Anschreiben + bis zu 3 Flyer": { basis: "fensterhuelle_anschreiben", faktor: 416.55 / 352.29, hatBroschuere: false },
-  "Fensterhülle|Anschreiben, bis zu 3 Flyer + Antwortkarte": { basis: "fensterhuelle_anschreiben", faktor: 461.49 / 352.29, hatBroschuere: false },
-  "Fensterhülle|Anschreiben + Broschüre": { basis: "fensterhuelle_anschreiben", faktor: 663.13 / 352.29, hatBroschuere: true },
-  "Fensterhülle|Anschreiben, Broschüre + Antwortkarte": { basis: "fensterhuelle_anschreiben", faktor: 709.19 / 352.29, hatBroschuere: true },
+  "Fensterhülle|Anschreiben": {
+    hatBroschuere: false,
+    staffeln: [
+      { maxAuflage: 5000, fixpreis: 216.19, preisPro1000: 136.26, expressProzent: 0.25 },
+      { maxAuflage: 10000, fixpreis: 274.824, preisPro1000: 127.776, expressProzent: 0.17 },
+      { maxAuflage: 50000, fixpreis: 259.209, preisPro1000: 120.516, expressProzent: 0.15 },
+      { maxAuflage: 100000, fixpreis: 243.594, preisPro1000: 113.256, expressProzent: 0.135 },
+    ],
+  },
+  "Fensterhülle|Anschreiben + Antwortkarte": {
+    hatBroschuere: false,
+    staffeln: [
+      { maxAuflage: 5000, fixpreis: 240.03, preisPro1000: 157.36, expressProzent: 0.29 },
+      { maxAuflage: 10000, fixpreis: 274.824, preisPro1000: 135.696, expressProzent: 0.21 },
+      { maxAuflage: 50000, fixpreis: 259.209, preisPro1000: 127.986, expressProzent: 0.19 },
+      { maxAuflage: 100000, fixpreis: 243.594, preisPro1000: 120.276, expressProzent: 0.175 },
+    ],
+  },
+  "Fensterhülle|Anschreiben + bis zu 3 Flyer": {
+    hatBroschuere: false,
+    staffeln: [
+      { maxAuflage: 5000, fixpreis: 248.19, preisPro1000: 168.52, expressProzent: 0.33 },
+      { maxAuflage: 10000, fixpreis: 274.824, preisPro1000: 151.536, expressProzent: 0.25 },
+      { maxAuflage: 50000, fixpreis: 259.209, preisPro1000: 142.926, expressProzent: 0.23 },
+      { maxAuflage: 100000, fixpreis: 243.594, preisPro1000: 134.316 },
+    ],
+  },
+  "Fensterhülle|Anschreiben, bis zu 3 Flyer + Antwortkarte": {
+    hatBroschuere: false,
+    staffeln: [
+      { maxAuflage: 5000, fixpreis: 272.03, preisPro1000: 189.62, expressProzent: 0.37 },
+      { maxAuflage: 10000, fixpreis: 274.824, preisPro1000: 159.456, expressProzent: 0.29 },
+      { maxAuflage: 50000, fixpreis: 259.209, preisPro1000: 150.396, expressProzent: 0.27 },
+      { maxAuflage: 100000, fixpreis: 243.594, preisPro1000: 141.336 },
+    ],
+  },
+  "Fensterhülle|Anschreiben + Broschüre": {
+    hatBroschuere: true,
+    staffeln: [
+      { maxAuflage: 5000, fixpreis: 379.55, preisPro1000: 283.74, expressProzent: 0.29 },
+      { maxAuflage: 10000, fixpreis: 274.824, preisPro1000: 141.7944, expressProzent: 0.21 },
+      { maxAuflage: 50000, fixpreis: 259.209, preisPro1000: 133.7379, expressProzent: 0.19 },
+      { maxAuflage: 100000, fixpreis: 243.594, preisPro1000: 125.6814 },
+    ],
+  },
+  "Fensterhülle|Anschreiben, Broschüre + Antwortkarte": {
+    hatBroschuere: true,
+    staffeln: [
+      { maxAuflage: 5000, fixpreis: 403.39, preisPro1000: 305.96, expressProzent: 0.33 },
+      { maxAuflage: 10000, fixpreis: 274.824, preisPro1000: 151.2984, expressProzent: 0.25 },
+      { maxAuflage: 50000, fixpreis: 259.209, preisPro1000: 142.7019, expressProzent: 0.23 },
+      { maxAuflage: 100000, fixpreis: 243.594, preisPro1000: 134.1054 },
+    ],
+  },
 
-  "Panorama-Fensterhülle|Anschreiben + bis zu 3 Flyer": { basis: "panorama_flyer", faktor: 1, hatBroschuere: false },
-  "Panorama-Fensterhülle|Anschreiben, bis zu 3 Flyer + Antwortkarte": { basis: "panorama_flyer", faktor: 592.48 / 541.96, hatBroschuere: false },
-  "Panorama-Fensterhülle|Anschreiben + Broschüre": { basis: "panorama_broschuere", faktor: 1, hatBroschuere: true },
-  "Panorama-Fensterhülle|Anschreiben, Broschüre + Antwortkarte": { basis: "panorama_broschuere", faktor: 823.60 / 773.08, hatBroschuere: true },
+  "Panorama-Fensterhülle|Anschreiben + bis zu 3 Flyer": {
+    hatBroschuere: false,
+    staffeln: [
+      { maxAuflage: 5000, fixpreis: 298.8, preisPro1000: 243.32, expressProzent: 0.33 },
+      { maxAuflage: 10000, fixpreis: 301.224, preisPro1000: 198.8976, expressProzent: 0.25 },
+      { maxAuflage: 50000, fixpreis: 284.109, preisPro1000: 187.5966, expressProzent: 0.23 },
+      { maxAuflage: 100000, fixpreis: 266.994, preisPro1000: 176.2956 },
+    ],
+  },
+  "Panorama-Fensterhülle|Anschreiben, bis zu 3 Flyer + Antwortkarte": {
+    hatBroschuere: false,
+    staffeln: [
+      { maxAuflage: 5000, fixpreis: 322.64, preisPro1000: 270, expressProzent: 0.37 },
+      { maxAuflage: 10000, fixpreis: 301.224, preisPro1000: 214.7376, expressProzent: 0.29 },
+      { maxAuflage: 50000, fixpreis: 284.109, preisPro1000: 202.5366, expressProzent: 0.27 },
+      { maxAuflage: 100000, fixpreis: 266.994, preisPro1000: 190.3356 },
+    ],
+  },
+  "Panorama-Fensterhülle|Anschreiben + Broschüre": {
+    hatBroschuere: true,
+    staffeln: [
+      { maxAuflage: 5000, fixpreis: 430.16, preisPro1000: 343.08, expressProzent: 0.29 },
+      { maxAuflage: 10000, fixpreis: 301.224, preisPro1000: 167.2176, expressProzent: 0.21 },
+      { maxAuflage: 50000, fixpreis: 284.109, preisPro1000: 157.7166, expressProzent: 0.19 },
+      { maxAuflage: 100000, fixpreis: 266.994, preisPro1000: 148.2156 },
+    ],
+  },
+  "Panorama-Fensterhülle|Anschreiben, Broschüre + Antwortkarte": {
+    hatBroschuere: true,
+    staffeln: [
+      { maxAuflage: 5000, fixpreis: 454, preisPro1000: 369.76, expressProzent: 0.33 },
+      { maxAuflage: 10000, fixpreis: 301.224, preisPro1000: 183.0576, expressProzent: 0.25 },
+      { maxAuflage: 50000, fixpreis: 284.109, preisPro1000: 172.6566, expressProzent: 0.23 },
+      { maxAuflage: 100000, fixpreis: 266.994, preisPro1000: 162.2556 },
+    ],
+  },
 
-  "Hülle ohne Fenster|bis zu 3 Flyer": { basis: "ohnefenster_flyer", faktor: 1, hatBroschuere: false },
-  "Hülle ohne Fenster|bis zu 3 Flyer + Antwortkarte": { basis: "ohnefenster_flyer", faktor: 364.62 / 319.68, hatBroschuere: false },
-  "Hülle ohne Fenster|Broschüre": { basis: "ohnefenster_broschuere", faktor: 1, hatBroschuere: true },
-  "Hülle ohne Fenster|Broschüre + Antwortkarte": { basis: "ohnefenster_broschuere", faktor: 629.79 / 583.74, hatBroschuere: true },
+  "Hülle ohne Fenster|bis zu 3 Flyer": {
+    hatBroschuere: false,
+    staffeln: [
+      { maxAuflage: 5000, fixpreis: 207.04, preisPro1000: 112.64, expressProzent: 0.33 },
+      { maxAuflage: 10000, fixpreis: 248.424, preisPro1000: 106.9728, expressProzent: 0.25 },
+      { maxAuflage: 50000, fixpreis: 234.309, preisPro1000: 100.8948, expressProzent: 0.23 },
+      { maxAuflage: 100000, fixpreis: 220.194, preisPro1000: 94.8168 },
+    ],
+  },
+  "Hülle ohne Fenster|bis zu 3 Flyer + Antwortkarte": {
+    hatBroschuere: false,
+    staffeln: [
+      { maxAuflage: 5000, fixpreis: 230.88, preisPro1000: 133.74, expressProzent: 0.37 },
+      { maxAuflage: 10000, fixpreis: 248.424, preisPro1000: 114.8928, expressProzent: 0.29 },
+      { maxAuflage: 50000, fixpreis: 234.309, preisPro1000: 108.3648, expressProzent: 0.27 },
+      { maxAuflage: 100000, fixpreis: 220.194, preisPro1000: 101.8368 },
+    ],
+  },
+  "Hülle ohne Fenster|Broschüre": {
+    hatBroschuere: true,
+    staffeln: [
+      { maxAuflage: 5000, fixpreis: 357, preisPro1000: 226.74, expressProzent: 0.29 },
+      { maxAuflage: 10000, fixpreis: 274.824, preisPro1000: 95.6472, expressProzent: 0.21 },
+      { maxAuflage: 50000, fixpreis: 259.209, preisPro1000: 90.2127, expressProzent: 0.19 },
+      { maxAuflage: 100000, fixpreis: 243.594, preisPro1000: 84.7782 },
+    ],
+  },
+  "Hülle ohne Fenster|Broschüre + Antwortkarte": {
+    hatBroschuere: true,
+    staffeln: [
+      { maxAuflage: 5000, fixpreis: 380.83, preisPro1000: 248.96, expressProzent: 0.33 },
+      { maxAuflage: 10000, fixpreis: 274.824, preisPro1000: 105.1512, expressProzent: 0.25 },
+      { maxAuflage: 50000, fixpreis: 259.209, preisPro1000: 99.1767, expressProzent: 0.23 },
+      { maxAuflage: 100000, fixpreis: 243.594, preisPro1000: 93.2022 },
+    ],
+  },
+};
+
+/**
+ * Deltas aus dem Live-Konfigurator für gemeinsame Detailoptionen der Hülle bzw.
+ * des Anschreibens. Referenzkonfigurationen mit Delta 0 sind:
+ * - Fensterhülle / Hülle ohne Fenster / Panorama: "unbedruckt"
+ * - Anschreiben-Grammatur: "80 g/m²"
+ * - Anschreiben-Farbigkeit: "4/0-farbig Euroskala"
+ *
+ * Diese Deltas werden zur jeweiligen Basis-Ausstattung addiert. Detailoptionen
+ * von Flyer/Broschüre/Antwortkarte bleiben vorerst auf der verifizierten
+ * Referenzvariante der jeweiligen Ausstattung.
+ */
+const HUELLEN_FARBIGKEIT_DELTA_KURVEN: Partial<Record<string, Record<string, DeltaKurve>>> = {
+  "Fensterhülle": {
+    "1/0-farbig Schwarz": { 500: 75.36, 1000: 88.32, 5000: 192, 10000: 232.48, 50000: 664.16, 100000: 1111.04 },
+    "1/1-farbig Schwarz": { 500: 84, 1000: 99.36, 5000: 222.24, 10000: 278.4, 50000: 845.28, 100000: 1449.28 },
+    "4/0-farbig Euroskala": { 500: 79.6, 1000: 98.56, 5000: 250.24, 10000: 358.72, 50000: 1240.8, 100000: 1895.84 },
+    "4/4-farbig Euroskala": { 500: 79.6, 1000: 98.56, 5000: 250.24, 10000: 358.72, 50000: 1360, 100000: 2688 },
+  },
+  "Panorama-Fensterhülle": {
+    "1/0-farbig Schwarz": { 500: 172, 1000: 184, 5000: 280, 10000: 224, 50000: 640, 100000: 304 },
+    "4/0-farbig Euroskala": { 500: 308, 1000: 328, 5000: 488, 10000: 472, 50000: 1112, 100000: 944 },
+  },
+  "Hülle ohne Fenster": {
+    "1/0-farbig Schwarz": { 500: 75.76, 1000: 89.12, 5000: 196, 10000: 240.48, 50000: 704.16, 100000: 1191.04 },
+    "1/1-farbig Schwarz": { 500: 94.72, 1000: 109.44, 5000: 227.2, 10000: 302.4, 50000: 936, 100000: 1624 },
+    "4/0-farbig Euroskala": { 500: 80, 1000: 99.36, 5000: 254.24, 10000: 366.72, 50000: 1280.8, 100000: 1975.84 },
+    "4/4-farbig Euroskala": { 500: 88.72, 1000: 105.44, 5000: 239.2, 10000: 374.4, 50000: 1456, 100000: 2832 },
+  },
+};
+
+const ANSCHREIBEN_VARIANTEN_DELTA_KURVEN: Record<string, DeltaKurve> = {
+  "80 g/m²|4/4-farbig Euroskala": { 500: 12.4, 1000: 15.52, 5000: 40.48, 10000: 50.4, 50000: 191.36, 100000: 370.24 },
+  "80 g/m²|4/1-farbig Euroskala/Schwarz": { 500: 13.68, 1000: 16.64, 5000: 40.32, 10000: 88, 50000: 278.24, 100000: 465.92 },
+  "80 g/m²|1/0-farbig Schwarz": { 500: 0.4, 1000: -0.16, 5000: -4.64, 10000: 13.92, 50000: -20.64, 100000: -32.16 },
+  "80 g/m²|1/1-farbig Schwarz": { 500: 8.48, 1000: 12, 5000: 40.16, 10000: 86.72, 50000: 280.64, 100000: 484.8 },
+  "90 g/m²|4/0-farbig Euroskala": { 500: 0.72, 1000: 0.96, 5000: 2.88, 10000: 4.96, 50000: 20.32, 100000: 45.76 },
+  "90 g/m²|4/4-farbig Euroskala": { 500: 13.44, 1000: 16.8, 5000: 43.68, 10000: 56.16, 50000: 217.12, 100000: 420.8 },
+  "90 g/m²|4/1-farbig Euroskala/Schwarz": { 500: 14.56, 1000: 17.76, 5000: 43.36, 10000: 94.88, 50000: 308.32, 100000: 517.92 },
+  "90 g/m²|1/0-farbig Schwarz": { 500: 0.96, 1000: 0.64, 5000: -1.92, 10000: 19.2, 50000: 2.56, 100000: 7.2 },
+  "90 g/m²|1/1-farbig Schwarz": { 500: 9.28, 1000: 13.12, 5000: 43.84, 10000: 93.12, 50000: 310.88, 100000: 537.12 },
 };
 
 /**
@@ -93,19 +223,39 @@ const EXPRESS_PROZENT_STAFFEL: Record<number, number> = {
   500: 0.25, 1000: 0.25, 2000: 0.25, 3000: 0.25, 5000: 0.25,
   10000: 0.17, 20000: 0.15, 50000: 0.15, 100000: 0.14,
 };
+function getStaffelpreis(staffeln: StaffelPreis[], auflage: number): StaffelPreis | null {
+  return staffeln.find((staffel) => auflage <= staffel.maxAuflage) ?? null;
+}
 
-function interpoliere(tabelle: Basiskurve, auflage: number): number {
-  const staffeln = Object.keys(tabelle).map(Number).sort((a, b) => a - b);
-  if (auflage <= staffeln[0]) return tabelle[staffeln[0]];
-  if (auflage >= staffeln[staffeln.length - 1]) return tabelle[staffeln[staffeln.length - 1]];
-  for (let i = 0; i < staffeln.length - 1; i++) {
-    const [a, b] = [staffeln[i], staffeln[i + 1]];
-    if (auflage >= a && auflage <= b) {
-      const anteil = (auflage - a) / (b - a);
-      return tabelle[a] + anteil * (tabelle[b] - tabelle[a]);
+function berechneDruckPreis(staffel: StaffelPreis, auflage: number): number {
+  return runden(staffel.fixpreis + (auflage / 1000) * staffel.preisPro1000);
+}
+
+function berechneDetailDelta(kurve: DeltaKurve | undefined, auflage: number): number {
+  if (!kurve) return 0;
+
+  if (auflage <= 5000 && kurve[500] !== undefined && kurve[1000] !== undefined) {
+    const preisPro1000 = 2 * (kurve[1000] - kurve[500]);
+    const fixpreis = 2 * kurve[500] - kurve[1000];
+    return runden(fixpreis + (auflage / 1000) * preisPro1000);
+  }
+
+  const tranchePunkte: [number, number][] = [
+    [5000, 10000],
+    [10000, 50000],
+    [50000, 100000],
+  ];
+
+  for (const [untereGrenze, obereGrenze] of tranchePunkte) {
+    if (auflage <= obereGrenze && kurve[untereGrenze] !== undefined && kurve[obereGrenze] !== undefined) {
+      const span = obereGrenze - untereGrenze;
+      const faktor = (auflage - untereGrenze) / span;
+      return runden(kurve[untereGrenze]! + (kurve[obereGrenze]! - kurve[untereGrenze]!) * faktor);
     }
   }
-  return tabelle[staffeln[staffeln.length - 1]];
+
+  const fallback = DETAIL_STAFFEL_PUNKTE.slice().reverse().find((punkt) => kurve[punkt] !== undefined);
+  return fallback ? runden(kurve[fallback]!) : 0;
 }
 
 /** Stufenfunktion: verwendet den Wert der naechstgelegenen (nicht groesseren) Staffel. */
@@ -141,16 +291,42 @@ export function berechnePreis(params: {
   huellentyp: string | null;
   ausstattung: string | null;
   auflage: number | null;
+  fensterhuelleFarbigkeit?: string | null;
+  anschreibenGrammatur?: string | null;
+  anschreibenFarbigkeit?: string | null;
 }): Preisdetails | null {
-  const { slug, huellentyp, ausstattung, auflage } = params;
+  const {
+    slug,
+    huellentyp,
+    ausstattung,
+    auflage,
+    fensterhuelleFarbigkeit,
+    anschreibenGrammatur,
+    anschreibenFarbigkeit,
+  } = params;
   if (slug !== "lang_mailing" || !huellentyp || !ausstattung || !auflage) return null;
   const config = AUSSTATTUNG_CONFIG[`${huellentyp}|${ausstattung}`];
   if (!config) return null;
+  const staffel = getStaffelpreis(config.staffeln, auflage);
+  if (!staffel) return null;
 
-  const druck = runden(interpoliere(DRUCK_KURVEN[config.basis], auflage) * config.faktor);
+  const huellenDelta = berechneDetailDelta(HUELLEN_FARBIGKEIT_DELTA_KURVEN[huellentyp]?.[fensterhuelleFarbigkeit ?? ""], auflage);
+  const anschreibenVariante = anschreibenGrammatur && anschreibenFarbigkeit
+    ? `${anschreibenGrammatur}|${anschreibenFarbigkeit}`
+    : null;
+  const anschreibenVarianteDelta = berechneDetailDelta(
+    anschreibenVariante ? ANSCHREIBEN_VARIANTEN_DELTA_KURVEN[anschreibenVariante] : undefined,
+    auflage,
+  );
+
+  const druck = runden(
+    berechneDruckPreis(staffel, auflage)
+    + huellenDelta
+    + anschreibenVarianteDelta
+  );
   const portoRate = stufenwert(config.hatBroschuere ? PORTO_RATE_BROSCHUERE_STAFFEL : PORTO_RATE_STAFFEL, auflage);
   const porto = runden(auflage * portoRate);
-  const expressProzent = stufenwert(EXPRESS_PROZENT_STAFFEL, auflage);
+  const expressProzent = staffel.expressProzent ?? stufenwert(EXPRESS_PROZENT_STAFFEL, auflage);
   const expressAufpreis = runden(druck * expressProzent);
 
   const gesamtNettoStandard = runden(druck + porto);
