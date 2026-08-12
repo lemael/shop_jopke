@@ -483,6 +483,7 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
     fensterhuelleFarbigkeit: cfg.fensterhuelleFarbigkeit,
     anschreibenGrammatur: cfg.anschreibenGrammatur,
     anschreibenFarbigkeit: cfg.anschreibenFarbigkeit,
+    antwortkarteEndformat: cfg.antwortkarteEndformat,
   });
 
   const uebersichtZeilen: [string, string][] = [
@@ -862,6 +863,14 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
                               <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preis.gesamtBruttoStandard)}</dd>
                             </div>
                           </dl>
+                          <div className="px-4 py-3 text-xs text-[#888888] border-t border-[#f0f0f0] space-y-1">
+                            <p>
+                              Gewicht pro Sendung: ca. {preis.gewichtProSendungG.toLocaleString("de-DE")} g
+                            </p>
+                            <p>
+                              Gesamtgewicht: ca. {preis.gesamtGewichtKg.toLocaleString("de-DE")} kg
+                            </p>
+                          </div>
                           <p className="px-4 py-3 text-xs text-[#888888] border-t border-[#f0f0f0] leading-relaxed">
                             Der oben angegebene Betrag bildet die <strong>maximalen Portokosten ohne Portooptimierung</strong> ab.
                             Basiert auf der günstigsten Farbigkeit/Grammatur (Hülle unbedruckt, Anschreiben 80 g/m² 1/0-farbig
