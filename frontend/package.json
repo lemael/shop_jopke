@@ -8,7 +8,9 @@
     "start": "next start -p ${PORT:-3000}",
     "lint": "eslint",
     "extract:jopke-fensterhuelle": "node scripts/extract-jopke-fensterhuelle.mjs",
-    "extract:jopke-fensterhuelle-antwortkarte": "node scripts/extract-jopke-fensterhuelle-antwortkarte.mjs"
+    "extract:jopke-fensterhuelle-antwortkarte": "node scripts/extract-jopke-fensterhuelle-antwortkarte.mjs",
+    "extract:jopke-fensterhuelle-antwortkarte-gruppen": "node scripts/extract-jopke-fensterhuelle-antwortkarte-gruppen.mjs",
+    "vergleich:antwortkarte-gruppen": "node scripts/vergleich-prix-antwortkarte-gruppen.mjs"
   },
   "dependencies": {
     "next": "16.2.9",
