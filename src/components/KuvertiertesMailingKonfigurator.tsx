@@ -780,27 +780,7 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
               )}
 
 
-              {currentStep === "Umfang Broschüre" && (
-                <>
-                  <StepHeader step={stepNumber("Umfang Broschüre")} title="Umfang Broschüre wählen" helpTab="umfang" />
-                  <div className="flex flex-wrap gap-3">
-                    {BROSCHUERE_UMFANG_OPTIONEN.map((u) => (
-                      <OptionTile key={u} active={cfg.broschuereUmfang === u} onClick={() => selectBroschuereUmfang(u)} title={u} />
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {currentStep === "Oberfläche Broschüre" && (
-                <>
-                  <StepHeader step={stepNumber("Oberfläche Broschüre")} title="Oberfläche Broschüre wählen" helpTab="oberflaeche" />
-                  <div className="flex flex-wrap gap-3">
-                    {BROSCHUERE_OBERFLAECHE_OPTIONEN.map((o) => (
-                      <OptionTile key={o} active={cfg.broschuereOberflaeche === o} onClick={() => selectBroschuereOberflaeche(o)} title={o} />
-                    ))}
-                  </div>
-                </>
-              )}
+             
 
               {currentStep === "Endformat Antwortkarte" && (
                 <>
