@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Fragment, useMemo, useState } from "react";
+import type { Config, FlyerConfig, StepName } from "@/types/kuvertiertesMailing";
 import { OptionTile, StepHeader } from "@/components/ConfiguratorUI";
 import { AuflageAuswahl } from "@/components/AuflageAuswahl";
 import { BestellModal } from "@/components/BestellModal";
@@ -9,6 +10,40 @@ import { auflagenFuer } from "@/lib/auflage";
 import { berechnePreis, formatEuro } from "@/lib/mailingPreis";
 import type { Produkt } from "@/data/produktkatalog";
 import type { MailingFamilie } from "@/lib/mailing";
+import {
+  ANSCHREIBEN_OFFENES_FORMAT,
+  ANSCHREIBEN_UMFANG,
+  ANSCHREIBEN_PAPIER,
+  ANSCHREIBEN_GRAMMATUR_OPTIONEN,
+  ANSCHREIBEN_FARBIGKEIT_OPTIONEN,
+  FLYER_UMFANG_OPTIONEN,
+  FLYER_GRAMMATUR_NACH_UMFANG,
+  FLYER_OBERFLAECHE_OPTIONEN,
+  FLYER_ENDFORMAT_LANG,
+  FLYER_FARBIGKEIT,
+  FLYER_PAPIER_LANG,
+  BROSCHUERE_UMFANG_OPTIONEN,
+  BROSCHUERE_OBERFLAECHE_OPTIONEN,
+  BROSCHUERE_ENDFORMAT_LANG,
+  BROSCHUERE_FARBIGKEIT,
+  BROSCHUERE_GRAMMATUR_LANG,
+  BROSCHUERE_PAPIER_LANG,
+  BROSCHUERE_VERARBEITUNG_LANG,
+  ANTWORTKARTE_ENDFORMAT_OPTIONEN,
+  ANTWORTKARTE_GRAMMATUR_OPTIONEN,
+  ANTWORTKARTE_OBERFLAECHE_OPTIONEN,
+  ANTWORTKARTE_UMFANG_LANG,
+  ANTWORTKARTE_FARBIGKEIT,
+  ANTWORTKARTE_PAPIER_LANG,
+  FLYER_GRUPPE_C4,
+  BROSCHUERE_GRUPPE_C4,
+  ALL_STEPS,
+  FLYER_STEPS,
+  BROSCHUERE_STEPS,
+  ANTWORTKARTE_STEPS,
+  FENSTERHUELLE_FARBIGKEIT_OPTIONEN,
+  PANORAMA_FARBIGKEIT_OPTIONEN,
+} from "@/data/kuvertiertesMailing";
 
 function unique<T>(values: (T | null | undefined)[]): T[] {
   const result: T[] = [];
@@ -18,34 +53,9 @@ function unique<T>(values: (T | null | undefined)[]): T[] {
   return result;
 }
 
-interface Config {
-  huellentyp: string | null;
-  ausstattung: string | null;
-  auflage: number | null;
-  fensterhuelleFarbigkeit: string | null;
-  anschreibenGrammatur: string | null;
-  anschreibenFarbigkeit: string | null;
-  flyerUmfang: string | null;
-  flyerGrammatur: string | null;
-  flyerOberflaeche: string | null;
-  broschuereUmfang: string | null;
-  broschuereOberflaeche: string | null;
-  antwortkarteEndformat: string | null;
-  antwortkarteGrammatur: string | null;
-  antwortkarteOberflaeche: string | null;
-  verarbeitungszeit: "Standard" | "Express";
-}
 
-const FENSTERHUELLE_FARBIGKEIT_OPTIONEN = [
-  "unbedruckt",
-  "1/0-farbig Schwarz",
-  "1/1-farbig Schwarz",
-  "4/0-farbig Euroskala",
-  "4/4-farbig Euroskala",
-] as const;
 
-// Panorama-Fensterhülle hat auf jopke.de weniger Farbigkeit-Optionen als Fensterhülle/Hülle ohne Fenster.
-const PANORAMA_FARBIGKEIT_OPTIONEN = ["unbedruckt", "1/0-farbig Schwarz", "4/0-farbig Euroskala"] as const;
+
 
 function farbigkeitOptionenFuerHuelle(huellentyp: string | null): readonly string[] {
   return huellentyp === "Panorama-Fensterhülle" ? PANORAMA_FARBIGKEIT_OPTIONEN : FENSTERHUELLE_FARBIGKEIT_OPTIONEN;
@@ -61,131 +71,48 @@ function grammaturFuerHuelle(huellentyp: string | null, slug: string): string {
   return huellentyp === "Panorama-Fensterhülle" || slug === "c4_mailing" ? SCHWERE_GRAMMATUR : FENSTERHUELLE_GRAMMATUR;
 }
 
-// Feste Spezifikation des Anschreibens (nicht wählbar, siehe Produktübersicht auf jopke.de).
-const ANSCHREIBEN_OFFENES_FORMAT = "210 x 297 mm";
-const ANSCHREIBEN_UMFANG = "2 Seiten";
-const ANSCHREIBEN_PAPIER = "Offset";
-
-const ANSCHREIBEN_GRAMMATUR_OPTIONEN = ["80 g/m²", "90 g/m²"] as const;
-
-const ANSCHREIBEN_FARBIGKEIT_OPTIONEN = [
-  "4/0-farbig Euroskala",
-  "4/4-farbig Euroskala",
-  "4/1-farbig Euroskala/Schwarz",
-  "1/0-farbig Schwarz",
-  "1/1-farbig Schwarz",
-] as const;
-
-/**
- * Flyer DIN lang hat auf jopke.de eigene Auswahl-Schritte (Umfang → Grammatur → Oberfläche);
- * Endformat, Farbigkeit und Papier sind dabei fest und werden automatisch übernommen. Welche
- * Grammaturen wählbar sind, hängt vom gewählten Umfang ab (mehr Seiten → weniger/leichtere
- * Grammaturen, wahrscheinlich wegen der maximalen Stapeldicke) — verifiziert auf jopke.de.
- */
-const FLYER_UMFANG_OPTIONEN = ["2 Seiten", "4 Seiten", "6 Seiten", "8 Seiten", "12 Seiten"] as const;
-const FLYER_GRAMMATUR_NACH_UMFANG: Record<string, readonly string[]> = {
-  "2 Seiten": ["170 g/m²", "250 g/m²"],
-  "4 Seiten": ["90 g/m²", "115 g/m²", "135 g/m²", "170 g/m²"],
-  "6 Seiten": ["90 g/m²", "115 g/m²", "135 g/m²", "170 g/m²"],
-  "8 Seiten": ["90 g/m²", "115 g/m²", "135 g/m²", "170 g/m²"],
-  "12 Seiten": ["90 g/m²", "115 g/m²", "135 g/m²"],
-};
-const FLYER_OBERFLAECHE_OPTIONEN = ["matt", "glänzend"] as const;
-const FLYER_ENDFORMAT_LANG = "100 x 210 mm, 105 x 210 mm";
-const FLYER_FARBIGKEIT = "4/4-farbig Euroskala";
-const FLYER_PAPIER_LANG = "Bilderdruck";
-
-/**
- * Broschüre DIN lang hat auf jopke.de eigene Auswahl-Schritte (Umfang → Oberfläche) —
- * anders als Flyer gibt es hier keinen Grammatur-Schritt: Grammatur ist fest (Inhalt
- * 90 g/m², Umschlag 170 g/m², jeweils ein einzelner Wert in der Produktübersicht),
- * verifiziert auf jopke.de.
- */
-const BROSCHUERE_UMFANG_OPTIONEN = ["16 Seiten", "20 Seiten", "24 Seiten", "28 Seiten", "32 Seiten", "36 Seiten"] as const;
-const BROSCHUERE_OBERFLAECHE_OPTIONEN = ["matt", "glänzend"] as const;
-const BROSCHUERE_ENDFORMAT_LANG = "105 x 210 mm";
-const BROSCHUERE_FARBIGKEIT = "4/4-farbig Euroskala";
-const BROSCHUERE_GRAMMATUR_LANG = "Inhalt 90 g/m², Umschlag 170 g/m²";
-const BROSCHUERE_PAPIER_LANG = "Bilderdruck";
-const BROSCHUERE_VERARBEITUNG_LANG = "Rückendrahtheftung mit 2 Klammern";
-
-/**
- * Antwortkarte DIN lang hat auf jopke.de eigene Auswahl-Schritte (Endformat → Grammatur →
- * Oberfläche) — alle drei unabhängig voneinander (verifiziert: beide Endformate führen zu
- * denselben zwei Grammatur-Optionen).
- */
-const ANTWORTKARTE_ENDFORMAT_OPTIONEN = ["210 x 99 mm", "210 x 105 mm"] as const;
-const ANTWORTKARTE_GRAMMATUR_OPTIONEN = ["170 g/m²", "250 g/m²"] as const;
-const ANTWORTKARTE_OBERFLAECHE_OPTIONEN = ["matt", "glänzend"] as const;
-const ANTWORTKARTE_UMFANG_LANG = "2 Seiten";
-const ANTWORTKARTE_FARBIGKEIT = "4/4-farbig Euroskala";
-const ANTWORTKARTE_PAPIER_LANG = "Bilderdruck";
-
-/**
- * Feste Spezifikationsgruppen für optionale Inhaltsteile ohne eigene Auswahl-Schritte
- * (Flyer/Broschüre DIN A4 bei DIN-C4-Mailing — dort nur bei 1.000 Stück verifiziert bzw.
- * mit mehreren Grammatur-Werten in der Produktübersicht, daher als Spannweite dargestellt
- * statt interaktiv).
- */
-const FLYER_GRUPPE_C4 = {
-  titel: "Flyer DIN A4",
-  zeilen: [
-    ["Endformat", "210 x 297 mm"],
-    ["Umfang", "2, 4, 6, 8 Seiten"],
-    ["Farbigkeit", "4/4-farbig Euroskala"],
-    ["Grammatur", "90 g/m², 135 g/m², 170 g/m², 250 g/m²"],
-    ["Papier", "Bilderdruck"],
-    ["Oberfläche", "glänzend, matt"],
-  ] as [string, string][],
-};
-
-const BROSCHUERE_GRUPPE_C4 = {
-  titel: "Broschüre DIN A4",
-  zeilen: [
-    ["Endformat", "210 x 297 mm"],
-    ["Umfang", "8, 12, 16, 20, 24, 28, 32 Seiten"],
-    ["Farbigkeit", "4/4-farbig Euroskala"],
-    ["Grammatur", "Inhalt 90 g/m², 115 g/m², 135 g/m² · Umschlag 90 g/m², 115 g/m², 135 g/m², 170 g/m², 250 g/m²"],
-    ["Papier", "Bilderdruck"],
-    ["Oberfläche", "glänzend, matt"],
-  ] as [string, string][],
-};
-
-const ALL_STEPS = [
-  "Hüllentyp",
-  "Ausstattung",
-  "Auflage",
-  "Farbigkeit Hülle",
-  "Grammatur Anschreiben",
-  "Farbigkeit Anschreiben",
-  "Umfang Flyer",
-  "Grammatur Flyer",
-  "Oberfläche Flyer",
-  "Umfang Broschüre",
-  "Oberfläche Broschüre",
-  "Endformat Antwortkarte",
-  "Grammatur Antwortkarte",
-  "Oberfläche Antwortkarte",
-  "Übersicht",
-] as const;
-type StepName = (typeof ALL_STEPS)[number];
-const FLYER_STEPS = new Set<StepName>(["Umfang Flyer", "Grammatur Flyer", "Oberfläche Flyer"]);
-const BROSCHUERE_STEPS = new Set<StepName>(["Umfang Broschüre", "Oberfläche Broschüre"]);
-const ANTWORTKARTE_STEPS = new Set<StepName>(["Endformat Antwortkarte", "Grammatur Antwortkarte", "Oberfläche Antwortkarte"]);
 
 function getVisibleSteps(args: {
   hatAnschreiben: boolean;
   flyerIstInteraktiv: boolean;
   broschuereIstInteraktiv: boolean;
   antwortkarteIstInteraktiv: boolean;
+  anzahlFlyer: number;
 }): StepName[] {
-  return ALL_STEPS.filter((step) => {
+  const baseSteps = ALL_STEPS.filter((step) => {
+    // Étapes toujours présentes
+    if (["Hüllentyp", "Ausstattung", "Auflage", "Farbigkeit Hülle", "Übersicht"].includes(step)) {
+      return true;
+    }
+
+    // Filtrage conditionnel
     if (step === "Grammatur Anschreiben" || step === "Farbigkeit Anschreiben") return args.hatAnschreiben;
-    if (FLYER_STEPS.has(step)) return args.flyerIstInteraktiv;
     if (BROSCHUERE_STEPS.has(step)) return args.broschuereIstInteraktiv;
     if (ANTWORTKARTE_STEPS.has(step)) return args.antwortkarteIstInteraktiv;
+    if (step === "Anzahl Flyer") return args.flyerIstInteraktiv;
+
+    // On ignore les étapes statiques de flyer (Umfang Flyer, Grammatur Flyer, etc.)
+    if (FLYER_STEPS.has(step)) return false;
+
     return true;
   });
+
+  // Injecter les étapes dynamiques pour chaque flyer choisi
+  if (args.flyerIstInteraktiv && args.anzahlFlyer > 0) {
+    const dynamicFlyerSteps: StepName[] = [];
+    for (let i = 1; i <= args.anzahlFlyer; i++) {
+      dynamicFlyerSteps.push(`Flyer ${i} - Umfang` as StepName);
+      dynamicFlyerSteps.push(`Flyer ${i} - Grammatur` as StepName);
+      dynamicFlyerSteps.push(`Flyer ${i} - Oberfläche` as StepName);
+    }
+
+    const anzahlIndex = baseSteps.indexOf("Anzahl Flyer");
+    if (anzahlIndex !== -1) {
+      baseSteps.splice(anzahlIndex + 1, 0, ...dynamicFlyerSteps);
+    }
+  }
+
+  return baseSteps;
 }
 
 function isStepValidForConfig(args: {
@@ -214,6 +141,14 @@ function isStepValidForConfig(args: {
   if (step === "Endformat Antwortkarte") return cfg.antwortkarteEndformat !== null;
   if (step === "Grammatur Antwortkarte") return cfg.antwortkarteGrammatur !== null;
   if (step === "Oberfläche Antwortkarte") return cfg.antwortkarteOberflaeche !== null;
+  if (step === "Anzahl Flyer") return cfg.anzahlFlyer !== null && cfg.anzahlFlyer > 0;
+
+  if (step.startsWith("Flyer")) {
+    const flyerIndex = parseInt(step.split(" ")[1], 10) - 1;
+    if (step.endsWith("Umfang")) return cfg.flyerConfigs[flyerIndex]?.umfang !== null;
+    if (step.endsWith("Grammatur")) return cfg.flyerConfigs[flyerIndex]?.grammatur !== null;
+    if (step.endsWith("Oberfläche")) return cfg.flyerConfigs[flyerIndex]?.oberflaeche !== null;
+  }
   return true;
 }
 
@@ -237,6 +172,8 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
     antwortkarteEndformat: null,
     antwortkarteGrammatur: null,
     antwortkarteOberflaeche: null,
+    anzahlFlyer: null,
+    flyerConfigs: [],
     verarbeitungszeit: "Standard",
   });
   const [currentStep, setCurrentStep] = useState<StepName>("Hüllentyp");
@@ -275,8 +212,15 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
         flyerIstInteraktiv,
         broschuereIstInteraktiv,
         antwortkarteIstInteraktiv,
+        anzahlFlyer: cfg.anzahlFlyer ?? 0,
       }),
-    [hatAnschreiben, flyerIstInteraktiv, broschuereIstInteraktiv, antwortkarteIstInteraktiv]
+    [
+      hatAnschreiben,
+      flyerIstInteraktiv,
+      broschuereIstInteraktiv,
+      antwortkarteIstInteraktiv,
+      cfg.anzahlFlyer,
+    ]
   );
   const stepIndex = STEPS.indexOf(currentStep);
   const stepNumber = (step: StepName) => STEPS.indexOf(step) + 1;
@@ -306,6 +250,8 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
       antwortkarteEndformat: null,
       antwortkarteGrammatur: null,
       antwortkarteOberflaeche: null,
+      anzahlFlyer: null,
+      flyerConfigs: [],
       verarbeitungszeit: c.verarbeitungszeit,
     }));
     setCurrentStep("Ausstattung");
@@ -326,6 +272,8 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
       antwortkarteEndformat: null,
       antwortkarteGrammatur: null,
       antwortkarteOberflaeche: null,
+      anzahlFlyer: null,
+      flyerConfigs: [],
     }));
     setCurrentStep("Auflage");
   }
@@ -341,18 +289,40 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
     setCfg((c) => ({ ...c, anschreibenGrammatur: g }));
     next();
   }
-  function selectFlyerUmfang(u: string) {
-    setCfg((c) => ({ ...c, flyerUmfang: u, flyerGrammatur: null }));
+  function selectAnzahlFlyer(n: number) {
+    setCfg((c) => ({
+      ...c,
+      anzahlFlyer: n,
+      flyerConfigs: Array.from({ length: n }, () => ({ umfang: null, grammatur: null, oberflaeche: null })),
+    }));
+   // Bascule immédiatement vers la première étape du premier flyer
+    setCurrentStep("Flyer 1 - Umfang" as StepName);
+  }
+
+  // --- GESTION DES FLYERS DYNAMIQUES (0 à 3 flyers) ---
+  function selectFlyerUmfang(flyerIndex: number, u: string) {
+    const newConfigs = [...cfg.flyerConfigs];
+    newConfigs[flyerIndex] = { ...newConfigs[flyerIndex], umfang: u, grammatur: null };
+    setCfg((c) => ({ ...c, flyerConfigs: newConfigs }));
     next();
   }
-  function selectFlyerGrammatur(g: string) {
-    setCfg((c) => ({ ...c, flyerGrammatur: g }));
+
+  function selectFlyerGrammatur(flyerIndex: number, g: string) {
+    const newConfigs = [...cfg.flyerConfigs];
+    newConfigs[flyerIndex] = { ...newConfigs[flyerIndex], grammatur: g };
+    setCfg((c) => ({ ...c, flyerConfigs: newConfigs }));
     next();
   }
-  function selectFlyerOberflaeche(o: string) {
-    setCfg((c) => ({ ...c, flyerOberflaeche: o }));
+
+  function selectFlyerOberflaeche(flyerIndex: number, o: string) {
+    const newConfigs = [...cfg.flyerConfigs];
+    newConfigs[flyerIndex] = { ...newConfigs[flyerIndex], oberflaeche: o };
+    setCfg((c) => ({ ...c, flyerConfigs: newConfigs }));
     next();
   }
+
+ 
+ 
   function selectBroschuereUmfang(u: string) {
     setCfg((c) => ({ ...c, broschuereUmfang: u }));
     next();
@@ -361,6 +331,8 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
     setCfg((c) => ({ ...c, broschuereOberflaeche: o }));
     next();
   }
+ 
+
   function selectAntwortkarteEndformat(e: string) {
     setCfg((c) => ({ ...c, antwortkarteEndformat: e }));
     next();
@@ -428,18 +400,24 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
     ] as [string, string][],
   };
 
-  const flyerGruppeLang = {
-    titel: "Flyer DIN lang",
+  // Groupe pour le flyer en version DIN C4 (groupe d'information fixe)
+  const flyerGruppeC4 = [FLYER_GRUPPE_C4];
+
+  // Groupes dynamiques pour les flyers DIN lang (un groupe par flyer configuré)
+  const flyerGruppenLang = cfg.flyerConfigs.map((flyerCfg, i) => ({
+    titel: `Flyer ${i + 1} (DIN lang)`,
     zeilen: [
       ["Endformat", FLYER_ENDFORMAT_LANG],
-      ["Umfang", cfg.flyerUmfang ?? "–"],
+      ["Umfang", flyerCfg.umfang ?? "–"],
       ["Farbigkeit", FLYER_FARBIGKEIT],
-      ["Grammatur", cfg.flyerGrammatur ?? "–"],
+      ["Grammatur", flyerCfg.grammatur ?? "–"],
       ["Papier", FLYER_PAPIER_LANG],
-      ["Oberfläche", cfg.flyerOberflaeche ?? "–"],
+      ["Oberfläche", flyerCfg.oberflaeche ?? "–"],
     ] as [string, string][],
-  };
-  const flyerGruppe = familie.slug === "c4_mailing" ? FLYER_GRUPPE_C4 : flyerGruppeLang;
+  }));
+
+  // Sélection du bon groupe selon la famille de produit
+  const flyerGruppen = familie.slug === "c4_mailing" ? flyerGruppeC4 : flyerGruppenLang;
 
   const broschuereGruppeLang = {
     titel: "Broschüre DIN lang",
@@ -470,7 +448,7 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
   const uebersichtGruppen = [
     huelleGruppe,
     ...(hatAnschreiben ? [anschreibenGruppe] : []),
-    ...(hatFlyer ? [flyerGruppe] : []),
+    ...(hatFlyer ? flyerGruppen : []),
     ...(hatBroschuere ? [broschuereGruppe] : []),
     ...(hatAntwortkarte ? [antwortkarteGruppeLang] : []),
   ];
@@ -483,12 +461,19 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
     fensterhuelleFarbigkeit: cfg.fensterhuelleFarbigkeit,
     anschreibenGrammatur: cfg.anschreibenGrammatur,
     anschreibenFarbigkeit: cfg.anschreibenFarbigkeit,
+    flyerUmfang: cfg.flyerUmfang,
+    flyerGrammatur: cfg.flyerGrammatur,
+    broschuereUmfang: cfg.broschuereUmfang,
     antwortkarteEndformat: cfg.antwortkarteEndformat,
+    antwortkarteGrammatur: cfg.antwortkarteGrammatur,
   });
 
   const uebersichtZeilen: [string, string][] = [
     ...allgemeinZeilen,
-    ...uebersichtGruppen.flatMap((g) => g.zeilen.map(([label, value]) => [`${g.titel} – ${label}`, value] as [string, string])),
+    ...uebersichtGruppen.flatMap((g) => {
+      if (!g) return [];
+      return g.zeilen.map(([label, value]) => [`${g.titel} – ${label}`, value] as [string, string]);
+    }),
     ...(preis
       ? ([
           ["Verarbeitungszeit", cfg.verarbeitungszeit === "Express" ? "Express" : "Standard"],
@@ -572,6 +557,10 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
                 {cfg.antwortkarteEndformat && <p><span className="text-[#2b2b2b]">Endformat Antwortkarte:</span> {cfg.antwortkarteEndformat}</p>}
                 {cfg.antwortkarteGrammatur && <p><span className="text-[#2b2b2b]">Grammatur Antwortkarte:</span> {cfg.antwortkarteGrammatur}</p>}
                 {cfg.antwortkarteOberflaeche && <p><span className="text-[#2b2b2b]">Oberfläche Antwortkarte:</span> {cfg.antwortkarteOberflaeche}</p>}
+                {cfg.anzahlFlyer && <p><span className="text-[#2b2b2b]">Anzahl Flyer:</span> {cfg.anzahlFlyer}</p>}
+                {cfg.flyerConfigs.map((flyerCfg, i) => (
+                  flyerCfg.umfang && <p key={i}><span className="text-[#2b2b2b]">Flyer {i + 1}:</span> {flyerCfg.umfang}, {flyerCfg.grammatur}, {flyerCfg.oberflaeche}</p>
+                ))}
               </div>
             )}
           </aside>
@@ -630,6 +619,22 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
                 </>
               )}
 
+              {currentStep === "Anzahl Flyer" && (
+                <>
+                  <StepHeader step={stepNumber("Anzahl Flyer")} title="Anzahl Flyer wählen" />
+                  <div className="flex flex-wrap gap-3">
+                    {[1, 2, 3].map((n) => (
+                      <OptionTile
+                        key={n}
+                        active={cfg.anzahlFlyer === n}
+                        onClick={() => selectAnzahlFlyer(n)}
+                        title={`${n} Flyer`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+
               {currentStep === "Farbigkeit Hülle" && (
                 <>
                   <StepHeader
@@ -650,6 +655,98 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
                 </>
               )}
 
+              {currentStep === "Umfang Broschüre" && (
+                <>
+                  <StepHeader step={stepNumber("Umfang Broschüre")} title="Umfang Broschüre wählen" helpTab="umfang" />
+                  <div className="flex flex-wrap gap-3">
+                    {BROSCHUERE_UMFANG_OPTIONEN.map((u) => (
+                      <OptionTile key={u} active={cfg.broschuereUmfang === u} onClick={() => selectBroschuereUmfang(u)} title={u} />
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {currentStep === "Oberfläche Broschüre" && (
+                <>
+                  <StepHeader step={stepNumber("Oberfläche Broschüre")} title="Oberfläche Broschüre wählen" helpTab="oberflaeche" />
+                  <div className="flex flex-wrap gap-3">
+                    {BROSCHUERE_OBERFLAECHE_OPTIONEN.map((o) => (
+                      <OptionTile key={o} active={cfg.broschuereOberflaeche === o} onClick={() => selectBroschuereOberflaeche(o)} title={o} />
+                    ))}
+                  </div>
+                </>
+              )}
+             
+               
+             
+
+             
+             {/* --- BLAATTER/FLYER DYNAMIQUES (de 1 à N flyers) --- */}
+              {Array.from({ length: cfg.anzahlFlyer ?? 0 }).map((_, i) => (
+                <Fragment key={i}>
+                  {currentStep === `Flyer ${i + 1} - Umfang` && (
+                    <>
+                      <StepHeader
+                        step={stepNumber(currentStep)}
+                        title={`Umfang Flyer ${i + 1} wählen`}
+                        helpTab="umfang"
+                      />
+                      <div className="flex flex-wrap gap-3">
+                        {FLYER_UMFANG_OPTIONEN.map((u) => (
+                          <OptionTile
+                            key={u}
+                            active={cfg.flyerConfigs[i]?.umfang === u}
+                            onClick={() => selectFlyerUmfang(i, u)}
+                            title={u}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {currentStep === `Flyer ${i + 1} - Grammatur` && (
+                    <>
+                      <StepHeader
+                        step={stepNumber(currentStep)}
+                        title={`Grammatur Flyer ${i + 1} wählen`}
+                        helpTab="grammatur"
+                      />
+                      <div className="flex flex-wrap gap-3">
+                        {(FLYER_GRAMMATUR_NACH_UMFANG[cfg.flyerConfigs[i]?.umfang ?? ""] ?? []).map((g) => (
+                          <OptionTile
+                            key={g}
+                            active={cfg.flyerConfigs[i]?.grammatur === g}
+                            onClick={() => selectFlyerGrammatur(i, g)}
+                            title={g}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {currentStep === `Flyer ${i + 1} - Oberfläche` && (
+                    <>
+                      <StepHeader
+                        step={stepNumber(currentStep)}
+                        title={`Oberfläche Flyer ${i + 1} wählen`}
+                        helpTab="oberflaeche"
+                      />
+                      <div className="flex flex-wrap gap-3">
+                        {FLYER_OBERFLAECHE_OPTIONEN.map((o) => (
+                          <OptionTile
+                            key={o}
+                            active={cfg.flyerConfigs[i]?.oberflaeche === o}
+                            onClick={() => selectFlyerOberflaeche(i, o)}
+                            title={o}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </Fragment>
+              ))}
+
+              {/* --- OPTIONS DE LA LETTRE (ANSCHREIBEN) --- */}
               {currentStep === "Grammatur Anschreiben" && (
                 <>
                   <StepHeader step={stepNumber("Grammatur Anschreiben")} title="Grammatur Anschreiben wählen" helpTab="grammatur" />
@@ -682,38 +779,6 @@ export function KuvertiertesMailingKonfigurator({ familie }: Readonly<{ familie:
                 </>
               )}
 
-              {currentStep === "Umfang Flyer" && (
-                <>
-                  <StepHeader step={stepNumber("Umfang Flyer")} title="Umfang Flyer wählen" helpTab="umfang" />
-                  <div className="flex flex-wrap gap-3">
-                    {FLYER_UMFANG_OPTIONEN.map((u) => (
-                      <OptionTile key={u} active={cfg.flyerUmfang === u} onClick={() => selectFlyerUmfang(u)} title={u} />
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {currentStep === "Grammatur Flyer" && (
-                <>
-                  <StepHeader step={stepNumber("Grammatur Flyer")} title="Grammatur Flyer wählen" helpTab="grammatur" />
-                  <div className="flex flex-wrap gap-3">
-                    {(FLYER_GRAMMATUR_NACH_UMFANG[cfg.flyerUmfang ?? ""] ?? []).map((g) => (
-                      <OptionTile key={g} active={cfg.flyerGrammatur === g} onClick={() => selectFlyerGrammatur(g)} title={g} />
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {currentStep === "Oberfläche Flyer" && (
-                <>
-                  <StepHeader step={stepNumber("Oberfläche Flyer")} title="Oberfläche Flyer wählen" helpTab="oberflaeche" />
-                  <div className="flex flex-wrap gap-3">
-                    {FLYER_OBERFLAECHE_OPTIONEN.map((o) => (
-                      <OptionTile key={o} active={cfg.flyerOberflaeche === o} onClick={() => selectFlyerOberflaeche(o)} title={o} />
-                    ))}
-                  </div>
-                </>
-              )}
 
               {currentStep === "Umfang Broschüre" && (
                 <>
