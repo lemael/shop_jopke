@@ -1,8 +1,8 @@
 import { getMailingFamilie } from "@/lib/mailing";
-import { berechnePreis } from "@/lib/mailingPreis";
-import { getSelfmailerFamilie } from "@/lib/selfmailer";
+import { berechnePreis } from "@/lib/kuvertiertesmailingPreis";
+import { getSelfmailerFamilie } from "@/lib/selfmailerPreis";
 import type { MailingSlug } from "@/lib/mailing";
-import type { SelfmailerSlug } from "@/lib/selfmailer";
+import type { SelfmailerSlug } from "@/lib/selfmailerPreis";
 import type { KartenmailingSlug } from "@/lib/kartenmailing";
 
 const HOMEPAGE_AUFLAGEN = [500, 1000, 2000, 3000, 5000, 10000, 20000, 50000, 100000] as const;

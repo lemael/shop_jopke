@@ -16,7 +16,7 @@ export function AuflageAuswahl({
   maximalmenge: number | null | undefined;
   value: number | null;
   onTileSelect: (auflage: number) => void;
-  onCustomChange: (auflage: number | null) => void;
+  onCustomChange: (auflage: number) => void;
 }>) {
   const [eigeneEingabe, setEigeneEingabe] = useState(
     value !== null && !auflagen.includes(value) ? String(value) : ""
@@ -29,7 +29,7 @@ export function AuflageAuswahl({
   function eingabeAendern(text: string) {
     setEigeneEingabe(text);
     const n = parseInt(text, 10);
-    onCustomChange(Number.isFinite(n) && n > 0 ? n : null);
+    onCustomChange(Number.isFinite(n) && n > 0 ? n : 0);
   }
 
   return (

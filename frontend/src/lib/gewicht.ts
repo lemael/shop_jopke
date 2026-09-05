@@ -1,7 +1,8 @@
 // lib/gewicht.ts
 
 import { Versandklasse } from "./porto";
-
+import type { ArtikelTarifDetails } from "@/types/artikelTarifDetails";
+import type { AusstattungConfig, AusstattungPreisTranche } from "@/types/kuvertiertesMailing/ausstattungPreisTranche";
 export interface PapierElement {
   seiten: number;      // Nombre de pages (ex: 2, 4, 12)
   breiteMm: number;    // Largeur du format ouvert en mm (ex: 210 mm)
@@ -39,18 +40,82 @@ export interface MailingKomponenten {
 
 /**
  * Calcule la largeur du format ouvert d'un flyer DIN lang selon son nombre de pages.
- * - 2 Seiten (105 x 210 mm) -> breiteMm = 105
- * - 4 Seiten (210 x 210 mm) -> breiteMm = 210
- * - 6 Seiten (315 x 210 mm) -> breiteMm = 315
- * - 8 Seiten (420 x 210 mm) -> breiteMm = 420
+ * - 2 Seiten (105 x 210 mm)  -> 1 feuillet de 105 mm = 105 mm
+ * - 4 Seiten (210 x 210 mm)  -> 2 volets de 105 mm  = 210 mm (105 * 2)
+ * - 6 Seiten (300 x 210 mm)  -> 3 volets de 100 mm  = 300 mm (100 * 3)
+ * - 8 Seiten (400 x 210 mm)  -> 4 volets de 100 mm  = 400 mm (100 * 4)
+ * - 12 Seiten (600 x 210 mm) -> 6 volets de 100 mm  = 600 mm (100 * 6)
  */
 function getFlyerOffeneBreite(seiten: number): number {
   if (seiten <= 2) return 105;
-  if (seiten <= 4) return 210;
-  if (seiten <= 6) return 315;
-  return 420; // 8+ Seiten
+  if (seiten <= 4) return 210; // 2 * 105 mm
+  if (seiten <= 6) return 300; // 3 * 100 mm
+  if (seiten <= 8) return 400; // 4 * 100 mm
+  return 600;                  // 12 Seiten (6 * 100 mm)
 }
 
+export function getAusstattungGewicht(
+  configs: AusstattungConfig[] | undefined,
+  huellentyp: string | null,
+  ausstattung: string | null,
+  tranche: AusstattungPreisTranche | undefined
+): number {
+  if (!configs || configs.length === 0 || !huellentyp || !ausstattung) return 0;
+
+  const gefundeneConfig = configs.find((cfg) => {
+    // 1. Kategorien vergleichen
+    const matchKategorie =
+      cfg.kategorie_3?.trim() === huellentyp.trim() &&
+      cfg.kategorie_4?.trim() === ausstattung.trim();
+
+    if (!matchKategorie) return false;
+
+    // 2. Falls eine Tranche angegeben ist, diese abgleichen
+    if (tranche && cfg.tranchen) {
+      return cfg.tranchen.some(
+        (t) =>
+          t.min === tranche.min &&
+          t.max === tranche.max &&
+          t.fixpreis === tranche.fixpreis &&
+          t.preisPro1000 === tranche.preisPro1000
+      );
+    }
+
+    return true;
+  });
+
+  return gefundeneConfig?.gewicht_in_g ?? 0;
+}
+
+export function getTarifGewicht(
+  allTarife: ArtikelTarifDetails[],
+  kategorie: string,
+  criteria: {
+    grammatur?: string | null;
+    umfang?: string | null;
+    endformat?: string | null;
+    farbigkeit?: string | null;
+    produkt_gruppe?: string | null;
+  }
+): number {
+  if (!allTarife || allTarife.length === 0) return 0;
+
+  const match = allTarife.find((item) => {
+    // 1. Kategorie-Match
+    if (item.kategorie !== kategorie && item.produkt_gruppe !== kategorie) return false;
+
+    // 2. Kriterien-Matching (prüft nur gesetzte Werte)
+    if (criteria.grammatur && item.grammatur !== criteria.grammatur) return false;
+    if (criteria.umfang && item.umfang !== criteria.umfang) return false;
+    if (criteria.endformat && item.endformat !== criteria.endformat) return false;
+    if (criteria.farbigkeit && item.farbigkeit !== criteria.farbigkeit) return false;
+    if (criteria.produkt_gruppe && item.produkt_gruppe !== criteria.produkt_gruppe) return false;
+
+    return true;
+  });
+
+  return match?.gewicht_in_g ?? 0;
+}
 /**
  * Calcule le poids total par envoi (en grammes) d'un mailing complet.
  */

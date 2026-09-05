@@ -1,4 +1,6 @@
 import { PRODUKTKATALOG, type Produkt } from "@/data/produktkatalog";
+import type { MailingSlug } from "@/types/kuvertiertesMailing/mailingSlug";
+import { FAMILIEN_KENNUNGEN } from "@/types/kuvertiertesMailing/mailingSlug";
 
 export interface MailingFamilie {
   slug: MailingSlug;
@@ -7,12 +9,7 @@ export interface MailingFamilie {
   varianten: Produkt[];
 }
 
-const FAMILIEN_KENNUNGEN = {
-  lang_mailing: "DIN-Lang-Mailing",
-  c4_mailing: "DIN-C4-Mailing",
-} as const;
 
-export type MailingSlug = keyof typeof FAMILIEN_KENNUNGEN;
 
 /**
  * Gruppiert PRODUKTKATALOG nach Kuvertiertes-Mailing-Produktlinie.

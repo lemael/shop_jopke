@@ -1,4 +1,4 @@
-// lib/porto.ts
+
 
 export type Versandklasse = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
 
@@ -86,14 +86,14 @@ export function berechnePorto(auflage: number, versandklasse: Versandklasse): nu
 
   // 1. À partir de 5 000 ex : tarif Dialogpost standard
   if (auflage >= 5000) {
-    return runden(auflage * regel.tarifBase);
+    return runden(auflage * regel.tarifBase + 5);
   }
 
   // 2. Zone d'Aufzahlung (entre le seuil et 4 999 ex) : payer pour 5 000 ex.
   if (auflage >= regel.seuilAufzahlung) {
-    return runden(5000 * regel.tarifBase);
+    return runden(5000 * regel.tarifBase + 5);
   }
 
   // 3. Dialogpost Easy : tarif de base + 0,18 € par envoi (pour auflage < seuil)
-  return runden(auflage * (regel.tarifBase + 0.18));
+  return runden(auflage * (regel.tarifBase + 0.18) + 5);
 }

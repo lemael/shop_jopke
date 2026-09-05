@@ -1,180 +1,114 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { ALL_STEPS, StepName } from "@/types/selfmailer/selfmailer";
 import { OptionTile, StepHeader } from "@/components/ConfiguratorUI";
 import { AuflageAuswahl } from "@/components/AuflageAuswahl";
 import { BestellModal } from "@/components/BestellModal";
-import { auflagenFuer } from "@/lib/auflage";
-import type { Produkt } from "@/data/produktkatalog";
-import type { SelfmailerFamilie } from "@/lib/selfmailer";
+import type { SelfmailerFamilie } from "@/lib/selfmailerPreis";
+import { useSelfmailerConfiguratorStore as useConfiguratorStore } from "@/stores/useSeflmailerConfiguratorStore";
+import { useEffect} from "react";
+import { calcSelfmailerPrice } from "@/lib/selfmailerPreis";
+import { DETAIL_STAFFEL_PUNKTE } from "@/data/constants";
 
-function unique<T>(values: (T | null | undefined)[]): T[] {
-  const result: T[] = [];
-  for (const v of values) {
-    if (v !== null && v !== undefined && !result.includes(v)) result.push(v);
-  }
-  return result;
-}
-
-const SELFMAILER_PRICE_MATRIX: Partial<Record<SelfmailerFamilie["slug"], Record<number, Record<number, number>>>> = {
-  inata: {
-    4: { 500: 0.35, 1000: 0.30, 2000: 0.26, 3000: 0.24, 5000: 0.22, 10000: 0.20 },
-    6: { 500: 0.42, 1000: 0.37, 2000: 0.33, 3000: 0.30, 5000: 0.27, 10000: 0.24 },
-    8: { 500: 0.49, 1000: 0.44, 2000: 0.39, 3000: 0.35, 5000: 0.31, 10000: 0.28 },
-  },
-};
-
-const GRAMMATUR_FACTOR: Record<string, number> = {
-  "135 g/m²": 0.92,
-  "170 g/m²": 1,
-  "250 g/m²": 1.15,
-};
-
-const PORTO_RATE = 0.56;
 
 function formatEuro(value: number) {
   return `${value.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 }
 
-export interface PriceDetails {
-  einheitspreis: number;
-  druck: number;
-  porto: number;
-  netto: number;
-  mwst: number;
-  brutto: number;
-}
+function formatGramG(value: number) {
+ return `${value} g`;
+} 
+function formatGramKg(value: number) {
+ 
+    return `${value} kg`;
+  }
 
-export function calcSelfmailerPrice(familieSlug: SelfmailerFamilie["slug"], cfg: Config): PriceDetails | null {
-  if (!cfg.auflage || !cfg.umfang || !cfg.grammatur) return null;
-  const familyMatrix = SELFMAILER_PRICE_MATRIX[familieSlug];
-  if (!familyMatrix) return null;
-  const seiten = Number.parseInt(cfg.umfang, 10);
-  if (Number.isNaN(seiten)) return null;
-  const pages = familyMatrix[seiten];
-  if (!pages) return null;
-  const unitBase = pages[cfg.auflage];
-  if (unitBase === undefined) return null;
-  const factor = GRAMMATUR_FACTOR[cfg.grammatur] ?? 1;
-  const einheitspreis = Math.round(unitBase * factor * 100) / 100;
-  const druck = Math.round(einheitspreis * cfg.auflage * 100) / 100;
-  const porto = Math.round(cfg.auflage * PORTO_RATE * 100) / 100;
-  const netto = Math.round((druck + porto) * 100) / 100;
-  const mwst = Math.round(netto * 0.19 * 100) / 100;
-  return { einheitspreis, druck, porto, netto, mwst, brutto: Math.round((netto + mwst) * 100) / 100 };
-}
-
-interface Config {
-  auflage: number | null;
-  umfang: string | null;
-  grammatur: string | null;
-  perforation: string | null;
-}
 
 export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: SelfmailerFamilie }>) {
-  const { varianten, name, beschreibung } = familie;
 
-  const mindestmenge = useMemo(
-    () => Math.min(...varianten.map((v) => v.mindestmenge ?? Infinity).filter((n) => n !== Infinity)),
-    [varianten]
+    const store = useConfiguratorStore();
+    const stepIndex = store.stepIndex();
+    const STEP = store.STEPS();
+    const ausstattungen = store.ausstattungConfigs;
+    const { 
+      loading, 
+      error, 
+      loadOptions, 
+      cfg, 
+      currentStep, 
+      goTo, 
+      next, 
+      isStepValid, 
+      selectUmfang, 
+      selectGrammatur, 
+      selectPerforation, 
+      selectAuflage,
+      bestellOpen, 
+      setBestellOpen,
+    } = store;
+  
+    // API-Daten beim Komponenten-Mount laden
+    useEffect(() => {
+      loadOptions();
+    }, [loadOptions]);
+    
+      if (loading && ausstattungen.length === 0) return (
+      <div
+        className="min-h-[300px] flex flex-col items-center justify-center gap-5 text-gray-500"
+        suppressHydrationWarning
+      >
+        <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
+
+        <p>wartet bitte...</p>
+      </div>
+    );
+
+    const { varianten, name, beschreibung } = familie;
+
+    const auflagen: number[] = DETAIL_STAFFEL_PUNKTE;
+
+
+  
+
+  
+
+
+ 
+  const suchbegriff = familie.kategorie_2?.trim() || familie.slug;
+
+  const ausstattung = ausstattungen.filter(a =>
+    a.name?.toLowerCase().includes(suchbegriff.toLowerCase())
   );
-  const maximalmenge = useMemo(
-    () => Math.max(...varianten.map((v) => v.maximalmenge ?? -Infinity).filter((n) => n !== -Infinity)),
-    [varianten]
-  );
-  const auflagen = useMemo(() => auflagenFuer(mindestmenge, maximalmenge), [mindestmenge, maximalmenge]);
-
-  const umfaenge = useMemo(() => unique(varianten.map((v) => v.umfang)), [varianten]);
-  const [cfg, setCfg] = useState<Config>({ auflage: null, umfang: null, grammatur: null, perforation: null });
-
-  const nachUmfang = useMemo(() => varianten.filter((v) => v.umfang === cfg.umfang), [varianten, cfg.umfang]);
-  const grammaturen = useMemo(() => unique(nachUmfang.map((v) => v.inhalt?.grammatur)), [nachUmfang]);
-  const grammatur = cfg.grammatur && grammaturen.includes(cfg.grammatur) ? cfg.grammatur : null;
-
-  const nachGrammatur = useMemo(() => nachUmfang.filter((v) => v.inhalt?.grammatur === grammatur), [nachUmfang, grammatur]);
-  const perforationen = useMemo(() => unique(nachGrammatur.map((v) => v.perforation)), [nachGrammatur]);
-  const brauchtPerforationsAuswahl = perforationen.length > 1;
-  let perforation: string | null = null;
-  if (brauchtPerforationsAuswahl) {
-    perforation = cfg.perforation && perforationen.includes(cfg.perforation) ? cfg.perforation : null;
-  } else {
-    perforation = perforationen[0] ?? null;
-  }
-
-  const ausgewaehlteVariante: Produkt | undefined = nachGrammatur.find((v) =>
-    brauchtPerforationsAuswahl ? v.perforation === perforation : true
+  const umfangen = Array.from(
+    new Set(ausstattung.flatMap(a => a.umfang))
   );
 
-  const steps = useMemo(
-    () => ["Auflage", "Umfang", "Grammatur", ...(brauchtPerforationsAuswahl ? ["Perforation"] : []), "Übersicht"] as const,
-    [brauchtPerforationsAuswahl]
+  const grammaturen = Array.from(
+    new Set(ausstattung.flatMap(a => a.grammatur))
   );
-  type StepName = (typeof steps)[number];
 
-  const [currentStep, setCurrentStep] = useState<StepName>("Auflage");
-  const stepIndex = steps.indexOf(currentStep as never);
+  const perforationen = Array.from(
+    new Set(ausstattung.flatMap(a => a.perforation))
+  );
 
-  function goTo(step: StepName) {
-    setCurrentStep(step);
-  }
-
-  function selectAuflage(a: number) {
-    setCfg((c) => ({ ...c, auflage: a }));
-    setCurrentStep("Umfang");
-  }
-  function selectUmfang(u: string) {
-    setCfg((c) => ({ ...c, umfang: u, grammatur: null, perforation: null }));
-    setCurrentStep("Grammatur");
-  }
-  function selectGrammatur(g: string) {
-    // brauchtPerforationsAuswahl stammt aus dem vorherigen Render (basiert auf altem cfg.grammatur)
-    // und darf hier nicht verwendet werden - stattdessen frisch aus nachUmfang + g ableiten.
-    const passendeVarianten = nachUmfang.filter((v) => v.inhalt?.grammatur === g);
-    const perforationsOptionenFuerG = unique(passendeVarianten.map((v) => v.perforation));
-    setCfg((c) => ({ ...c, grammatur: g, perforation: null }));
-    setCurrentStep(perforationsOptionenFuerG.length > 1 ? "Perforation" : "Übersicht");
-  }
-  function selectPerforation(p: string) {
-    setCfg((c) => ({ ...c, perforation: p }));
-    setCurrentStep("Übersicht");
-  }
-
-  function isStepValid(step: StepName): boolean {
-    if (step === "Auflage") {
-      return cfg.auflage !== null && cfg.auflage >= mindestmenge && cfg.auflage <= maximalmenge;
-    }
-    if (step === "Umfang") return cfg.umfang !== null;
-    if (step === "Grammatur") return grammatur !== null;
-    if (step === "Perforation") return perforation !== null;
-    return true;
-  }
-
-  function next() {
-    const idx = steps.indexOf(currentStep as never);
-    setCurrentStep(steps[Math.min(idx + 1, steps.length - 1)] as StepName);
-  }
-
-  const [bestellOpen, setBestellOpen] = useState(false);
-  const preisdetails = calcSelfmailerPrice(familie.slug, cfg);
-
+  
+  const ausgewaehlteVariante = ausstattung.find(a => a.umfang === cfg.umfang && a.grammatur === cfg.grammatur);
+  const preisdetails = ausgewaehlteVariante ? calcSelfmailerPrice(ausgewaehlteVariante, cfg) : null;
   const uebersichtZeilen: [string, string][] = [
     ["Auflage", cfg.auflage ? `${cfg.auflage.toLocaleString("de-DE")} Stück` : "–"],
     ["Endformat", ausgewaehlteVariante?.endformat ?? "–"],
-    ["Offenes Format", ausgewaehlteVariante?.offenesFormat ?? "–"],
+    ["Offenes Format", ausgewaehlteVariante?.offenes_format ?? "–"],
     ["Umfang", cfg.umfang ?? "–"],
     ["Farbigkeit", ausgewaehlteVariante?.farbigkeit ?? "–"],
-    ["Grammatur", ausgewaehlteVariante?.inhalt?.grammatur ?? "–"],
-    ["Papier", ausgewaehlteVariante?.inhalt?.papier ?? "–"],
-    ["Oberfläche", ausgewaehlteVariante?.inhalt?.oberflaeche ?? "–"],
-    ...(ausgewaehlteVariante?.umschlag
-      ? ([
-          ["Grammatur (Umschlag)", ausgewaehlteVariante.umschlag.grammatur ?? "–"],
-          ["Papier (Umschlag)", ausgewaehlteVariante.umschlag.papier ?? "–"],
-          ["Oberfläche (Umschlag)", ausgewaehlteVariante.umschlag.oberflaeche ?? "–"],
-        ] as [string, string][])
-      : []),
-    ...(brauchtPerforationsAuswahl ? ([["Perforation", perforation ?? "–"]] as [string, string][]) : []),
+    ["Grammatur", ausgewaehlteVariante?.grammatur ?? "–"],
+    ["Papier", ausgewaehlteVariante?.papier ?? "–"],
+    ["Oberfläche", ausgewaehlteVariante?.oberflaeche ?? "–"],
+    ["Grammatur (Umschlag)", ausgewaehlteVariante?.grammatur_2 ?? "–"],
+    ["Papier (Umschlag)", ausgewaehlteVariante?.papier_2 ?? "–"],
+    ["Oberfläche (Umschlag)", ausgewaehlteVariante?.oberflaeche_2 ?? "–"],
+       
+    ...(ausgewaehlteVariante?.perforation ? ([["Perforation", ausgewaehlteVariante?.perforation ?? "–"]] as [string, string][]) : []),
     ["Verarbeitung", ausgewaehlteVariante?.verarbeitung ?? "–"],
   ];
 
@@ -189,9 +123,8 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
         </nav>
 
         <h1 className="text-2xl font-bold text-[#2b2b2b] mb-2">{name} – Konfigurator</h1>
-        {beschreibung && (
-          <p className="text-sm text-[#666666] mb-8 whitespace-pre-line max-w-2xl">{beschreibung}</p>
-        )}
+       
+       <br />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
@@ -202,7 +135,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
                 Konfiguration
               </div>
               <nav className="divide-y divide-[#f0f0f0]">
-                {steps.map((step, i) => {
+                {STEP.map((step, i) => {
                   const done = i < stepIndex;
                   const active = step === currentStep;
                   const reachable = i <= stepIndex;
@@ -236,8 +169,8 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
                 {cfg.auflage && <p><span className="text-[#2b2b2b]">Auflage:</span> {cfg.auflage.toLocaleString("de-DE")} Stück</p>}
                 {cfg.umfang && <p><span className="text-[#2b2b2b]">Umfang:</span> {cfg.umfang}</p>}
                 {ausgewaehlteVariante?.endformat && <p><span className="text-[#2b2b2b]">Endformat:</span> {ausgewaehlteVariante.endformat}</p>}
-                {grammatur && <p><span className="text-[#2b2b2b]">Grammatur:</span> {grammatur}</p>}
-                {brauchtPerforationsAuswahl && perforation && <p><span className="text-[#2b2b2b]">Perforation:</span> {perforation}</p>}
+                {cfg.grammatur && <p><span className="text-[#2b2b2b]">Grammatur:</span> {cfg.grammatur}</p>}
+                {cfg.perforation && <p><span className="text-[#2b2b2b]">Perforation:</span> {cfg.perforation}</p>}
               </div>
             )}
           </aside>
@@ -251,11 +184,11 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
                   <StepHeader step={1} title="Auflage wählen" helpTab="auflage" />
                   <AuflageAuswahl
                     auflagen={auflagen}
-                    mindestmenge={mindestmenge}
-                    maximalmenge={maximalmenge}
+                    mindestmenge={ausstattung[0]?.mindestmenge}
+                    maximalmenge={ausstattung[0]?.maximalmenge}
                     value={cfg.auflage}
                     onTileSelect={selectAuflage}
-                    onCustomChange={(a) => setCfg((c) => ({ ...c, auflage: a }))}
+                    onCustomChange={selectAuflage}
                   />
                 </>
               )}
@@ -264,8 +197,8 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
                 <>
                   <StepHeader step={2} title="Umfang wählen" helpTab="umfang" />
                   <div className="flex flex-wrap gap-3">
-                    {umfaenge.map((u) => {
-                      const beispiel = varianten.find((v) => v.umfang === u);
+                    {umfangen.map((u) => {
+                      const beispiel = ausstattung.find((v) => v.umfang === u);
                       return (
                         <OptionTile
                           key={u}
@@ -285,14 +218,14 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
                   <StepHeader step={3} title="Grammatur wählen" helpTab="grammatur" />
                   <div className="flex flex-wrap gap-3">
                     {grammaturen.map((g) => {
-                      const beispiel = nachUmfang.find((v) => v.inhalt?.grammatur === g);
+                      const beispiel = ausstattung.find((v) => v.grammatur === g);
                       return (
                         <OptionTile
                           key={g}
-                          active={grammatur === g}
+                          active={cfg.grammatur === g}
                           onClick={() => selectGrammatur(g)}
                           title={g}
-                          subtitle={beispiel?.inhalt?.papier ?? undefined}
+                          subtitle={beispiel?.papier ?? undefined}
                         />
                       );
                     })}
@@ -305,7 +238,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
                   <StepHeader step={4} title="Perforation wählen" helpTab="perforation" />
                   <div className="flex flex-wrap gap-3">
                     {perforationen.map((p) => (
-                      <OptionTile key={p} active={perforation === p} onClick={() => selectPerforation(p)} title={p} />
+                      <OptionTile key={p} active={cfg.perforation.includes(p)} onClick={() => selectPerforation(p)} title={p} />
                     ))}
                   </div>
                 </>
@@ -313,7 +246,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
 
               {currentStep === "Übersicht" && (
                 <>
-                  <StepHeader step={steps.length} title="Übersicht & Anfrage" helpTab="uebersicht" />
+                  <StepHeader step={STEP.length} title="Übersicht & Anfrage" helpTab="uebersicht" />
                   <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] mb-6">
                     <div>
                       <table className="w-full text-sm">
@@ -339,10 +272,6 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
                         </div>
                         <dl className="text-sm">
                           <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
-                            <dt className="text-[#666666]">Preis pro Stück</dt>
-                            <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preisdetails.einheitspreis)}</dd>
-                          </div>
-                          <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
                             <dt className="text-[#666666]">Druck (netto)</dt>
                             <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preisdetails.druck)}</dd>
                           </div>
@@ -352,15 +281,23 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
                           </div>
                           <div className="flex justify-between px-4 py-3 border-t border-[#dcdcdc] bg-[#f9f9f9]">
                             <dt className="font-bold text-[#2b2b2b]">Gesamt (netto):</dt>
-                            <dd className="font-bold text-[#822660] text-lg">{formatEuro(preisdetails.netto)}</dd>
+                            <dd className="font-bold text-[#822660] text-lg">{formatEuro(preisdetails.gesamtNettoStandard)}</dd>
                           </div>
                           <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
                             <dt className="text-xs text-[#666666]">zzgl. 19% MwSt.:</dt>
-                            <dd className="text-xs text-[#666666]">{formatEuro(preisdetails.mwst)}</dd>
+                            <dd className="text-xs text-[#666666]">{formatEuro(preisdetails.mwstStandard)}</dd>
                           </div>
                           <div className="flex justify-between px-4 py-2">
                             <dt className="font-semibold text-[#2b2b2b]">Gesamt (brutto):</dt>
-                            <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preisdetails.brutto)}</dd>
+                            <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preisdetails.gesamtBruttoStandard)}</dd>
+                          </div>
+                          <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
+                            <dt className="text-[#666666]">Gewicht pro Sendung:</dt>
+                            <dd className="font-semibold text-[#666666]">{formatGramG(preisdetails.gewichtProSendungG)}</dd>
+                          </div>
+                             <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
+                            <dt className="text-[#666666]">Gesamtgewicht:</dt>
+                            <dd className="font-semibold text-[#666666]">{formatGramKg(preisdetails.gesamtGewichtKg)}</dd>
                           </div>
                         </dl>
                         <p className="px-4 py-3 text-xs text-[#888888] border-t border-[#f0f0f0] leading-relaxed">
@@ -392,7 +329,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
               <div className="flex items-center justify-between mt-8 pt-6 border-t border-[#dcdcdc]">
                 <button
                   type="button"
-                  onClick={() => { const prev = steps[stepIndex - 1]; if (prev) goTo(prev as StepName); }}
+                  onClick={() => { const prev = STEP[stepIndex - 1]; if (prev) goTo(prev as StepName); }}
                   disabled={stepIndex === 0}
                   className={`px-5 py-2.5 border text-sm font-medium transition-colors ${
                     stepIndex === 0

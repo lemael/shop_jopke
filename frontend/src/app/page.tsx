@@ -19,7 +19,7 @@ const selfmailerProducts: ProduktKarte[] = [
   { id: 6, name: "DIN-Lang-Poster-Selfmailer ANDIGO", format: "210 × 100 mm", pages: "12 Seiten", price: getSelfmailerHomepagePrice("andigo"), href: "/shop/andigo", image: "/andigo-selfmailer.svg" },
   { id: 7, name: "DIN-A5-Poster-Selfmailer AFISA", format: "210 × 148 mm", pages: "8 Seiten Kreuzfalz", price: getSelfmailerHomepagePrice("afisa"), href: "/shop/afisa", image: "/afisa-selfmailer.svg" },
   { id: 8, name: "DIN-Lang-Minikatalog ALVARO", format: "210 × 105 mm", pages: "16–20 Seiten Rückendrahtheftung", price: getSelfmailerHomepagePrice("alvaro"), href: "/shop/alvaro", image: "/alvaro-katalog.svg" },
-  { id: 9, name: "Bestseller LEVI", format: "210 × 100 mm", pages: "6 Seiten Wickelfalz", price: getSelfmailerHomepagePrice("levi"), image: "/bestseller-levi.svg" },
+  { id: 9, name: "Bestseller LEVI", format: "210 × 100 mm", pages: "6 Seiten Wickelfalz", price: getSelfmailerHomepagePrice("levi"), href: "/shop/bestseller_levi", image: "/bestseller-levi.svg" },
 ];
 
 const kuvertiertesMailingProducts: ProduktKarte[] = [
