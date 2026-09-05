@@ -1,0 +1,34 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# production
+build/
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# misc
+.DS_Store
+*.pem
+
+# env
+.env
+.env*.local
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.~lock.*#
