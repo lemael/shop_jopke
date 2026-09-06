@@ -19,17 +19,16 @@ RUN npm run build
 
 
 
-# Use a smaller image for the final build
-FROM nginx:alpine
+# Use the standalone Next.js output for a small production image
+FROM node:22-alpine AS runner
 
+WORKDIR /app
+ENV NODE_ENV=production
 
-# Copy the built application from the builder stage to the Nginx HTML directory
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
+EXPOSE 3000
 
-# Expose port 80 to the outside world
-EXPOSE 80
-
-
-# Start Nginx when the container launches
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["sh", "-c", "node server.js"]

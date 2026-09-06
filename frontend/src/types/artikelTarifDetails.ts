@@ -1,0 +1,1 @@
+export type { ArtikelTarifDetails } from "./kuvertiertesMailing/artikelTarifDetails";

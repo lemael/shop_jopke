@@ -1,6 +1,6 @@
 import { apiClient } from "./client";
 import type { ArtikelTarifDetails } from "@/types/artikelTarifDetails";
-import type { AnschreibenPreiseMap } from "@/types/anschreibenPreiseMap";
+import type { AnschreibenPreiseMap } from "@/types/kuvertiertesMailing/anschreibenPreiseMap";
 import type { BroschuerePreiseMap } from "@/types/kuvertiertesMailing/broschuerePreiseMap";
 import type { FlyerPreiseMap } from "@/types/kuvertiertesMailing/flyerPreiseMap";
 import type { AntwortkartePreiseMap } from "@/types/kuvertiertesMailing/antwortkartePreiseMap";

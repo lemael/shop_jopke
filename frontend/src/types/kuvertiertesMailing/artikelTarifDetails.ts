@@ -1,4 +1,4 @@
-import { StaffelPreis } from "./staffelPreis";
+import { StaffelPreis } from "../staffelPreis";
 
 export interface ArtikelTarifDetails {
   kategorie: string;
