@@ -38,7 +38,7 @@ const kartenMailingProducts: ProduktKarte[] = [
 ];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-
+//FG
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-[#f4f4f4] font-sans">
