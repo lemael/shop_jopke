@@ -61,7 +61,7 @@ export interface AusstattungConfig {
   rueckseite?: string;
   verarbeitung?: string;
   perforation: string;
-  veredelung?: string;
+  veredelung: string;
   upload?: string;
 
   // Logistique & Limites

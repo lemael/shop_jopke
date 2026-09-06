@@ -4,7 +4,7 @@ import {
   ermittleVersandklasse,
   
 } from "./gewicht";
-import type { MailingSlug } from "@/types/kuvertiertesMailing/mailingSlug";
+import type { KuvertiertesMailingSlug} from "@/types/kuvertiertesMailing/mailingSlug";
 import type { StaffelPreis } from "@/types/staffelPreis";
 import { getTarifGewicht } from "./gewicht";
 import type { AnschreibenGrammatur, AnschreibenFarbigkeit, FlyerUmfang, FlyerGrammatur, FlyerOberflaeche, BroschuereOberflaeche, BroschuereUmfang, AntwortkarteEndformat, AntwortkarteGrammatur, AntwortkarteOberflaeche } from "@/types/kuvertiertesMailing/types";
@@ -26,7 +26,7 @@ import {
 } from "@/data/staffelPreis";
 import { AusstattungConfig, AusstattungPreisTranche } from "@/types/kuvertiertesMailing/ausstattungPreisTranche";
 import { ArtikelTarifDetails } from "@/types/kuvertiertesMailing/artikelTarifDetails";
-const SLUG_TO_FORMAT_TYPE: Record<MailingSlug, "DIN_LANG" | "DIN_C4"> = {
+const SLUG_TO_FORMAT_TYPE: Record<KuvertiertesMailingSlug, "DIN_LANG" | "DIN_C4"> = {
   lang_mailing: "DIN_LANG",
   c4_mailing: "DIN_C4",
 };
@@ -190,7 +190,7 @@ function runden(wert: number): number {
  * (derzeit nur für DIN-Lang-Mailings mit allen drei Hüllentypen abgedeckt).
  */
 export function berechnePreis(params: {
-  slug: MailingSlug;
+  slug: KuvertiertesMailingSlug;
   huellentyp: string | null;
   ausstattung: string | null;
   auflage: number | null;

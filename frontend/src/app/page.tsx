@@ -34,7 +34,7 @@ const kartenMailingProducts: ProduktKarte[] = [
   { id: 4, name: "Postkarte DIN A6", format: "148 × 105 mm", pages: "1-seitig", price: getKartenmailingHomepagePrice("post_din_a6"), href: "/shop/post_din_a6", image: "/postkarte-dina6.svg" },
   { id: 5, name: "Postkarte DIN A5", format: "210 × 148 mm", pages: "1-seitig", price: getKartenmailingHomepagePrice("post_din_a5"), href: "/shop/post_din_a5", image: "/postkarte-dina5.svg" },
   { id: 6, name: "Postkarte DIN A4", format: "297 × 210 mm", pages: "1-seitig", price: getKartenmailingHomepagePrice("post_din_a4"), href: "/shop/post_din_a4", image: "/postkarte-dina4.svg" },
-  { id: 7, name: "Bestseller Karte Maxi", format: "235 × 125 mm", pages: "4/4-farbig, UV-Lack VS", price: getKartenmailingHomepagePrice("post_maxi"), image: "/postkarte-maxi.svg" },
+  { id: 7, name: "Bestseller Karte Maxi", format: "235 × 125 mm", pages: "4/4-farbig, UV-Lack VS", price: getKartenmailingHomepagePrice("postkarte_maxi"), href: "/shop/postkarte_maxi", image: "/postkarte-maxi.svg" },
 ];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────

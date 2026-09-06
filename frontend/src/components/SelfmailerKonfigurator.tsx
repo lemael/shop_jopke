@@ -22,7 +22,7 @@ function formatGramG(value: number) {
 function formatGramKg(value: number) {
  
     return `${value} kg`;
-  }
+}
 
 
 export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: SelfmailerFamilie }>) {

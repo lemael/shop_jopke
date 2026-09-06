@@ -1,12 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { OptionTile, StepHeader } from "@/components/ConfiguratorUI";
 import { AuflageAuswahl } from "@/components/AuflageAuswahl";
 import { BestellModal } from "@/components/BestellModal";
 import { auflagenFuer } from "@/lib/auflage";
 import type { Produkt } from "@/data/produktkatalog";
-import type { KartenmailingFamilie } from "@/lib/kartenmailing";
+import { calcSelfmailerPrice, type KartenmailingFamilie } from "@/lib/kartenmailingPreis";
+import { useKartenmailingConfiguratorStore } from "@/stores/useKartenmailingConfiguratorStore";
+import { DETAIL_STAFFEL_PUNKTE } from "@/data/constants";
+import { FAMILIEN_KENNUNGEN } from "@/types/kartenmailer/kartenmailer";
 
 function unique<T>(values: (T | null | undefined)[]): T[] {
   const result: T[] = [];
@@ -15,68 +18,68 @@ function unique<T>(values: (T | null | undefined)[]): T[] {
   }
   return result;
 }
-
-interface Config {
-  papier: string | null;
-  veredelung: string | null;
-  auflage: number | null;
+function formatEuro(value: number) {
+  return `${value.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 }
 
-const STEPS = ["Papier", "Veredelung", "Auflage", "Übersicht"] as const;
-type StepName = (typeof STEPS)[number];
+function formatGramG(value: number) {
+ return `${value} g`;
+} 
+function formatGramKg(value: number) {
+ 
+    return `${value} kg`;
+}
+
+
 
 export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: KartenmailingFamilie }>) {
+
+  const store = useKartenmailingConfiguratorStore();
   const { varianten, name, beschreibung } = familie;
 
-  const papiere = useMemo(() => unique(varianten.map((v) => v.inhalt?.papier)), [varianten]);
+  
+  const stepIndex = store.stepIndex();
+  const STEPS = store.STEPS();
+  const ausstattungen = store.ausstattungConfigs;
+  
+  const { cfg, currentStep, selectPapier, selectVeredelung, selectAuflage, goTo, isStepValid, next, loadOptions, loading } = store;
 
-  const [cfg, setCfg] = useState<Config>({ papier: null, veredelung: null, auflage: null });
-  const [currentStep, setCurrentStep] = useState<StepName>("Papier");
-  const stepIndex = STEPS.indexOf(currentStep);
+  // API-Daten beim Komponenten-Mount laden
+  useEffect(() => {
+    loadOptions();
+  }, [loadOptions]);
+ 
 
-  const nachPapier = useMemo(() => varianten.filter((v) => v.inhalt?.papier === cfg.papier), [varianten, cfg.papier]);
-  const veredelungen = useMemo(() => unique(nachPapier.map((v) => v.veredelung)), [nachPapier]);
-  const veredelung = cfg.veredelung && veredelungen.includes(cfg.veredelung) ? cfg.veredelung : null;
+  console.log("Ausstattungen", ausstattungen);
+  
 
-  const ausgewaehlteVariante: Produkt | undefined = nachPapier.find((v) => v.veredelung === veredelung);
 
-  const auflagen = useMemo(
-    () => auflagenFuer(ausgewaehlteVariante?.mindestmenge, ausgewaehlteVariante?.maximalmenge),
-    [ausgewaehlteVariante]
+  const suchbegriff = FAMILIEN_KENNUNGEN[familie.slug];
+  console.log("FAMILIEN_KENNUNGEN", FAMILIEN_KENNUNGEN);
+  const ausstattung = ausstattungen.filter(a =>
+    a.name?.toLowerCase().includes(suchbegriff.toLowerCase())
   );
+  console.log("suchbegriff", suchbegriff);
+  console.log("ausstattung", ausstattung);
+  const veredelungen = Array.from(new Set(ausstattung.map((v) => v.veredelung))).filter((v): v is string => v !== undefined);
+  
+  const papiere = [...new Set(
+    ausstattung
+      .map((v) => v.papier)
+      .filter((v): v is string => v !== undefined)
+  )];
+  console.log("papiere", papiere);
+  const auflagen: number[] = DETAIL_STAFFEL_PUNKTE;
+  const ausgewaehlteVariante = ausstattung.find((v) => v.papier === cfg.papier && v.veredelung === cfg.veredelung);
 
-  function goTo(step: StepName) {
-    setCurrentStep(step);
-  }
+  const preisdetails = ausgewaehlteVariante ? calcSelfmailerPrice(ausgewaehlteVariante, cfg) : null;
+  // Removed local selectPapier, selectVeredelung, selectAuflage functions
+  // Using store's selectPapier, selectVeredelung, selectAuflage functions instead
 
-  function selectPapier(p: string) {
-    setCfg({ papier: p, veredelung: null, auflage: null });
-    setCurrentStep("Veredelung");
-  }
-  function selectVeredelung(v: string) {
-    setCfg((c) => ({ ...c, veredelung: v, auflage: null }));
-    setCurrentStep("Auflage");
-  }
-  function selectAuflage(a: number) {
-    setCfg((c) => ({ ...c, auflage: a }));
-    setCurrentStep("Übersicht");
-  }
 
-  function isStepValid(step: StepName): boolean {
-    if (step === "Papier") return cfg.papier !== null;
-    if (step === "Veredelung") return veredelung !== null;
-    if (step === "Auflage") {
-      const min = ausgewaehlteVariante?.mindestmenge ?? null;
-      const max = ausgewaehlteVariante?.maximalmenge ?? null;
-      return cfg.auflage !== null && (min === null || cfg.auflage >= min) && (max === null || cfg.auflage <= max);
-    }
-    return true;
-  }
 
-  function next() {
-    const idx = STEPS.indexOf(currentStep);
-    setCurrentStep(STEPS[Math.min(idx + 1, STEPS.length - 1)]);
-  }
+  // Removed local next function
+  // Using store's next function instead
 
   const [bestellOpen, setBestellOpen] = useState(false);
 
@@ -85,9 +88,21 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
     ["Endformat", ausgewaehlteVariante?.endformat ?? "–"],
     ["Papier", cfg.papier ?? "–"],
     ["Farbigkeit", ausgewaehlteVariante?.farbigkeit ?? "–"],
-    ["Veredelung", veredelung ?? "–"],
-    ["Versandklasse", ausgewaehlteVariante?.versandklasse ?? "–"],
+    ["Veredelung", cfg.veredelung ?? "–"],
+    ["Versandklasse", ausgewaehlteVariante?.mindest_versandklasse ?? "–"],
   ];
+
+  if (loading && ausstattungen.length === 0) {
+    return (
+      <div
+        className="min-h-[300px] flex flex-col items-center justify-center gap-5 text-gray-500"
+        suppressHydrationWarning
+      >
+        <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
+        <p>wartet bitte...</p>
+      </div>
+    );
+  } else{
 
   return (
     <div className="bg-[#f4f4f4] min-h-screen">
@@ -99,10 +114,7 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
           <span className="text-[#2b2b2b]">{name}</span>
         </nav>
 
-        <h1 className="text-2xl font-bold text-[#2b2b2b] mb-2">{name} – Konfigurator</h1>
-        {beschreibung && (
-          <p className="text-sm text-[#666666] mb-8 whitespace-pre-line max-w-2xl">{beschreibung}</p>
-        )}
+       
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
@@ -144,9 +156,10 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
             {Boolean(cfg.papier) && (
               <div className="mt-4 bg-white border border-[#dcdcdc] p-4 text-xs text-[#666666] space-y-1">
                 <p className="font-semibold text-[#2b2b2b] text-xs uppercase tracking-wide mb-2">Ihre Auswahl</p>
-                {cfg.papier && <p><span className="text-[#2b2b2b]">Papier:</span> {cfg.papier}</p>}
-                {veredelung && <p><span className="text-[#2b2b2b]">Veredelung:</span> {veredelung}</p>}
                 {cfg.auflage && <p><span className="text-[#2b2b2b]">Auflage:</span> {cfg.auflage.toLocaleString("de-DE")} Stück</p>}
+                {cfg.papier && <p><span className="text-[#2b2b2b]">Papier:</span> {cfg.papier}</p>}
+                {cfg.veredelung && <p><span className="text-[#2b2b2b]">Veredelung:</span> {cfg.veredelung}</p>}
+                
               </div>
             )}
           </aside>
@@ -154,10 +167,22 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
           {/* Main content */}
           <main className="lg:col-span-3">
             <div className="bg-white border border-[#dcdcdc] p-6 sm:p-8">
-
+              {currentStep === "Auflage" && (
+                <>
+                  <StepHeader step={1} title="Auflage wählen" helpTab="auflage" />
+                  <AuflageAuswahl
+                    auflagen={auflagen}
+                    mindestmenge={ausgewaehlteVariante?.mindestmenge}
+                    maximalmenge={ausgewaehlteVariante?.maximalmenge}
+                    value={cfg.auflage}
+                    onTileSelect={selectAuflage}
+                    onCustomChange={(a) => selectAuflage(a)}
+                  />
+                </>
+              )}
               {currentStep === "Papier" && (
                 <>
-                  <StepHeader step={1} title="Papier wählen" helpTab="papier" />
+                  <StepHeader step={2} title="Papier wählen" helpTab="papier" />
                   <div className="flex flex-wrap gap-3">
                     {papiere.map((p) => (
                       <OptionTile key={p} active={cfg.papier === p} onClick={() => selectPapier(p)} title={p} />
@@ -168,28 +193,16 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
 
               {currentStep === "Veredelung" && (
                 <>
-                  <StepHeader step={2} title="Veredelung wählen" helpTab="veredelung" />
+                  <StepHeader step={3} title="Veredelung wählen" helpTab="veredelung" />
                   <div className="flex flex-wrap gap-3">
                     {veredelungen.map((v) => (
-                      <OptionTile key={v} active={veredelung === v} onClick={() => selectVeredelung(v)} title={v} />
+                      <OptionTile key={v} active={cfg.veredelung === v} onClick={() => selectVeredelung(v)} title={v} />
                     ))}
                   </div>
                 </>
               )}
 
-              {currentStep === "Auflage" && (
-                <>
-                  <StepHeader step={3} title="Auflage wählen" helpTab="auflage" />
-                  <AuflageAuswahl
-                    auflagen={auflagen}
-                    mindestmenge={ausgewaehlteVariante?.mindestmenge}
-                    maximalmenge={ausgewaehlteVariante?.maximalmenge}
-                    value={cfg.auflage}
-                    onTileSelect={selectAuflage}
-                    onCustomChange={(a) => setCfg((c) => ({ ...c, auflage: a }))}
-                  />
-                </>
-              )}
+              
 
               {currentStep === "Übersicht" && (
                 <>
@@ -208,7 +221,46 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
                   {ausgewaehlteVariante?.pdf && (
                     <p className="text-xs text-[#888888] mb-6">Datenblatt: {ausgewaehlteVariante.pdf}</p>
                   )}
-
+                  {preisdetails ? (
+                      <div className="border border-[#dcdcdc]">
+                        <div className="bg-[#f4f4f4] px-4 py-2 text-xs font-semibold text-[#2b2b2b] uppercase tracking-wide border-b border-[#dcdcdc]">
+                          Inklusive Druck, Portooptimierung, Personalisierung, Verarbeitung und Postauflieferung
+                        </div>
+                        <dl className="text-sm">
+                          <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
+                            <dt className="text-[#666666]">Druck (netto)</dt>
+                            <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preisdetails.druck)}</dd>
+                          </div>
+                          <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
+                            <dt className="text-[#666666]">Porto (max., netto)</dt>
+                            <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preisdetails.porto)}</dd>
+                          </div>
+                          <div className="flex justify-between px-4 py-3 border-t border-[#dcdcdc] bg-[#f9f9f9]">
+                            <dt className="font-bold text-[#2b2b2b]">Gesamt (netto):</dt>
+                            <dd className="font-bold text-[#822660] text-lg">{formatEuro(preisdetails.gesamtNettoStandard)}</dd>
+                          </div>
+                          <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
+                            <dt className="text-xs text-[#666666]">zzgl. 19% MwSt.:</dt>
+                            <dd className="text-xs text-[#666666]">{formatEuro(preisdetails.mwstStandard)}</dd>
+                          </div>
+                          <div className="flex justify-between px-4 py-2">
+                            <dt className="font-semibold text-[#2b2b2b]">Gesamt (brutto):</dt>
+                            <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preisdetails.gesamtBruttoStandard)}</dd>
+                          </div>
+                          <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
+                            <dt className="text-[#666666]">Gewicht pro Sendung:</dt>
+                            <dd className="font-semibold text-[#666666]">{formatGramG(preisdetails.gewichtProSendungG)}</dd>
+                          </div>
+                             <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
+                            <dt className="text-[#666666]">Gesamtgewicht:</dt>
+                            <dd className="font-semibold text-[#666666]">{formatGramKg(preisdetails.gesamtGewichtKg)}</dd>
+                          </div>
+                        </dl>
+                        <p className="px-4 py-3 text-xs text-[#888888] border-t border-[#f0f0f0] leading-relaxed">
+                          Der oben angegebene Betrag bildet die maximalen Portokosten ohne Portooptimierung ab. Sie erhalten innerhalb von 48 Stunden nach Auftragsvergabe eine konkrete Portoabrechnung basierend auf den von Ihnen gelieferten Daten.
+                        </p>
+                      </div>
+                    ) : null}
                   <div className="bg-[#2b2b2b] text-white p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                       <p className="font-semibold">Konfiguration anfragen</p>
@@ -266,4 +318,5 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
       <BestellModal open={bestellOpen} onClose={() => setBestellOpen(false)} produkt={name} zeilen={uebersichtZeilen} />
     </div>
   );
+}
 }

@@ -3,4 +3,4 @@ export const FAMILIEN_KENNUNGEN = {
   c4_mailing: "DIN-C4-Mailing",
 } as const;
 
-export type MailingSlug = keyof typeof FAMILIEN_KENNUNGEN;
+export type KuvertiertesMailingSlug = keyof typeof FAMILIEN_KENNUNGEN;

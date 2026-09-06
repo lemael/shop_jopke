@@ -2665,10 +2665,10 @@ export const PRODUKTKATALOG: Produkt[] = [
   },
   {
     produktNummer: "390.101",
-    name: "Postkarte Maxi",
+    name: "Postkarte Maxi (Bestseller)",
     beschreibung: "Postkarte Maxi, 2 Seiten, 235 x 125 mm, 4/4-farbig",
     pdf: null,
-    kategorien: [{ code: "3000000", name: "Kartenmailing", beschreibung: "Die Rückbesinnung auf das Postkartenmailing ist allgegenwärtig. Mit einfacher Botschaft und einem visuell ansprechenden Design sorgt die Karte dafür, dass Empfänger sie betrachten. Kartenmailings sind schnell verarbeitet, kostengünstig und auf direktem Weg zu Ihren Kunden. Sie verzichten auf Versandhüllen, sind leicht und optimal geeignet für Einladungen, Gutscheine oder um sich in Erinnerung zu rufen." }, { code: "3900000", name: "Unser Bestseller ! Karte Maxi", beschreibung: "Genial  Einfach  Erfolgreich\n\n● 235 x 125 mm\n● Extra steifer Chromokarton\n● VS glänzend mit UV-Lack\n● RS matt\n● 4/4-farbig Euroskala" }],
+    kategorien: [{ code: "3000000", name: "Kartenmailing", beschreibung: "Die Rückbesinnung auf das Postkartenmailing ist allgegenwärtig. Mit einfacher Botschaft und einem visuell ansprechenden Design sorgt die Karte dafür, dass Empfänger sie betrachten. Kartenmailings sind schnell verarbeitet, kostengünstig und auf direktem Weg zu Ihren Kunden. Sie verzichten auf Versandhüllen, sind leicht und optimal geeignet für Einladungen, Gutscheine oder um sich in Erinnerung zu rufen." }, { code: "3900000", name: "Postkarte Maxi (Bestseller)", beschreibung: "Genial  Einfach  Erfolgreich\n\n● 235 x 125 mm\n● Extra steifer Chromokarton\n● VS glänzend mit UV-Lack\n● RS matt\n● 4/4-farbig Euroskala" }],
     optionen: { huelle: null, anschreiben: null, flyer: null, broschuere: null, antwortkarte: null },
     endformat: "235 x 125 mm",
     offenesFormat: null,

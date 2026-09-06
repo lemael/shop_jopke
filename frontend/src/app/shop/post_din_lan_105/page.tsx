@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getKartenmailingFamilie } from "@/lib/kartenmailing";
+import { getKartenmailingFamilie } from "@/lib/kartenmailingPreis";
 import { KartenmailingKonfigurator } from "@/components/KartenmailingKonfigurator";
 
 export default function Page() {
