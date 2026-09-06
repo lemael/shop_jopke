@@ -13,5 +13,5 @@ EXCEL_FILE_PATH = BASE_DIR / os.getenv("EXCEL_FILE_PATH", "tarife.xlsx")
 SHEET_NAME = os.getenv("SHEET_NAME", "Einzelteile und Beilagen")
 
 # Gérer la liste des origines autorisées (séparées par une virgule)
-origins_str = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
+origins_str = os.getenv("ALLOWED_ORIGINS", "https://frontend-production-d09b.up.railway.app", "http://localhost:3000")
 ALLOWED_ORIGINS = [origin.strip() for origin in origins_str.split(",") if origin.strip()]
