@@ -1,6 +1,5 @@
 import re
 from typing import List, Optional, Tuple
-
 import pandas as pd
 
 from app.models.ausstattung_config import AusstattungConfig, StaffelTranche
@@ -46,7 +45,7 @@ class AusstattungConfigService:
             r"Extern\s*-\s*LZ\s*Standard\.3$",
             r"Extern\s*-\s*LZ\s*Express\.3$",
             r"Extern\s*-\s*Aufschlag\s*Express\s*in\s*%\.3$",
-            5001,
+            50001,  # Corrigé de 5001 -> 50001
             100000,
         ),
     ]
@@ -54,42 +53,49 @@ class AusstattungConfigService:
     def __init__(self, repo=ausstattung_config_repository):
         self.repo = repo
 
-    # ============================================================
-    # API PUBLIQUE
-    # ============================================================
-
     def get_all(self) -> Optional[List[AusstattungConfig]]:
         df = self.repo.get_all()
         if df is None:
             return None
 
-        return [self._map_row(row) for _, row in df.iterrows()]
+        result = []
+        for _, row in df.iterrows():
+            try:
+                mapped = self._map_row(row)
+                if mapped:
+                    result.append(mapped)
+            except Exception as e:
+                print(f"⚠️ Erreur de mapping sur une ligne : {e}")
+                continue
+        return result
 
-    # ============================================================
-    # MAPPING D'UNE LIGNE EXCEL
-    # ============================================================
+    def get_by_kategorie(self, kategorie: str) -> Optional[List[AusstattungConfig]]:
+        all_items = self.get_all()
+        if all_items is None:
+            return None
+        return [item for item in all_items if item.kategorie == kategorie]
+
+    def get_by_produkt_gruppe(self, produkt_gruppe: str) -> Optional[List[AusstattungConfig]]:
+        all_items = self.get_all()
+        if all_items is None:
+            return None
+        return [item for item in all_items if item.produkt_gruppe == produkt_gruppe]
 
     def _map_row(self, row: pd.Series) -> AusstattungConfig:
         poids_val = self._get_float(row, r"Gewicht\s*in\s*g")
 
         return AusstattungConfig(
-            # --- Kategorien & Gruppen ---
             produkt_gruppe=self._find_col(row, r"Produkt-Gruppe\s*1$"),
             kategorie=self._find_col(row, r"^Kategorie$"),
             kategorie_beschreibung=self._find_col(row, r"^Kategorie-Beschreibung$"),
             produkt_gruppe_2=self._find_col(row, r"Produkt-Gruppe\s*2$"),
             kategorie_2=self._find_col(row, r"^Kategorie\s*2$"),
-            kategorie_beschreibung_2=self._find_col(
-                row, r"^Kategorie-Beschreibung\s*2$"
-            ),
+            kategorie_beschreibung_2=self._find_col(row, r"^Kategorie-Beschreibung\s*2$"),
             produkt_gruppe_3=self._find_col(row, r"Produkt-Gruppe\s*3$"),
             kategorie_3=self._find_col(row, r"^Kategorie\s*3$"),
-            kategorie_beschreibung_3=self._find_col(
-                row, r"^Kategorie-Beschreibung\s*3$"
-            ),
+            kategorie_beschreibung_3=self._find_col(row, r"^Kategorie-Beschreibung\s*3$"),
             produkt_gruppe_4=self._find_col(row, r"Produkt-Gruppe\s*4$"),
             kategorie_4=self._find_col(row, r"Kategorie\s*4$"),
-            # --- Article ---
             produkt_nummer=self._find_col(row, r"Produkt-Nummer$"),
             name=self._find_col(row, r"Name$"),
             beschreibung=self._find_col(row, r"Beschreibung$"),
@@ -99,15 +105,12 @@ class AusstattungConfigService:
             flyer=self._find_col(row, r"Flyer$"),
             broschuere=self._find_col(row, r"Broschüre$"),
             antwortkarte=self._find_col(row, r"Antwortkarte$"),
-            # --- Formate & Spezifikationen ---
             endformat=self._find_col(row, r"Endformat:?$"),
             offenes_format=self._find_col(row, r"Offenes Format:?$"),
             umfang=self._find_col(row, r"Umfang:?$"),
-            # --- Inhalt ---
             papier=self._find_col(row, r"Inhalt\s*-\s*Papier:?$"),
             grammatur=self._find_col(row, r"Inhalt\s*-\s*Grammatur:?$"),
             oberflaeche=self._find_col(row, r"Inhalt\s*-\s*Oberfläche:?$"),
-            # --- Umschlag ---
             papier_2=self._find_col(row, r"Umschlag\s*-\s*Papier:?$"),
             grammatur_2=self._find_col(row, r"Umschlag\s*-\s*Grammatur:?$"),
             oberflaeche_2=self._find_col(row, r"Umschlag\s*-\s*Oberfläche:?$"),
@@ -117,26 +120,18 @@ class AusstattungConfigService:
             verarbeitung=self._find_col(row, r"Umschlag\s*-\s*Verarbeitung:?$"),
             perforation=self._find_col(row, r"Umschlag\s*-\s*Perforation:?$"),
             veredelung=self._find_col(row, r"Umschlag\s*-\s*Veredelung:?$"),
-            # --- Logistique & Quantités ---
             upload=self._find_col(row, r"Umschlag\s*-\s*Upload$"),
             mindestmenge=self._get_int(row, r"Umschlag\s*-\s*Mindestmenge$"),
             maximalmenge=self._get_int(row, r"Umschlag\s*-\s*Maximalmenge$"),
-            # --- Poids ---
             gewicht_in_g=poids_val,
-            # --- Livraison ---
             mindest_versandklasse=self._find_col(
                 row,
                 r"Versandklasse zur Einordnung der Produktgröße\s*-\s*Mindest-Versandklasse$",
             ),
             lz_standard=self._find_col(row, r"^Extern\s*-\s*LZ\s*Standard$"),
             lz_express=self._find_col(row, r"^Extern\s*-\s*LZ\s*Express$"),
-            # --- Tranches ---
             tranchen=self._extract_tranchen(row),
         )
-
-    # ============================================================
-    # EXTRACTION DES TRANCHES
-    # ============================================================
 
     def _extract_tranchen(self, row: pd.Series) -> List[StaffelTranche]:
         tranchen: List[StaffelTranche] = []
@@ -154,7 +149,7 @@ class AusstattungConfigService:
             fix_val_str = self._find_col(row, fix_pat)
             p1000_val_str = self._find_col(row, p1000_pat)
 
-            if fix_val_str is None or p1000_val_str is None:
+            if not fix_val_str or not p1000_val_str:
                 continue
 
             try:
@@ -165,11 +160,12 @@ class AusstattungConfigService:
                 lz_exp = self._find_col(row, lz_exp_pat)
                 aufschlag_str = self._find_col(row, aufschlag_pat)
 
-                aufschlag_val = (
-                    self._parse_float_value(aufschlag_str)
-                    if aufschlag_str
-                    else None
-                )
+                aufschlag_val = None
+                if aufschlag_str:
+                    try:
+                        aufschlag_val = self._parse_float_value(aufschlag_str)
+                    except (ValueError, TypeError):
+                        aufschlag_val = None
 
                 tranchen.append(
                     StaffelTranche(
@@ -183,18 +179,19 @@ class AusstattungConfigService:
                     )
                 )
 
-            except (ValueError, TypeError):
+            except Exception:
                 continue
 
         return tranchen
 
-    # ============================================================
-    # RECHERCHE ET PARSING DES COLONNES
-    # ============================================================
-
     def _find_col(self, row: pd.Series, pattern: str) -> Optional[str]:
         for col in row.index:
-            col_clean = self._clean_col_name(str(col))
+            if isinstance(col, tuple):
+                col_str = " - ".join([str(c) for c in col if "Unnamed:" not in str(c)])
+            else:
+                col_str = str(col)
+
+            col_clean = self._clean_col_name(col_str)
 
             if re.search(pattern, col_clean, re.IGNORECASE):
                 val = row[col]
@@ -235,7 +232,12 @@ class AusstattungConfigService:
 
     def _get_float(self, row: pd.Series, pattern: str) -> Optional[float]:
         for col in row.index:
-            col_clean = self._clean_col_name(str(col))
+            if isinstance(col, tuple):
+                col_str = " - ".join([str(c) for c in col if "Unnamed:" not in str(c)])
+            else:
+                col_str = str(col)
+
+            col_clean = self._clean_col_name(col_str)
 
             if re.search(pattern, col_clean, re.IGNORECASE):
                 raw_value = row[col]
@@ -261,13 +263,8 @@ class AusstattungConfigService:
 
         return None
 
-    # ============================================================
-    # HELPERS
-    # ============================================================
-
     @staticmethod
     def _clean_col_name(col_name: object) -> str:
-        """Remplace les espaces insécables (\xa0), sauts de ligne et espaces multiples."""
         return re.sub(r"[\xa0\s\n\r]+", " ", str(col_name)).strip()
 
     @staticmethod
@@ -288,9 +285,5 @@ class AusstattungConfigService:
 
         return float(cleaned)
 
-
-# ================================================================
-# Instance du service
-# ================================================================
 
 ausstattung_config_service = AusstattungConfigService()

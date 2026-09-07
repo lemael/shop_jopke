@@ -19,6 +19,11 @@ class AusstattungConfigRepository:
         self.load_data()
 
     def load_data(self) -> Optional[pd.DataFrame]:
+        # Vérification préalable de l'existence du fichier
+        if not Path(self.file_path).exists():
+            logger.error(f"Fichier Excel introuvable à l'emplacement : {self.file_path}")
+            print(f"❌ ERROR: Fichier introuvable à l'emplacement : {self.file_path}")
+            return None
         try:
             # 1. Lecture avec double en-tête
             df = pd.read_excel(
