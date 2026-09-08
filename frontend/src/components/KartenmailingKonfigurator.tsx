@@ -32,10 +32,10 @@ function formatGramKg(value: number) {
 
 
 
-export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: KartenmailingFamilie }>) {
+export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: string }>) {
 
   const store = useKartenmailingConfiguratorStore();
-  const { varianten, name, beschreibung } = familie;
+
 
   
   const stepIndex = store.stepIndex();
@@ -52,12 +52,12 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: Karte
 
   console.log("Ausstattungen", ausstattungen);
   
-
-
-  const suchbegriff = FAMILIEN_KENNUNGEN[familie.slug];
-  console.log("FAMILIEN_KENNUNGEN", FAMILIEN_KENNUNGEN);
+  console.log("Familie:", familie);
+ 
+  const suchbegriff = familie.toLowerCase();
+  const name = `Postkarte DIN-Lang ${familie}`;
   const ausstattung = ausstattungen.filter(a =>
-    a.name?.toLowerCase().includes(suchbegriff.toLowerCase())
+    a.name?.toLowerCase().includes(suchbegriff)
   );
   console.log("suchbegriff", suchbegriff);
   console.log("ausstattung", ausstattung);

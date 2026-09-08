@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { StepName, Config } from "@/types/kuvertiertesMailing/kuvertiertesMailing";
-import type { MailingSlug } from "@/types/kuvertiertesMailing/mailingSlug";
+import type { KuvertiertesMailingFamilie } from "@/lib/kuvertiertesmailingPreis";
 import type { HuellenTyp } from "@/types/kuvertiertesMailing/types";
 import type { ArtikelTarifDetails } from "@/types/kuvertiertesMailing/artikelTarifDetails";
 import { tarifeService } from "@/services/tarifeService";
@@ -18,7 +18,8 @@ import { HUELLE_FARBIGKEITEN_MAP } from "@/types/kuvertiertesMailing/hUELLE_FARB
 
 interface ConfiguratorState {
   // --- Allgemeine Daten ---
-  familieSlug: MailingSlug;
+  gruppe: string;
+  familieSlug: KuvertiertesMailingFamilie["slug"];
   name: string;
   beschreibung: string;
   cfg: Config;
@@ -32,7 +33,6 @@ interface ConfiguratorState {
   error: string | null;
 
   // --- Berechnete/geladene Optionen ---
-  huellentypen: HuellenTyp[];
   anschreibenGrammaturen: string[];
   anschreibenFarbigkeiten: string[];
   flyerUmfaenge: string[];
@@ -46,7 +46,6 @@ interface ConfiguratorState {
 
   // --- Getter / Abgeleitete Werte ---
   selectedAusstattungConfig: () => AusstattungConfig | undefined;
-  ausstattungen: () => string[];
   huelleFarbigkeiten: () => string[];
   ausgewaehlterArtikel: () => ArtikelTarifDetails | undefined;
   hatAnschreiben: () => boolean;
@@ -80,6 +79,7 @@ interface ConfiguratorState {
   selectAntwortkarteOberflaeche: (oberflaeche: string) => void;
   setVerarbeitungszeit: (zeit: "Standard" | "Express") => void;
   setBestellOpen: (open: boolean) => void;
+  setGruppe: (neueGruppe: string) => Promise<void>;
   getMailingPackage: () => ReturnType<typeof tarifeService.buildSelectedMailingPackage> | null;
   goTo: (step: StepName) => void;
   next: () => void;
@@ -103,10 +103,11 @@ const initialConfig: Config = {
   antwortkarteOberflaeche: "",
   anzahlFlyer: 0,
   flyerConfigs: [],
-  verarbeitungszeit: "Standard"
+  verarbeitungszeit: "Standard",
 };
 
 export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
+  gruppe: "1000",
   familieSlug: "lang_mailing",
   name: "Kuvertiertes Mailing DIN lang",
   beschreibung: "Konfigurieren Sie Ihr Mailing mit individuellen Beilagen und Formaten.",
@@ -119,7 +120,6 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
   loading: true,
   error: null,
 
-  huellentypen: [],
   anschreibenGrammaturen: [],
   anschreibenFarbigkeiten: [],
   flyerUmfaenge: [],
@@ -131,9 +131,12 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
   antwortkarteGrammaturen: [],
   antwortkarteOberflaechen: ["matt", "glänzend"],
 
-  
-  // --- Ausgewählte Konfiguration abrufen ---
-  // --- Ausgewählte Konfiguration abrufen ---
+  // --- Aktionen & Getter ---
+  setGruppe: async (neueGruppe: string) => {
+    set({ gruppe: neueGruppe });
+    await get().loadOptions();
+  },
+
   selectedAusstattungConfig: () => {
     const { ausstattungConfigs, cfg } = get();
     if (!cfg.huellentyp || !cfg.ausstattung) return undefined;
@@ -142,14 +145,12 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
     const targetAusstattung = cfg.ausstattung.trim().toLowerCase();
 
     return ausstattungConfigs.find((item) => {
-      // Priorité 1: Match sur kategorie_3 | Priorité 2: Match sur kategorie_2/kategorie/name
       const matchHuellentyp =
         item.kategorie_3?.trim().toLowerCase() === targetHuellentyp ||
         item.kategorie_2?.trim().toLowerCase() === targetHuellentyp ||
         item.kategorie?.trim().toLowerCase() === targetHuellentyp ||
         item.kategorie_4?.trim().toLowerCase() === targetHuellentyp;
 
-      // Match sur kategorie_4
       const matchAusstattung =
         item.kategorie_4?.trim().toLowerCase() === targetAusstattung;
 
@@ -157,60 +158,22 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
     });
   },
 
-  // --- Verfügbare Ausstattung für den ausgewählten Umschlag abrufen ---
-  ausstattungen: () => {
+  versandklasse: () => {
     const { ausstattungConfigs, cfg } = get();
-    if (!cfg.huellentyp) return [];
 
-    const targetHuellentyp = cfg.huellentyp.trim().toLowerCase();
-
-    // 1. Prioritär auf kategorie_3 filtern
-    let configs = ausstattungConfigs.filter(
-      (item) => item.kategorie_3?.trim().toLowerCase() === targetHuellentyp
+    const selectedConfig = ausstattungConfigs.find(
+      (item) => item.kategorie_4 === cfg.ausstattung
     );
 
-    // Wenn keine direkten Ergebnisse auf kategorie_3, überprüfen Sie kategorie / kategorie_2 / name
-    if (configs.length === 0) {
-      configs = ausstattungConfigs.filter((item) => {
-        const kat1 = item.kategorie?.trim().toLowerCase();
-        const kat2 = item.kategorie_2?.trim().toLowerCase();
-        const kat4 = item.kategorie_4?.trim().toLowerCase();
-
-        return (
-          kat2 === targetHuellentyp ||
-          kat1 === targetHuellentyp ||
-          kat4 === targetHuellentyp ||
-          (kat4 && kat4.includes(targetHuellentyp))
-        );
-      });
-    }
-    console.log("configs", configs);
-    // 2. Optionen von kategorie_4 extrahieren (oder fallback auf name)
-    const groups = configs
-      .map((item) => item.kategorie_4?.trim())
-      .filter(Boolean) as string[];
-
-    // 3. Duplikate entfernen
-    return Array.from(new Set(groups));
+    return selectedConfig?.mindest_versandklasse ?? "";
   },
-  versandklasse: () => {
-  const { ausstattungConfigs, cfg } = get();
 
-  // Recherche de la config correspondant à l'ausstattung sélectionnée
-  const selectedConfig = ausstattungConfigs.find(
-    (item) => item.kategorie_4 === cfg.ausstattung // ou item.produkt_nummer
-  );
- 
-  console.log("ausstattungConfigs:", ausstattungConfigs,"selectedConfig:", selectedConfig, "cfg.ausstattung:", cfg.ausstattung);
-
-  return selectedConfig?.mindest_versandklasse ?? "";
-},
   huelleFarbigkeiten: () => {
     const { cfg } = get();
     return HUELLE_FARBIGKEITEN_MAP[cfg.huellentyp] || [
       "4/0-farbig",
       "1/0-farbig",
-      "unbedruckt"
+      "unbedruckt",
     ];
   },
 
@@ -223,7 +186,6 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
     );
   },
 
-  // Dynamische Erkennung basierend auf dem aktiven Artikel im Excel
   hatAnschreiben: () => {
     const activeItem = get().selectedAusstattungConfig();
     return activeItem ? Boolean(activeItem.anschreiben) : true;
@@ -245,42 +207,36 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
   },
 
   STEPS: () => {
-  const { hatAnschreiben, hatBroschuere, hatAntwortkarte, hatFlyer, cfg } = get();
+    const { hatAnschreiben, hatBroschuere, hatAntwortkarte, hatFlyer, cfg } = get();
 
-  const baseSteps = ALL_STEPS.filter((step) => {
-    // 1. Grundlegende Schritte sind immer vorhanden
-    if (["Hüllentyp", "Ausstattung", "Auflage", "Farbigkeit Hülle", "Übersicht"].includes(step)) return true;
+    const baseSteps = ALL_STEPS.filter((step) => {
+      if (["Hüllentyp", "Ausstattung", "Auflage", "Farbigkeit Hülle", "Übersicht"].includes(step)) return true;
 
-    // 2. Bedingte Schritte basierend auf dem Vorhandensein von Elementen
-    if (step === "Grammatur Anschreiben" || step === "Farbigkeit Anschreiben") return hatAnschreiben();
-    if (BROSCHUERE_STEPS.has(step)) return hatBroschuere();
-    if (ANTWORTKARTE_STEPS.has(step)) return hatAntwortkarte();
+      if (step === "Grammatur Anschreiben" || step === "Farbigkeit Anschreiben") return hatAnschreiben();
+      if (BROSCHUERE_STEPS.has(step)) return hatBroschuere();
+      if (ANTWORTKARTE_STEPS.has(step)) return hatAntwortkarte();
 
-    // 3. Einstiegsschritt für Flyer
-    if (step === "Anzahl Flyer") return hatFlyer();
+      if (step === "Anzahl Flyer") return hatFlyer();
+      if (FLYER_STEPS.has(step)) return false;
 
-    // 4. Einzelne Flyer-Schritte standardmäßig ausschließen (werden unten dynamisch eingefügt)
-    if (FLYER_STEPS.has(step)) return false;
+      return true;
+    });
 
-    return true;
-  });
-
-  // 5. Dynamische Injektion von Unter-Schritten für jeden Flyer, wenn anzahlFlyer > 0
-  if (hatFlyer() && cfg.anzahlFlyer && cfg.anzahlFlyer > 0) {
-    const dynamicSteps: StepName[] = [];
-    for (let i = 1; i <= cfg.anzahlFlyer; i++) {
-      dynamicSteps.push(`Flyer ${i} - Umfang` as StepName);
-      dynamicSteps.push(`Flyer ${i} - Grammatur` as StepName);
-      dynamicSteps.push(`Flyer ${i} - Oberfläche` as StepName);
+    if (hatFlyer() && cfg.anzahlFlyer && cfg.anzahlFlyer > 0) {
+      const dynamicSteps: StepName[] = [];
+      for (let i = 1; i <= cfg.anzahlFlyer; i++) {
+        dynamicSteps.push(`Flyer ${i} - Umfang` as StepName);
+        dynamicSteps.push(`Flyer ${i} - Grammatur` as StepName);
+        dynamicSteps.push(`Flyer ${i} - Oberfläche` as StepName);
+      }
+      const idx = baseSteps.indexOf("Anzahl Flyer");
+      if (idx !== -1) {
+        baseSteps.splice(idx + 1, 0, ...dynamicSteps);
+      }
     }
-    const idx = baseSteps.indexOf("Anzahl Flyer");
-    if (idx !== -1) {
-      baseSteps.splice(idx + 1, 0, ...dynamicSteps);
-    }
-  }
 
-  return baseSteps;
-},
+    return baseSteps;
+  },
 
   stepIndex: () => {
     const steps = get().STEPS();
@@ -332,48 +288,42 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
 
   // --- API-Laden ---
   loadOptions: async () => {
+    const { gruppe } = get();
     set({ loading: true, error: null });
     try {
-      const ausstattungConfigs = await ausstattungConfigService.getAll();
-      console.log("Ausstattung Configs geladen:", ausstattungConfigs);
-      const artikelTarife = await tarifeService.getAll();
-      console.log("Artikel Tarife geladen:", artikelTarife);
-      const huellentypen = await tarifeService.getHuellentypen();
-      const anschreiben = await tarifeService.getAnschreibenOptions("A1000");
-      const flyer = await tarifeService.getFlyerOptions("F1000");
-      const broschuere = await tarifeService.getBroschuereOptions("B1000");
-      const antwortkarte = await tarifeService.getAntwortkarteOptions("AK1000");
+      const [ausstattungConfigs, artikelTarife, anschreiben, flyer, broschuere, antwortkarte] =
+        await Promise.all([
+          ausstattungConfigService.getAll(),
+          tarifeService.getAll(),
+          tarifeService.getAnschreibenOptions(gruppe),
+          tarifeService.getFlyerOptions(gruppe),
+          tarifeService.getBroschuereOptions(gruppe),
+          tarifeService.getAntwortkarteOptions(gruppe),
+        ]);
 
-      // --- Konstruktion der dynamischen Grammatur-Zuordnung ---
-      // --- Dynamische Extraktion der Grammaturen aus flyer.map ---
-    const flyerGrammaturenMapped: Record<string, string[]> = {};
+      const flyerGrammaturenMapped: Record<string, string[]> = {};
 
-    if (flyer.map) {
-      // 1. Durchlauf jeden Umfang (z.B.: "2 Seiten", "4 Seiten")
-      Object.entries(flyer.map).forEach(([umfang, papierMap]) => {
-        const grammaturenSet = new Set<string>();
+      if (flyer.map) {
+        Object.entries(flyer.map).forEach(([umfang, papierMap]) => {
+          const grammaturenSet = new Set<string>();
 
-        // 2. Durchlauf jeden Papierkey (z.B.: "170 g/m² matt")
-        Object.keys(papierMap).forEach((papierKey) => {
-          // Nur den Grammatur-Teil vor dem Oberflächentyp extrahieren
-          const match = papierKey.match(/^(\d+\s*g\/m²)/i);
-          if (match) {
-            grammaturenSet.add(match[1].trim());
-          }
+          Object.keys(papierMap).forEach((papierKey) => {
+            const match = papierKey.match(/^(\d+\s*g\/m²)/i);
+            if (match) {
+              grammaturenSet.add(match[1].trim());
+            }
+          });
+
+          flyerGrammaturenMapped[umfang] = Array.from(grammaturenSet);
         });
-
-        // 3. Einzigartige Grammaturen für diesen Umfang speichern
-        flyerGrammaturenMapped[umfang] = Array.from(grammaturenSet);
-      });
-    }
+      }
 
       set({
         artikelTarife,
-        huellentypen,
         anschreibenGrammaturen: anschreiben.grammaturen,
         anschreibenFarbigkeiten: anschreiben.farbigkeiten,
         flyerUmfaenge: flyer.umfaenge,
-        flyerGrammaturenMapped, // <-- Hinzufügen der dynamischen Grammatur-Zuordnung für Flyer
+        flyerGrammaturenMapped,
         broschuereUmfaenge: broschuere.umfaenge,
         antwortkarteEndformate: antwortkarte.endformate,
         antwortkarteGrammaturen: antwortkarte.grammaturen,
@@ -406,7 +356,6 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
         antwortkarteEndformat: "",
         antwortkarteGrammatur: "",
         antwortkarteOberflaeche: "",
-        
       },
       currentStep: "Auflage",
     }));
@@ -441,7 +390,6 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
         anzahlFlyer: n,
         flyerConfigs: Array.from({ length: n }, () => ({ umfang: "", grammatur: "", oberflaeche: "" })),
       },
-     
     }));
     get().next();
   },

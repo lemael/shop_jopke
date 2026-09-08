@@ -1,5 +1,5 @@
 import re
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 import pandas as pd
 
 from app.models.ausstattung_config import AusstattungConfig, StaffelTranche
@@ -52,11 +52,29 @@ class AusstattungConfigService:
 
     def __init__(self, repo=ausstattung_config_repository):
         self.repo = repo
+        self._column_cache: Dict[Tuple[str, ...], Dict[str, List[str]]] = {}
+        self._items_cache_df_id: Optional[int] = None
+        self._items_cache: Optional[List[AusstattungConfig]] = None
+
+    def _matching_columns(self, row: pd.Series, pattern: str) -> List[str]:
+        columns = tuple(str(column) for column in row.index)
+        mappings = self._column_cache.setdefault(columns, {})
+        if pattern not in mappings:
+            regex = re.compile(pattern, re.IGNORECASE)
+            mappings[pattern] = [
+                column
+                for column in row.index
+                if regex.search(self._clean_col_name(column))
+            ]
+        return mappings[pattern]
 
     def get_all(self) -> Optional[List[AusstattungConfig]]:
         df = self.repo.get_all()
         if df is None:
             return None
+
+        if self._items_cache_df_id == id(df):
+            return self._items_cache
 
         result = []
         for _, row in df.iterrows():
@@ -67,6 +85,8 @@ class AusstattungConfigService:
             except Exception as e:
                 print(f"⚠️ Erreur de mapping sur une ligne : {e}")
                 continue
+        self._items_cache_df_id = id(df)
+        self._items_cache = result
         return result
 
     def get_by_kategorie(self, kategorie: str) -> Optional[List[AusstattungConfig]]:
@@ -185,21 +205,12 @@ class AusstattungConfigService:
         return tranchen
 
     def _find_col(self, row: pd.Series, pattern: str) -> Optional[str]:
-        for col in row.index:
-            if isinstance(col, tuple):
-                col_str = " - ".join([str(c) for c in col if "Unnamed:" not in str(c)])
-            else:
-                col_str = str(col)
-
-            col_clean = self._clean_col_name(col_str)
-
-            if re.search(pattern, col_clean, re.IGNORECASE):
-                val = row[col]
-
-                if pd.notna(val):
-                    val_str = str(val).strip()
-                    if val_str and val_str.lower() != "nan":
-                        return val_str
+        for column in self._matching_columns(row, pattern):
+            value = row[column]
+            if pd.notna(value):
+                value_str = str(value).strip()
+                if value_str and value_str.lower() != "nan":
+                    return value_str
 
         return None
 
@@ -231,35 +242,27 @@ class AusstattungConfigService:
             return None
 
     def _get_float(self, row: pd.Series, pattern: str) -> Optional[float]:
-        for col in row.index:
-            if isinstance(col, tuple):
-                col_str = " - ".join([str(c) for c in col if "Unnamed:" not in str(c)])
-            else:
-                col_str = str(col)
+        for column in self._matching_columns(row, pattern):
+            raw_value = row[column]
 
-            col_clean = self._clean_col_name(col_str)
+            if pd.isna(raw_value):
+                continue
 
-            if re.search(pattern, col_clean, re.IGNORECASE):
-                raw_value = row[col]
+            if isinstance(raw_value, (float, int)):
+                return float(raw_value)
 
-                if pd.isna(raw_value):
-                    continue
+            value = str(raw_value).strip()
+            if not value or value.lower() == "nan":
+                continue
 
-                if isinstance(raw_value, (float, int)):
-                    return float(raw_value)
+            try:
+                cleaned = value.replace(",", ".")
+                match = re.search(r"\d+(?:\.\d+)?", cleaned)
+                if match:
+                    return float(match.group(0))
 
-                value = str(raw_value).strip()
-                if not value or value.lower() == "nan":
-                    continue
-
-                try:
-                    cleaned = value.replace(",", ".")
-                    match = re.search(r"\d+(?:\.\d+)?", cleaned)
-                    if match:
-                        return float(match.group(0))
-
-                except ValueError:
-                    continue
+            except ValueError:
+                continue
 
         return None
 

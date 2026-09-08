@@ -7,10 +7,6 @@ import { berechnePorto } from "@/lib/porto";
 
 export interface SelfmailerFamilie {
   slug: SelfmailerSlug;
-  name: string;
-  beschreibung?: string;
-  kategorie_2?: string;
-  varianten: Produkt[];
 }
 
 const FAMILIEN_KENNUNGEN = {
@@ -35,23 +31,12 @@ function letzteKategorie(p: Produkt) {
  * Die Namen in der Quelldatei enthalten teils Unicode-Leerzeichen (z.B. INATA) -
  * daher Abgleich per Kennung statt exaktem Namensvergleich.
  */
-export function getSelfmailerFamilie(slug: SelfmailerSlug, kategorie_2?: string): SelfmailerFamilie | null {
+export function getSelfmailerFamilie(slug: SelfmailerSlug): string | null {
   const kennung = FAMILIEN_KENNUNGEN[slug];
-  const varianten = PRODUKTKATALOG.filter((p) => {
-    const oberkategorie = p.kategorien[0];
-    const unterkategorie = letzteKategorie(p);
-    return oberkategorie?.name === "Selfmailer" && unterkategorie?.name.includes(kennung);
-  });
-  if (varianten.length === 0) return null;
+  // Hier könnte die Logik zur Ermittlung der Selfmailer-Familie basierend auf der Kennung stehen.
+  return kennung;
+ 
 
-  const unterkategorie = letzteKategorie(varianten[0]);
-  return {
-    slug,
-    name: unterkategorie.name.replace(/\s+/g, " ").trim(),
-    beschreibung: unterkategorie.beschreibung,
-    kategorie_2,
-    varianten,
-  };
 }
 function runden(wert: number): number {
   return Math.round(wert * 100) / 100;

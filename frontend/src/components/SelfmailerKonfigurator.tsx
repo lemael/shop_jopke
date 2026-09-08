@@ -25,7 +25,7 @@ function formatGramKg(value: number) {
 }
 
 
-export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: SelfmailerFamilie }>) {
+export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: string }>) {
 
     const store = useConfiguratorStore();
     const stepIndex = store.stepIndex();
@@ -64,7 +64,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
       </div>
     );
 
-    const { varianten, name, beschreibung } = familie;
+
 
     const auflagen: number[] = DETAIL_STAFFEL_PUNKTE;
 
@@ -75,11 +75,12 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
 
 
  
-  const suchbegriff = familie.kategorie_2?.trim() || familie.slug;
-
+  const suchbegriff = familie.toLowerCase();
+ // lookup der ausstattungConfigs nach dem suchbegriff (familie)
   const ausstattung = ausstattungen.filter(a =>
-    a.name?.toLowerCase().includes(suchbegriff.toLowerCase())
+    a.name.toLowerCase().includes(suchbegriff)
   );
+  const name = ausstattung[0]?.name;
   const umfangen = Array.from(
     new Set(ausstattung.flatMap(a => a.umfang))
   );

@@ -5,5 +5,5 @@ import { KuvertiertesMailingKonfiguratorUI } from "@/components/KuvertiertesMail
 export default function Page() {
   const familie = getMailingFamilie("c4_mailing");
   if (!familie) notFound();
-  return <KuvertiertesMailingKonfiguratorUI />;
+  return <KuvertiertesMailingKonfiguratorUI familie={familie}/>;
 }

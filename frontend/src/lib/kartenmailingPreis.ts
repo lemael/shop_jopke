@@ -7,9 +7,6 @@ import { berechnePorto } from "@/lib/porto";
 
 export interface KartenmailingFamilie {
   slug: KartenmailingSlug;
-  name: string;
-  beschreibung?: string;
-  varianten: Produkt[];
 }
 
 
@@ -20,22 +17,9 @@ export type KartenmailingSlug = keyof typeof FAMILIEN_KENNUNGEN;
  * Kategorien-Ebenen: [0] Kartenmailing, [1] Format (z.B. "Postkarte DIN-Lang (210x98)").
  * Konfigurationsdimensionen je Familie: Papier (inhalt.papier) x Veredelung.
  */
-export function getKartenmailingFamilie(slug: KartenmailingSlug): KartenmailingFamilie | null {
+export function getKartenmailingFamilie(slug: KartenmailingSlug): string | null {
   const kennung = FAMILIEN_KENNUNGEN[slug];
-  const varianten = PRODUKTKATALOG.filter((p) => {
-    const oberkategorie = p.kategorien[0];
-    const format = p.kategorien[1];
-    return oberkategorie?.name === "Kartenmailing" && format?.name.includes(kennung);
-  });
-  if (varianten.length === 0) return null;
-
-  const format = varianten[0].kategorien[1];
-  return {
-    slug,
-    name: format.name.replace(/\s+/g, " ").trim(),
-    beschreibung: format.beschreibung,
-    varianten,
-  };
+  return kennung;
 }
 
 function runden(wert: number): number {

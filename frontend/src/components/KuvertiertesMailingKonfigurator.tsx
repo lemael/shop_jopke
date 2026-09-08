@@ -1,31 +1,24 @@
 "use client";
 
-import { Fragment, useMemo, useEffect } from "react";
+import { Fragment, useEffect, useMemo } from "react";
 import type { StepName } from "@/types/kuvertiertesMailing/kuvertiertesMailing";
 import { OptionTile, StepHeader } from "@/components/ConfiguratorUI";
 import { AuflageAuswahl } from "@/components/AuflageAuswahl";
 import { BestellModal } from "@/components/BestellModal";
 import { formatEuro } from "@/lib/kuvertiertesmailingPreis";
 import { useConfiguratorStore } from "@/stores/useConfiguratorStore";
-import type { MailingFamilie } from "@/lib/mailing";
 import Link from "next/link";
 
-export function KuvertiertesMailingKonfiguratorUI() {
+export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ familie: string }>) {
   const store = useConfiguratorStore();
   const { loading, error, loadOptions } = store;
 
-  // API-Daten beim Komponenten-Mount laden
-  useEffect(() => {
-    loadOptions();
-  }, [loadOptions]);
-
- 
   // 1. Getter/Funktionen aus dem Store ausführen
   const STEPS = store.STEPS();
   const stepIndex = store.stepIndex();
   const auflagen = store.auflagen();
   const preis = store.preis();
-  const ausstattungen = store.ausstattungen();
+  const ausstattungConfigs = store.ausstattungConfigs;
   const versandklasse = store.versandklasse();
   const huelleFarbigkeiten = store.huelleFarbigkeiten();
   const ausgewaehlterArtikel = store.ausgewaehlterArtikel();
@@ -35,10 +28,8 @@ export function KuvertiertesMailingKonfiguratorUI() {
   const {
     name,
     beschreibung,
-    familieSlug,
     cfg,
     currentStep,
-    huellentypen,
     anschreibenGrammaturen,
     anschreibenFarbigkeiten,
     flyerUmfaenge,
@@ -67,32 +58,83 @@ export function KuvertiertesMailingKonfiguratorUI() {
     selectAntwortkarteOberflaeche,
     setVerarbeitungszeit,
     setCustomAuflage,
+    setGruppe,
     goTo,
     next,
     isStepValid,
     setBestellOpen,
   } = store;
 
+  const produktGruppe = familie === "DIN-Lang-Mailing" ? "1000" : "1400";
+
+  // API-Daten und Produktgruppe beim Mounten oder bei Änderung der Familie laden
+  useEffect(() => {
+    const init = async () => {
+      await setGruppe(produktGruppe);
+      await loadOptions();
+    };
+    init();
+  }, [loadOptions, setGruppe, produktGruppe]);
+
+  // Lookup der ausstattungConfigs nach dem Suchbegriff (familie)
+  const ausstattungenNachFamilie = useMemo(
+    () => ausstattungConfigs.filter((a) => a.name.toLowerCase().includes(familie.toLowerCase())),
+    [ausstattungConfigs, familie]
+  );
+
+  // --- Verfügbare Ausstattung für den ausgewählten Umschlag abrufen ---
+  const ausstattungen = () => {
+    if (!cfg.huellentyp) return [];
+
+    const targetHuellentyp = cfg.huellentyp.trim().toLowerCase();
+
+    let configs = ausstattungenNachFamilie.filter(
+      (item) => item.kategorie_3?.trim().toLowerCase() === targetHuellentyp
+    );
+
+    if (configs.length === 0) {
+      configs = ausstattungenNachFamilie.filter((item) => {
+        const kat1 = item.kategorie?.trim().toLowerCase();
+        const kat2 = item.kategorie_2?.trim().toLowerCase();
+        const kat4 = item.kategorie_4?.trim().toLowerCase();
+
+        return (
+          kat2 === targetHuellentyp ||
+          kat1 === targetHuellentyp ||
+          kat4 === targetHuellentyp ||
+          (kat4 && kat4.includes(targetHuellentyp))
+        );
+      });
+    }
+
+    const groups = configs
+      .map((item) => item.kategorie_4?.trim())
+      .filter(Boolean) as string[];
+
+    return Array.from(new Set(groups));
+  };
+
+  const huellentypen = Array.from(
+    new Set(ausstattungenNachFamilie.map((item) => item.kategorie_3?.trim()).filter(Boolean))
+  ) as string[];
+
   const stepNumber = (step: StepName) => STEPS.indexOf(step) + 1;
-   console.log("antwortkarteGrammaturen:", antwortkarteGrammaturen);
-   console.log("antwortkarteEndformate:", antwortkarteEndformate);
+
   // Allgemeine Zeilen
   const allgemeinZeilen: [string, string][] = [
     ["Auflage", cfg.auflage ? `${cfg.auflage.toLocaleString("de-DE")} Stück` : "–"],
     ["Hüllentyp", cfg.huellentyp ?? "–"],
     ["Ausstattung", cfg.ausstattung ?? "–"],
     ["Versandklasse", versandklasse ?? "–"],
-      
- 
   ];
-   console.log("versandklasse:", versandklasse);
-  // 100% dynamische Konstruktion der Zusammenfassung über getMailingPackage()
+
+  // Dynamische Konstruktion der Zusammenfassung über getMailingPackage()
   const uebersichtGruppen = useMemo(() => {
     if (!mailingPackage) return [];
 
     const groups: { titel: string; zeilen: [string, string][] }[] = [];
 
-    // Hülle (Umschlag)
+    // Hülle
     groups.push({
       titel: mailingPackage.huelle.kategorie ?? cfg.huellentyp ?? "Hülle",
       zeilen: [
@@ -103,7 +145,7 @@ export function KuvertiertesMailingKonfiguratorUI() {
       ],
     });
 
-    // Anschreiben (Brief)
+    // Anschreiben
     if (mailingPackage.anschreiben || cfg.anschreibenGrammatur) {
       groups.push({
         titel: "Anschreiben DIN A4",
@@ -175,18 +217,22 @@ export function KuvertiertesMailingKonfiguratorUI() {
     ),
   ];
 
-  if (loading) return (
-  <div
-    className="min-h-[300px] flex flex-col items-center justify-center gap-5 text-gray-500"
-    suppressHydrationWarning
-  >
-    <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
+  if (loading) {
+    return (
+      <div className="min-h-[300px] flex flex-col items-center justify-center gap-5 text-gray-500" suppressHydrationWarning>
+        <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin" />
+        <p>wartet bitte...</p>
+      </div>
+    );
+  }
 
-    <p>wartet bitte...</p>
-  </div>
-);
-  console.log("flyerGrammaturenMapped", flyerGrammaturenMapped);
-  if (error) return <div className="p-8 text-center text-red-500" suppressHydrationWarning>Fehler beim Verbinden mit dem Backend: {error}</div>;
+  if (error) {
+    return (
+      <div className="p-8 text-center text-red-500" suppressHydrationWarning>
+        Fehler beim Verbinden mit dem Backend: {error}
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#f4f4f4] min-h-screen">
@@ -289,27 +335,28 @@ export function KuvertiertesMailingKonfiguratorUI() {
                 </>
               )}
 
-               {currentStep === "Farbigkeit Hülle" && (
+              {currentStep === "Farbigkeit Hülle" && (
                 <>
                   <StepHeader step={stepNumber("Farbigkeit Hülle")} title={`Farbigkeit ${cfg.huellentyp ?? "Hülle"} wählen`} helpTab="farbigkeit" />
-                    <div className="flex flex-wrap gap-3">
-                        {huelleFarbigkeiten.map((f: string) => (
-                          <OptionTile
-                            key={f}
-                            active={cfg.huelleFarbigkeit === f}
-                            onClick={() => selectHuelleFarbigkeit(f)}
-                            title={f}
-                          />
-                        ))}
-                    </div>
+                  <div className="flex flex-wrap gap-3">
+                    {huelleFarbigkeiten.map((f: string) => (
+                      <OptionTile
+                        key={f}
+                        active={cfg.huelleFarbigkeit === f}
+                        onClick={() => selectHuelleFarbigkeit(f)}
+                        title={f}
+                      />
+                    ))}
+                  </div>
                 </>
               )}
+
               {currentStep === "Ausstattung" && (
                 <>
                   <StepHeader step={stepNumber("Ausstattung")} title="Ausstattung wählen" helpTab="ausstattung" />
                   <div className="flex flex-wrap gap-3">
-                    {ausstattungen.length > 0 ? (
-                      ausstattungen.map((a) => (
+                    {ausstattungen().length > 0 ? (
+                      ausstattungen().map((a) => (
                         <OptionTile key={a} active={cfg.ausstattung === a} onClick={() => selectAusstattung(a)} title={a} />
                       ))
                     ) : (
@@ -334,8 +381,6 @@ export function KuvertiertesMailingKonfiguratorUI() {
                   />
                 </>
               )}
-
-             
 
               {currentStep === "Grammatur Anschreiben" && (
                 <>
@@ -533,7 +578,6 @@ export function KuvertiertesMailingKonfiguratorUI() {
                                 </button>
                               ))}
                             </div>
-                             
                           </div>
 
                           <dl className="text-sm">
@@ -551,9 +595,9 @@ export function KuvertiertesMailingKonfiguratorUI() {
                               <dt className="font-semibold text-[#2b2b2b]">Gesamt (brutto):</dt>
                               <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preis.gesamtBruttoStandard)}</dd>
                             </div>
-
                           </dl>
-                                                    {/* Gewicht */}
+
+                          {/* Gewicht */}
                           <dl className="text-sm border-b border-[#dcdcdc]">
                             <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
                               <dt className="text-xs text-[#666666]">Gewicht pro Sendung:</dt>
@@ -565,7 +609,6 @@ export function KuvertiertesMailingKonfiguratorUI() {
                               <dd className="text-xs text-[#666666]">{preis.gesamtGewichtKg} kg</dd>
                             </div>
                           </dl>
-
                         </div>
                       ) : (
                         <div className="border border-[#dcdcdc] p-4 text-sm text-[#666666] bg-[#f4f4f4]">

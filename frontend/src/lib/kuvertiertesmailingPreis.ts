@@ -4,7 +4,6 @@ import {
   ermittleVersandklasse,
   
 } from "./gewicht";
-import type { KuvertiertesMailingSlug} from "@/types/kuvertiertesMailing/mailingSlug";
 import type { StaffelPreis } from "@/types/staffelPreis";
 import { getTarifGewicht } from "./gewicht";
 import type { AnschreibenGrammatur, AnschreibenFarbigkeit, FlyerUmfang, FlyerGrammatur, FlyerOberflaeche, BroschuereOberflaeche, BroschuereUmfang, AntwortkarteEndformat, AntwortkarteGrammatur, AntwortkarteOberflaeche } from "@/types/kuvertiertesMailing/types";
@@ -31,8 +30,18 @@ const SLUG_TO_FORMAT_TYPE: Record<KuvertiertesMailingSlug, "DIN_LANG" | "DIN_C4"
   c4_mailing: "DIN_C4",
 };
 
+export interface KuvertiertesMailingFamilie {
+  slug: KuvertiertesMailingSlug;
+}
 
 
+const FAMILIEN_KENNUNGEN = {
+  lang_mailing: "DIN-Lang-Mailing",
+  c4_mailing: "DIN-C4-Mailing",
+
+} as const;
+
+export type KuvertiertesMailingSlug = keyof typeof FAMILIEN_KENNUNGEN;
 function getStaffelHauptartikelVorauswahlPreis(staffeln: StaffelPreis[], auflage: number): StaffelPreis | null {
   return staffeln.find((staffel) => auflage <= staffel.max) ?? null;
 }

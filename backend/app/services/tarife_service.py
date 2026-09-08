@@ -1,6 +1,6 @@
 import pandas as pd
 import re
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from app.repositories.excel_repository import excel_repository
 from app.models.tarife import (
     StaffelTranche,
@@ -14,17 +14,26 @@ from app.models.tarife import (
 class TarifeService:
     def __init__(self, repo=excel_repository):
         self.repo = repo
+        self._column_cache: Dict[Tuple[str, ...], Dict[str, List[str]]] = {}
+        self._details_cache_df_id: Optional[int] = None
+        self._details_cache: Optional[List[ArtikelTarifDetails]] = None
+
+    def _matching_columns(self, row: pd.Series, pattern: str) -> List[str]:
+        columns = tuple(str(column) for column in row.index)
+        mappings = self._column_cache.setdefault(columns, {})
+        if pattern not in mappings:
+            regex = re.compile(pattern, re.IGNORECASE)
+            mappings[pattern] = [column for column in row.index if regex.search(str(column))]
+        return mappings[pattern]
 
     def _find_col(self, row: pd.Series, pattern: str) -> Optional[str]:
         """Recherche une colonne par regex insensible aux espaces et à la casse."""
-        for col in row.index:
-            col_str = str(col)
-            if re.search(pattern, col_str, re.IGNORECASE):
-                val = row[col]
-                if pd.notna(val):
-                    val_str = str(val).strip()
-                    if val_str and val_str.lower() != "nan":
-                        return val_str
+        for column in self._matching_columns(row, pattern):
+            value = row[column]
+            if pd.notna(value):
+                value_str = str(value).strip()
+                if value_str and value_str.lower() != "nan":
+                    return value_str
         return None
 
     def _extract_tranchen(self, row: pd.Series) -> List[StaffelTranche]:
@@ -107,7 +116,10 @@ class TarifeService:
         df = self.repo.get_all()
         if df is None:
             return None
-        return [self._map_row_to_details(row) for _, row in df.iterrows()]
+        if self._details_cache_df_id != id(df):
+            self._details_cache = [self._map_row_to_details(row) for _, row in df.iterrows()]
+            self._details_cache_df_id = id(df)
+        return self._details_cache
 
     def get_artikel_by_kategorie(self, kategorie: str) -> Optional[List[ArtikelTarifDetails]]:
         df = self.repo.get_all()

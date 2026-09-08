@@ -29,7 +29,7 @@ export interface AusstattungConfig {
 
   // Détails de l'article
   produkt_nummer?: string;
-  name?: string;
+  name: string;
   beschreibung?: string;
   pdf?: string;
 
