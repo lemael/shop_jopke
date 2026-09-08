@@ -9,7 +9,7 @@ export interface SelfmailerFamilie {
   slug: SelfmailerSlug;
 }
 
-const FAMILIEN_KENNUNGEN = {
+export const FAMILIEN_KENNUNGEN = {
   levi: "LEVI",
   inata: "INATA",
   klappe_alba: "ALBA",
@@ -20,6 +20,11 @@ const FAMILIEN_KENNUNGEN = {
   alvaro: "ALVARO",
 } as const;
 
+export const FAMILIEN_KATEGORIEN = {
+  bestseller_levi: "Unser Bestseller ! LEVI",
+  levi: "DIN-Lang-Selfmailer LEVI",} as const;
+
+export type FamilienKategorie = keyof typeof FAMILIEN_KATEGORIEN; 
 export type SelfmailerSlug = keyof typeof FAMILIEN_KENNUNGEN;
 
 function letzteKategorie(p: Produkt) {
@@ -31,13 +36,23 @@ function letzteKategorie(p: Produkt) {
  * Die Namen in der Quelldatei enthalten teils Unicode-Leerzeichen (z.B. INATA) -
  * daher Abgleich per Kennung statt exaktem Namensvergleich.
  */
-export function getSelfmailerFamilie(slug: SelfmailerSlug): string | null {
-  const kennung = FAMILIEN_KENNUNGEN[slug];
-  // Hier könnte die Logik zur Ermittlung der Selfmailer-Familie basierend auf der Kennung stehen.
-  return kennung;
- 
-
+export interface SelfmailerFamilieResult {
+  kennung: string | undefined;
+  kategorie_2?: FamilienKategorie;
 }
+
+export function getSelfmailerFamilie(
+  slug: SelfmailerSlug,
+  kategorie_2?: FamilienKategorie
+): SelfmailerFamilieResult {
+  const kennung = FAMILIEN_KENNUNGEN[slug];
+
+  return {
+    kennung,
+    kategorie_2,
+  };
+}
+
 function runden(wert: number): number {
   return Math.round(wert * 100) / 100;
 }

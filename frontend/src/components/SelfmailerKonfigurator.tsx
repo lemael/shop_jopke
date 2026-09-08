@@ -5,10 +5,10 @@ import { ALL_STEPS, StepName } from "@/types/selfmailer/selfmailer";
 import { OptionTile, StepHeader } from "@/components/ConfiguratorUI";
 import { AuflageAuswahl } from "@/components/AuflageAuswahl";
 import { BestellModal } from "@/components/BestellModal";
-import type { SelfmailerFamilie } from "@/lib/selfmailerPreis";
+import type { SelfmailerFamilie, SelfmailerFamilieResult } from "@/lib/selfmailerPreis";
 import { useSelfmailerConfiguratorStore as useConfiguratorStore } from "@/stores/useSeflmailerConfiguratorStore";
 import { useEffect} from "react";
-import { calcSelfmailerPrice } from "@/lib/selfmailerPreis";
+import { calcSelfmailerPrice, FAMILIEN_KATEGORIEN } from "@/lib/selfmailerPreis";
 import { DETAIL_STAFFEL_PUNKTE } from "@/data/constants";
 
 
@@ -25,11 +25,10 @@ function formatGramKg(value: number) {
 }
 
 
-export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: string }>) {
+export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: SelfmailerFamilieResult }>) {
 
     const store = useConfiguratorStore();
     const stepIndex = store.stepIndex();
-    const STEP = store.STEPS();
     const ausstattungen = store.ausstattungConfigs;
     const { 
       loading, 
@@ -74,13 +73,21 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: string }
   
 
 
- 
-  const suchbegriff = familie.toLowerCase();
- // lookup der ausstattungConfigs nach dem suchbegriff (familie)
-  const ausstattung = ausstattungen.filter(a =>
-    a.name.toLowerCase().includes(suchbegriff)
-  );
-  const name = ausstattung[0]?.name;
+ console.log("selfmailerFamilie:", familie);
+ console.log(
+   "familie_kategorie_2:",
+   familie.kategorie_2 ? FAMILIEN_KATEGORIEN[familie.kategorie_2] : undefined
+ );
+  const suchbegriff = familie.kennung?.toLowerCase();
+  const ausstattung = ausstattungen.filter((item) => {
+    if (!suchbegriff || !item.name.toLowerCase().includes(suchbegriff)) {
+      return false;
+    }
+
+    return suchbegriff !== "levi" || !familie.kategorie_2 ||
+      item.kategorie_2?.toLowerCase().includes(FAMILIEN_KATEGORIEN[familie.kategorie_2].toLowerCase()) === true;
+  });
+  const name = ausstattung[0]?.name + (familie.kategorie_2 ? ` – ${FAMILIEN_KATEGORIEN[familie.kategorie_2]}` : "");
   const umfangen = Array.from(
     new Set(ausstattung.flatMap(a => a.umfang))
   );
@@ -90,10 +97,28 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: string }
   );
 
   const perforationen = Array.from(
-    new Set(ausstattung.flatMap(a => a.perforation))
+    new Set(
+      ausstattung
+        .map((item) => item.perforation)
+        .filter((perforation): perforation is string =>
+          typeof perforation === "string" && perforation.trim() !== ""
+        )
+    )
   );
+  const STEP = ALL_STEPS.filter(
+    (step) => step !== "Perforation" || perforationen.length > 0
+  );
+  const handleSelectGrammatur = (grammatur: string) => {
+    selectGrammatur(grammatur);
+    if (perforationen.length === 0) {
+      goTo("Übersicht");
+    }
+  };
 
-  
+  console.log("perforationen:", perforationen);
+  console.log("grammaturen:", grammaturen);
+  console.log("umfangen:", umfangen);
+  console.log("ausstattung:", ausstattung);
   const ausgewaehlteVariante = ausstattung.find(a => a.umfang === cfg.umfang && a.grammatur === cfg.grammatur);
   const preisdetails = ausgewaehlteVariante ? calcSelfmailerPrice(ausgewaehlteVariante, cfg) : null;
   const uebersichtZeilen: [string, string][] = [
@@ -224,7 +249,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: string }
                         <OptionTile
                           key={g}
                           active={cfg.grammatur === g}
-                          onClick={() => selectGrammatur(g)}
+                          onClick={() => handleSelectGrammatur(g)}
                           title={g}
                           subtitle={beispiel?.papier ?? undefined}
                         />
