@@ -50,16 +50,20 @@ export function calcSelfmailerPrice(ausstattung: AusstattungConfig, cfg: Config)
         cfg.auflage <= 10000 ? 1 :
         cfg.auflage <= 50000 ? 2 : 3;
   const druck = runden( berechneHauptartikelVorauswahlPreis(ausstattung, cfg.auflage)/1.5 ) + 0.01;
-  const porto = berechnePorto(cfg.auflage, ausstattung.mindest_versandklasse);
+  
+  
+ 
+
+ 
+  const gewichtProSendungG = ausstattung.gewicht_in_g ?? 0;
+  const gesamtGewichtKg = runden((gewichtProSendungG * cfg.auflage) / 1000);
+  const porto = berechnePorto(cfg.auflage, gewichtProSendungG);
   const gesamtNettoStandard = runden(druck + porto );
-  const expressProzent = (ausstattung.tranchen[indexTranche].aufschlag_express_in_prozent ?? 0) / 100;
+   const expressProzent = (ausstattung.tranchen[indexTranche].aufschlag_express_in_prozent ?? 0) / 100;
   const expressAufpreis = runden(druck * expressProzent);
   const gesamtNettoExpress = runden(gesamtNettoStandard + expressAufpreis);
   const mwstStandard = runden(gesamtNettoStandard * 0.19);
-
   const gesamtBruttoStandard = runden(gesamtNettoStandard + mwstStandard);
-  const gewichtProSendungG = ausstattung.gewicht_in_g ?? 0;
-  const gesamtGewichtKg = runden((gewichtProSendungG * cfg.auflage) / 1000);
   console.table({
     "Druck": druck,
     "Porto": porto,

@@ -80,10 +80,20 @@ function runden(wert: number): number {
   return Math.round(wert * 100) / 100;
 }
 
-export function berechnePorto(auflage: number, versandklasse: Versandklasse): number {
-  const regel = PORTO_REGELN[versandklasse];
+export function berechnePorto(auflage: number, gesamtGewichtG: number, versandklasseVerbot?: Versandklasse): number {
+  
+  const regel = Object.values(PORTO_REGELN).find(
+    r =>
+      r !== PORTO_REGELN[versandklasseVerbot!] &&
+      gesamtGewichtG >= r.gewicht.minG &&
+      gesamtGewichtG <= r.gewicht.maxG
+  );
   if (!regel) return 0;
-
+  console.table({
+    "Auflage": auflage,
+    "Gesamtgewicht (g)": gesamtGewichtG,
+    "Gefundene Regel": regel
+  });
   // 1. À partir de 5 000 ex : tarif Dialogpost standard
   if (auflage >= 5000) {
     return runden(auflage * regel.tarifBase + 5);

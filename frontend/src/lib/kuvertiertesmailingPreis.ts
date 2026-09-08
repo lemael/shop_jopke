@@ -457,7 +457,7 @@ export function berechnePreis(params: {
   // -------------------------------------------------------------
   // 3. BERECHNUNG VON PORTO UND GESAMTSUMME
   // -------------------------------------------------------------
-  const porto = berechnePorto(auflage, versandklasse);
+  const porto = berechnePorto(auflage, gesamtGewichtG, "A");
   console.log("Porto:", porto, "Versandklasse:", versandklasse, "auflage:", auflage);
   const expressProzent = staffelHauptartikelVorauswahl.aufschlag_express_in_prozent ? (staffelHauptartikelVorauswahl.aufschlag_express_in_prozent / 100) 
     : stufenwert(EXPRESS_PROZENT_STAFFEL, auflage);
@@ -467,7 +467,17 @@ export function berechnePreis(params: {
   const gesamtNettoExpress = runden(gesamtNettoStandard + expressAufpreis);
   const mwstStandard = runden(gesamtNettoStandard * 0.19);
   const gesamtBruttoStandard = runden(gesamtNettoStandard + mwstStandard);
-
+  console.table({
+    "Druck": druck,
+    "Porto": porto,
+    "Express Aufpreis": expressAufpreis,
+    "Gesamt Netto Standard": gesamtNettoStandard,
+    "Gesamt Netto Express": gesamtNettoExpress,
+    "MwSt Standard": mwstStandard,
+    "Gesamt Brutto Standard": gesamtBruttoStandard,
+    "Gewicht pro Sendung (g)": gesamtGewichtG,
+    "Gesamtgewicht (kg)": gesamtGewichtKg
+  });
   return {
     druck,
     porto,
