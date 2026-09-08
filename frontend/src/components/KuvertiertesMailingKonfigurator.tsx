@@ -246,10 +246,10 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
         <nav className="text-xs text-[#888888] mb-6">
           <Link href="/" className="hover:text-[#822660]">Startseite</Link>{" / "}
           <Link href="/#kuvertiertes-mailing" className="hover:text-[#822660]">Kuvertiertes Mailing</Link>{" / "}
-          <span className="text-[#2b2b2b]">{name}</span>
+          <span className="text-[#2b2b2b]">{familie}</span>
         </nav>
 
-        <h1 className="text-2xl font-bold text-[#2b2b2b] mb-2">{name} – Konfigurator</h1>
+        <h1 className="text-2xl font-bold text-[#2b2b2b] mb-2">{familie} – Konfigurator</h1>
         {beschreibung && <p className="text-sm text-[#666666] mb-8 whitespace-pre-line max-w-2xl">{beschreibung}</p>}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
