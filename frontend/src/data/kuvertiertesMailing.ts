@@ -12,7 +12,10 @@ const ALL_STEPS = [
   "Grammatur Flyer",
   "Oberfläche Flyer",
   "Umfang Broschüre",
-  "Oberfläche Broschüre",
+  "Oberfläche Broschüre (Umschlag)",
+  "Grammatur Broschüre (Umschlag)",
+  "Grammatur Broschüre (Inhalt)",
+  "Oberfläche Broschüre (Inhalt)",
   "Endformat Antwortkarte",
   "Grammatur Antwortkarte",
   "Oberfläche Antwortkarte",
@@ -20,7 +23,7 @@ const ALL_STEPS = [
 ] as const;
 type StepName = (typeof ALL_STEPS)[number];
 const FLYER_STEPS = new Set<StepName>(["Umfang Flyer", "Grammatur Flyer", "Oberfläche Flyer"]);
-const BROSCHUERE_STEPS = new Set<StepName>(["Umfang Broschüre", "Oberfläche Broschüre"]);
+const BROSCHUERE_STEPS = new Set<StepName>(["Umfang Broschüre", "Oberfläche Broschüre (Umschlag)", "Grammatur Broschüre (Umschlag)", "Grammatur Broschüre (Inhalt)", "Oberfläche Broschüre (Inhalt)"]);
 const ANTWORTKARTE_STEPS = new Set<StepName>(["Endformat Antwortkarte", "Grammatur Antwortkarte", "Oberfläche Antwortkarte"]);
 
 

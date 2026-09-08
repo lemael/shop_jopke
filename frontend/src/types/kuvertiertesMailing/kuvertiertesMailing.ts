@@ -19,7 +19,10 @@ interface Config {
   flyerGrammatur: string ;
   flyerOberflaeche: string ;
   broschuereUmfang: string ;
-  broschuereOberflaeche: string ;
+  broschuereInhaltOberflaeche: string ;
+  broschuereUmschlagOberflaeche: string ;
+  broschuereInhaltGrammatur: string ;
+  broschuereUmschlagGrammatur: string ;
   antwortkarteEndformat: string;
   antwortkarteGrammatur: string;
   antwortkarteOberflaeche: string;

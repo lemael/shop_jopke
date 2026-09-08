@@ -6,7 +6,7 @@ import {
 } from "./gewicht";
 import type { StaffelPreis } from "@/types/staffelPreis";
 import { getTarifGewicht } from "./gewicht";
-import type { AnschreibenGrammatur, AnschreibenFarbigkeit, FlyerUmfang, FlyerGrammatur, FlyerOberflaeche, BroschuereOberflaeche, BroschuereUmfang, AntwortkarteEndformat, AntwortkarteGrammatur, AntwortkarteOberflaeche } from "@/types/kuvertiertesMailing/types";
+import type { AnschreibenGrammatur, AnschreibenFarbigkeit, FlyerUmfang, FlyerGrammatur, FlyerOberflaeche, BroschuereUmfang, AntwortkarteEndformat, AntwortkarteGrammatur, AntwortkarteOberflaeche, BroschuereInhaltOberflaeche, BroschuereUmschlagOberflaeche, BroschuereInhaltGrammatur, BroschuereUmschlagGrammatur } from "@/types/kuvertiertesMailing/types";
 import {
   AUFLAGE_STAFFEL,
   EXPRESS_PROZENT_STAFFEL,
@@ -105,28 +105,29 @@ function getFlyerStaffelpreis(
 
 function getBroschuereStaffelpreis(
   umfang: BroschuereUmfang | null,
-  inhaltGrammatur?: string | null,
-  inhaltOberflaeche?: BroschuereOberflaeche | null,
-  umschlagGrammatur?: string | null,
-  umschlagOberflaeche?: BroschuereOberflaeche | null
+  inhaltGrammatur?: BroschuereInhaltGrammatur | null,
+  inhaltOberflaeche?: BroschuereInhaltOberflaeche | null,
+  umschlagGrammatur?: BroschuereUmschlagGrammatur | null,
+  umschlagOberflaeche?: BroschuereUmschlagOberflaeche | null,
+  artikelTarife?: ArtikelTarifDetails[]
 ): StaffelPreis[] | undefined {
 
-  if (!umfang) return undefined;
-
-  // Accès sécurisé au premier niveau (Umfang)
-  const umfangMap =
-    BROSCHUERE_STAFFEL_PREISE[
-      umfang as keyof typeof BROSCHUERE_STAFFEL_PREISE
-    ];
-  if (!umfangMap) return undefined;
+  if (!umfang || !artikelTarife || artikelTarife.length === 0) return undefined;
 
   // Clé composite (ex: "90 g/m² matt | 170 g/m² matt")
-  const inhaltKey = `${inhaltGrammatur} ${inhaltOberflaeche}`;
-  const umschlagKey = `${umschlagGrammatur} ${umschlagOberflaeche}`;
-  const comboKey = `${inhaltKey} | ${umschlagKey}`;
-
+  
+  const comboKeyFromArtikelTarife = artikelTarife.filter((tarif) => tarif.umfang === umfang && tarif.grammatur === inhaltGrammatur && tarif.oberflaeche === inhaltOberflaeche && tarif.grammatur_2 === umschlagGrammatur && tarif.oberflaeche_2 === umschlagOberflaeche);
   // Accès au deuxième niveau
-  return umfangMap[comboKey as keyof typeof umfangMap];
+  const umfangMap = comboKeyFromArtikelTarife[0]?.tranchen;
+  console.log("getBroschuereStaffelpreis umfangMap broschuere :", umfangMap, "comboKeyFromArtikelTarife :", comboKeyFromArtikelTarife, "Détails :", {
+    "umfang": umfang,
+    "inhaltGrammatur": inhaltGrammatur,
+    "inhaltOberflaeche": inhaltOberflaeche,
+    "umschlagGrammatur": umschlagGrammatur,
+    "umschlagOberflaeche": umschlagOberflaeche,
+    "artikelTarife": artikelTarife,
+  });
+  return umfangMap;
 }
 
 function getAntwortkarteStaffelpreis(
@@ -317,17 +318,27 @@ export function berechnePreis(params: {
   
   const broschuerePreisTrancheListe = getBroschuereStaffelpreis(
         broschuereUmfang as BroschuereUmfang,
-        broschuereInhaltGrammatur ,
-        broschuereInhaltOberflaeche as BroschuereOberflaeche,
-        broschuereUmschlagGrammatur,
-        broschuereUmschlagOberflaeche as BroschuereOberflaeche,
+        broschuereInhaltGrammatur  as BroschuereInhaltGrammatur,
+        broschuereInhaltOberflaeche as BroschuereInhaltOberflaeche,
+        broschuereUmschlagGrammatur as BroschuereUmschlagGrammatur,
+        broschuereUmschlagOberflaeche as BroschuereUmschlagOberflaeche,
+        artikelTarife
         
       );
+  console.log("broschuerePreisTrancheListe :", broschuerePreisTrancheListe, "Détails :", {
+    "broschuereUmfang": broschuereUmfang,
+    "broschuereInhaltGrammatur": broschuereInhaltGrammatur,
+    "broschuereInhaltOberflaeche": broschuereInhaltOberflaeche,
+    "broschuereUmschlagGrammatur": broschuereUmschlagGrammatur,
+    "broschuereUmschlagOberflaeche": broschuereUmschlagOberflaeche,
+    "artikelTarife": artikelTarife,
+  });
   const broschuerePreisTranche = broschuerePreisTrancheListe?.find(t => auflage >= t.min && auflage <= t.max);
   broschuerePreis = berechneArtikelPreis(
       broschuerePreisTranche,
       auflage
     );
+    console.log("broschuerePreisTranche :", broschuerePreisTranche);
     console.log("Delta de la brochure calculé :", broschuerePreis);
   
 

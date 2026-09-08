@@ -39,7 +39,10 @@ interface ConfiguratorState {
   flyerGrammaturenMapped: Record<string, string[]>;
   flyerOberflaechen: string[];
   broschuereUmfaenge: string[];
-  broschuereOberflaechen: string[];
+  broschuereInhaltOberflaechen: string[];
+  broschuereInhaltGrammaturen: string[];
+  broschuereUmschlagOberflaechen: string[];
+  broschuereUmschlagGrammaturen: string[];
   antwortkarteEndformate: string[];
   antwortkarteGrammaturen: string[];
   antwortkarteOberflaechen: string[];
@@ -73,7 +76,10 @@ interface ConfiguratorState {
   selectFlyerGrammatur: (index: number, grammatur: string) => void;
   selectFlyerOberflaeche: (index: number, oberflaeche: string) => void;
   selectBroschuereUmfang: (umfang: string) => void;
-  selectBroschuereOberflaeche: (oberflaeche: string) => void;
+  selectBroschuereUmschlagOberflaeche: (oberflaeche: string) => void;
+  selectBroschuereUmschlagGrammatur: (grammatur: string) => void;
+  selectBroschuereInhaltOberflaeche: (oberflaeche: string) => void;
+  selectBroschuereInhaltGrammatur: (grammatur: string) => void;
   selectAntwortkarteEndformat: (endformat: string) => void;
   selectAntwortkarteGrammatur: (grammatur: string) => void;
   selectAntwortkarteOberflaeche: (oberflaeche: string) => void;
@@ -91,19 +97,31 @@ const initialConfig: Config = {
   ausstattung: "",
   auflage: 0,
   huelleFarbigkeit: "",
+
   anschreibenGrammatur: "",
   anschreibenFarbigkeit: "",
+  anzahlFlyer: 0,
+  flyerConfigs: [],
   flyerUmfang: "",
   flyerGrammatur: "",
   flyerOberflaeche: "",
+
   broschuereUmfang: "",
-  broschuereOberflaeche: "",
+  broschuereInhaltOberflaeche: "",
+  broschuereUmschlagOberflaeche: "",
+  broschuereInhaltGrammatur: "",
+  broschuereUmschlagGrammatur: "",
+
   antwortkarteEndformat: "",
   antwortkarteGrammatur: "",
   antwortkarteOberflaeche: "",
-  anzahlFlyer: 0,
-  flyerConfigs: [],
+  
   verarbeitungszeit: "Standard",
+};
+
+// Helper function to extract unique non-null strings
+const extractUniqueStrings = (items: (string | null | undefined)[]): string[] => {
+  return Array.from(new Set(items.filter((val): val is string => Boolean(val))));
 };
 
 export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
@@ -126,7 +144,10 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
   flyerGrammaturenMapped: {},
   flyerOberflaechen: ["matt", "glänzend"],
   broschuereUmfaenge: [],
-  broschuereOberflaechen: ["matt", "glänzend"],
+  broschuereInhaltOberflaechen: [],
+  broschuereInhaltGrammaturen: [],
+  broschuereUmschlagOberflaechen: [],
+  broschuereUmschlagGrammaturen: [],
   antwortkarteEndformate: [],
   antwortkarteGrammaturen: [],
   antwortkarteOberflaechen: ["matt", "glänzend"],
@@ -250,6 +271,11 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
 
   preis: () => {
     const { cfg, familieSlug } = get();
+    console.table({
+      "cfg": cfg,
+      "familieSlug": familieSlug,
+      
+    });
     return berechnePreis({
       slug: familieSlug,
       huellentyp: cfg.huellentyp,
@@ -265,10 +291,10 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
       antwortkarteEndformat: cfg.antwortkarteEndformat,
       antwortkarteGrammatur: cfg.antwortkarteGrammatur,
       antwortkarteOberflaeche: cfg.antwortkarteOberflaeche,
-      broschuereInhaltOberflaeche: cfg.broschuereOberflaeche,
-      broschuereUmschlagOberflaeche: cfg.broschuereOberflaeche,
-      broschuereInhaltGrammatur: "90 g/m²",
-      broschuereUmschlagGrammatur: "170 g/m²",
+      broschuereInhaltOberflaeche: cfg.broschuereInhaltOberflaeche,
+      broschuereUmschlagOberflaeche: cfg.broschuereUmschlagOberflaeche,
+      broschuereInhaltGrammatur: cfg.broschuereInhaltGrammatur,
+      broschuereUmschlagGrammatur: cfg.broschuereUmschlagGrammatur,
       artikelTarife: get().artikelTarife,
       ausstattungConfig: get().selectedAusstattungConfig(),
     });
@@ -290,15 +316,16 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
   loadOptions: async () => {
     const { gruppe } = get();
     set({ loading: true, error: null });
+    console.log("Lade Optionen für Gruppe:", gruppe);
     try {
       const [ausstattungConfigs, artikelTarife, anschreiben, flyer, broschuere, antwortkarte] =
         await Promise.all([
           ausstattungConfigService.getAll(),
           tarifeService.getAll(),
-          tarifeService.getAnschreibenOptions(gruppe),
-          tarifeService.getFlyerOptions(gruppe),
-          tarifeService.getBroschuereOptions(gruppe),
-          tarifeService.getAntwortkarteOptions(gruppe),
+          tarifeService.getAnschreibenOptions(`A${gruppe}`),
+          tarifeService.getFlyerOptions(`F${gruppe}`),
+          tarifeService.getBroschuereOptions(`B${gruppe}`),
+          tarifeService.getAntwortkarteOptions(`AK${gruppe}`),
         ]);
 
       const flyerGrammaturenMapped: Record<string, string[]> = {};
@@ -318,6 +345,8 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
         });
       }
 
+      const broschuereItems = artikelTarife.filter((a) => a.produkt_gruppe === `B${gruppe}`);
+
       set({
         artikelTarife,
         anschreibenGrammaturen: anschreiben.grammaturen,
@@ -325,6 +354,26 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
         flyerUmfaenge: flyer.umfaenge,
         flyerGrammaturenMapped,
         broschuereUmfaenge: broschuere.umfaenge,
+        broschuereInhaltOberflaechen: extractUniqueStrings(
+          broschuereItems
+            .filter((a) => a.kategorie === "Broschüre")
+            .map((a) => a.oberflaeche)
+        ),
+        broschuereInhaltGrammaturen: extractUniqueStrings(
+          broschuereItems
+            .filter((a) => a.kategorie === "Broschüre")
+            .map((a) => a.grammatur)
+        ),
+        broschuereUmschlagOberflaechen: extractUniqueStrings(
+          broschuereItems
+            .filter((a) => a.kategorie === "Broschüre")
+            .map((a) => a.oberflaeche_2)
+        ),
+        broschuereUmschlagGrammaturen: extractUniqueStrings(
+          broschuereItems
+            .filter((a) => a.kategorie === "Broschüre")
+            .map((a) => a.grammatur_2)
+        ),
         antwortkarteEndformate: antwortkarte.endformate,
         antwortkarteGrammaturen: antwortkarte.grammaturen,
         ausstattungConfigs,
@@ -352,7 +401,10 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
         anzahlFlyer: 0,
         flyerConfigs: [],
         broschuereUmfang: "",
-        broschuereOberflaeche: "",
+        broschuereInhaltOberflaeche: "",
+        broschuereUmschlagOberflaeche: "",
+        broschuereInhaltGrammatur: "",
+        broschuereUmschlagGrammatur: "",
         antwortkarteEndformat: "",
         antwortkarteGrammatur: "",
         antwortkarteOberflaeche: "",
@@ -420,11 +472,22 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
     get().next();
   },
 
-  selectBroschuereOberflaeche: (broschuereOberflaeche) => {
-    set((state) => ({ cfg: { ...state.cfg, broschuereOberflaeche } }));
+  selectBroschuereInhaltOberflaeche: (broschuereInhaltOberflaeche) => {
+    set((state) => ({ cfg: { ...state.cfg, broschuereInhaltOberflaeche } }));
     get().next();
   },
-
+  selectBroschuereUmschlagOberflaeche: (broschuereUmschlagOberflaeche) => {
+    set((state) => ({ cfg: { ...state.cfg, broschuereUmschlagOberflaeche } }));
+    get().next();
+  },
+  selectBroschuereUmschlagGrammatur: (broschuereUmschlagGrammatur) => {
+    set((state) => ({ cfg: { ...state.cfg, broschuereUmschlagGrammatur } }));
+    get().next();
+  },
+  selectBroschuereInhaltGrammatur: (broschuereInhaltGrammatur) => {
+    set((state) => ({ cfg: { ...state.cfg, broschuereInhaltGrammatur } }));
+    get().next();
+  },
   selectAntwortkarteEndformat: (antwortkarteEndformat) => {
     set((state) => ({ cfg: { ...state.cfg, antwortkarteEndformat } }));
     get().next();

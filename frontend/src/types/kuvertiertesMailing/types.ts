@@ -92,7 +92,8 @@ type BroschuereUmfang =
 type BroschuereInhaltGrammatur = "90 g/m²";
 type BroschuereUmschlagGrammatur = "170 g/m²";
 
-type BroschuereOberflaeche = "glänzend" | "matt";
+type BroschuereInhaltOberflaeche = "glänzend" | "matt";
+type BroschuereUmschlagOberflaeche = "glänzend" | "matt";
 type BroschuereFarbigkeit = "4/4-farbig Euroskala";
 type BroschuereVerarbeitung = "Rückendrahtheftung mit 2 Klammern";
 
@@ -186,12 +187,12 @@ interface BroschuereDINLangConfig {
   papier: "Bilderdruck";
   grammatur: BroschuereInhaltGrammatur;
   farbigkeit: BroschuereFarbigkeit;
-  oberflaeche: BroschuereOberflaeche;
+  oberflaeche: BroschuereInhaltOberflaeche;
   
   // Couverture (Umschlag)
   umschlagPapier: "Bilderdruck";
   umschlagGrammatur: BroschuereUmschlagGrammatur;
-  umschlagOberflaeche: BroschuereOberflaeche;
+  umschlagOberflaeche: BroschuereUmschlagOberflaeche;
 }
 export type {
      DeltaKurve, 
@@ -213,7 +214,8 @@ export type {
      BroschuereVerarbeitung,
      BroschuereInhaltGrammatur,
      BroschuereFarbigkeit,
-     BroschuereOberflaeche,
+     BroschuereInhaltOberflaeche,
+     BroschuereUmschlagOberflaeche,
      BroschuereUmschlagGrammatur,
      BroschuereDINLangConfig,
      HuelleOhneFensterDINC65Config,

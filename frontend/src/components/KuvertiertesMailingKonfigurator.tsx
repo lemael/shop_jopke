@@ -36,7 +36,10 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
     flyerGrammaturenMapped,
     flyerOberflaechen,
     broschuereUmfaenge,
-    broschuereOberflaechen,
+    broschuereUmschlagOberflaechen,
+    broschuereUmschlagGrammaturen,
+    broschuereInhaltGrammaturen,
+    broschuereInhaltOberflaechen,
     antwortkarteEndformate,
     antwortkarteGrammaturen,
     antwortkarteOberflaechen,
@@ -52,7 +55,10 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
     selectFlyerGrammatur,
     selectFlyerOberflaeche,
     selectBroschuereUmfang,
-    selectBroschuereOberflaeche,
+    selectBroschuereUmschlagOberflaeche,
+    selectBroschuereUmschlagGrammatur,
+    selectBroschuereInhaltOberflaeche,
+    selectBroschuereInhaltGrammatur,
     selectAntwortkarteEndformat,
     selectAntwortkarteGrammatur,
     selectAntwortkarteOberflaeche,
@@ -187,7 +193,7 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
           ["Farbigkeit", mailingPackage.broschuere?.farbigkeit ?? "4/4-farbig Euroskala"],
           ["Grammatur", mailingPackage.broschuere?.grammatur ?? "Inhalt 90 g/m², Umschlag 170 g/m²"],
           ["Papier", mailingPackage.broschuere?.papier ?? "Bilderdruck"],
-          ["Oberfläche", cfg.broschuereOberflaeche ?? "–"],
+          ["Oberfläche", cfg.broschuereUmschlagOberflaeche ?? "–"],
         ],
       });
     }
@@ -300,7 +306,10 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
                 {cfg.anschreibenGrammatur && <p><span className="text-[#2b2b2b]">Grammatur Anschreiben:</span> {cfg.anschreibenGrammatur}</p>}
                 {cfg.anschreibenFarbigkeit && <p><span className="text-[#2b2b2b]">Farbigkeit Anschreiben:</span> {cfg.anschreibenFarbigkeit}</p>}
                 {cfg.broschuereUmfang && <p><span className="text-[#2b2b2b]">Umfang Broschüre:</span> {cfg.broschuereUmfang}</p>}
-                {cfg.broschuereOberflaeche && <p><span className="text-[#2b2b2b]">Oberfläche Broschüre:</span> {cfg.broschuereOberflaeche}</p>}
+                {cfg.broschuereInhaltOberflaeche && <p><span className="text-[#2b2b2b]">Oberfläche Broschüre (Inhalt):</span> {cfg.broschuereInhaltOberflaeche}</p>}
+                {cfg.broschuereInhaltGrammatur && <p><span className="text-[#2b2b2b]">Grammatur Broschüre (Inhalt):</span> {cfg.broschuereInhaltGrammatur}</p>}
+                {cfg.broschuereUmschlagOberflaeche && <p><span className="text-[#2b2b2b]">Oberfläche Broschüre (Umschlag):</span> {cfg.broschuereUmschlagOberflaeche}</p>}
+                {cfg.broschuereUmschlagGrammatur && <p><span className="text-[#2b2b2b]">Grammatur Broschüre (Umschlag):</span> {cfg.broschuereUmschlagGrammatur}</p>}
                 {cfg.antwortkarteEndformat && <p><span className="text-[#2b2b2b]">Endformat Antwortkarte:</span> {cfg.antwortkarteEndformat}</p>}
                 {cfg.antwortkarteGrammatur && <p><span className="text-[#2b2b2b]">Grammatur Antwortkarte:</span> {cfg.antwortkarteGrammatur}</p>}
                 {cfg.antwortkarteOberflaeche && <p><span className="text-[#2b2b2b]">Oberfläche Antwortkarte:</span> {cfg.antwortkarteOberflaeche}</p>}
@@ -461,18 +470,46 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
                   </div>
                 </>
               )}
-
-              {currentStep === "Oberfläche Broschüre" && (
+              {currentStep === "Grammatur Broschüre (Inhalt)" && (
                 <>
-                  <StepHeader step={stepNumber("Oberfläche Broschüre")} title="Oberfläche Broschüre wählen" helpTab="oberflaeche" />
+                  <StepHeader step={stepNumber("Grammatur Broschüre (Inhalt)")} title="Grammatur Broschüre (Inhalt) wählen" helpTab="grammatur" />
                   <div className="flex flex-wrap gap-3">
-                    {broschuereOberflaechen.map((o) => (
-                      <OptionTile key={o} active={cfg.broschuereOberflaeche === o} onClick={() => selectBroschuereOberflaeche(o)} title={o} />
+                    {broschuereInhaltGrammaturen.map((g) => (
+                      <OptionTile key={g} active={cfg.broschuereInhaltGrammatur === g} onClick={() => selectBroschuereInhaltGrammatur(g)} title={g} />
                     ))}
                   </div>
                 </>
               )}
-
+              {currentStep === "Oberfläche Broschüre (Inhalt)" && (
+                <>
+                  <StepHeader step={stepNumber("Oberfläche Broschüre (Inhalt)")} title="Oberfläche Broschüre (Inhalt) wählen" helpTab="oberflaeche" />
+                  <div className="flex flex-wrap gap-3">
+                    {broschuereInhaltOberflaechen.map((o) => (
+                      <OptionTile key={o} active={cfg.broschuereInhaltOberflaeche === o} onClick={() => selectBroschuereInhaltOberflaeche(o)} title={o} />
+                    ))}
+                  </div>
+                </>
+              )}
+              {currentStep === "Oberfläche Broschüre (Umschlag)" && (
+                <>
+                  <StepHeader step={stepNumber("Oberfläche Broschüre (Umschlag)")} title="Oberfläche Broschüre (Umschlag) wählen" helpTab="oberflaeche" />
+                  <div className="flex flex-wrap gap-3">
+                    {broschuereUmschlagOberflaechen.map((o) => (
+                      <OptionTile key={o} active={cfg.broschuereUmschlagOberflaeche === o} onClick={() => selectBroschuereUmschlagOberflaeche(o)} title={o} />
+                    ))}
+                  </div>
+                </>
+              )}
+              {currentStep === "Grammatur Broschüre (Umschlag)" && (
+                <>
+                  <StepHeader step={stepNumber("Grammatur Broschüre (Umschlag)")} title="Grammatur Broschüre (Umschlag) wählen" helpTab="grammatur" />
+                  <div className="flex flex-wrap gap-3">
+                    {broschuereUmschlagGrammaturen.map((g) => (
+                      <OptionTile key={g} active={cfg.broschuereUmschlagGrammatur === g} onClick={() => selectBroschuereUmschlagGrammatur(g)} title={g} />
+                    ))}
+                  </div>
+                </>
+              )}
               {currentStep === "Endformat Antwortkarte" && (
                 <>
                   <StepHeader step={stepNumber("Endformat Antwortkarte")} title="Endformat Antwortkarte wählen" helpTab="endformat" />
