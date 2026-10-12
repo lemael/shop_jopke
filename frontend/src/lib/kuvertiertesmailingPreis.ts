@@ -168,6 +168,27 @@ function berechneArtikelPreis(
   
   return runden(tranche.fixpreis + (auflage / 1000) * tranche.preisPro1000);
 }
+
+function getBackendArtikelPreis(
+  artikelTarife: ArtikelTarifDetails[],
+  produktGruppe: string,
+  kategorie: string,
+  auflage: number,
+  filters: Partial<Pick<ArtikelTarifDetails, "umfang" | "grammatur" | "oberflaeche" | "grammatur_2" | "oberflaeche_2" | "farbigkeit" | "endformat">>
+): number {
+  const artikel = artikelTarife.find(
+    (tarif) =>
+      tarif.produkt_gruppe === produktGruppe &&
+      tarif.kategorie === kategorie &&
+      Object.entries(filters).every(
+        ([key, value]) => tarif[key as keyof ArtikelTarifDetails] === value
+      )
+  );
+  const tranche = artikel?.tranchen.find(
+    (item) => auflage >= item.min && auflage <= item.max
+  );
+  return berechneArtikelPreis(tranche, auflage);
+}
 /**
  * Hilfsfunktion zum Extrahieren der Seitenzahl aus einem Umfang-Text.
  * Beispiel: "12 Seiten" -> 12
@@ -248,11 +269,18 @@ export function berechnePreis(params: {
     artikelTarife,
   } = params;
 
-  if (slug !== "lang_mailing" || !huellentyp || !ausstattung || !auflage) return null;
+  if (!huellentyp || !ausstattung || !auflage) return null;
 
   //const config = AUSSTATTUNG_CONFIG[`${huellentyp}|${ausstattung}`];
   // 1. On utilise le config dynamique du store à la place du hardcodé
   if (!ausstattungConfig) return null;
+  const produktGruppe = slug === "c4_mailing" ? "1400" : "1000";
+  const huellenProduktGruppe =
+    huellentyp === "Fensterhülle"
+      ? `FH${produktGruppe}`
+      : huellentyp === "Panorama-Fensterhülle"
+        ? `PFH${produktGruppe}`
+        : `HOF${produktGruppe}`;
   console.log("ausstattungConfig :", ausstattungConfig);
   // On cherche la bonne tranche dans l'objet dynamique
   const staffelHauptartikelVorauswahl = ausstattungConfig.tranchen.find(
@@ -268,10 +296,11 @@ export function berechnePreis(params: {
   // -------------------------------------------------------------
   const huellenPreisListe = getHuelleStaffelpreis(huellentyp, huellenFarbigkeit);
   const huellenPreisTranche = huellenPreisListe?.find(t => auflage >= t.min && auflage <= t.max);
-  const huellenPreis = berechneArtikelPreis(
-   huellenPreisTranche,
-    auflage
-  );
+  const huellenPreis = slug === "c4_mailing"
+    ? getBackendArtikelPreis(artikelTarife, huellenProduktGruppe, huellentyp, auflage, {
+        farbigkeit: huellenFarbigkeit,
+      })
+    : berechneArtikelPreis(huellenPreisTranche, auflage);
   console.log("huellenPreis :", huellenPreis, "Détails :", {
     "huellentyp": huellentyp,
     "huellenFarbigkeit": huellenFarbigkeit,
@@ -280,11 +309,12 @@ export function berechnePreis(params: {
   
   const anschreibenStaffelListe = getAnschreibenStaffelpreis((anschreibenGrammatur as AnschreibenGrammatur) || null, (anschreibenFarbigkeit as AnschreibenFarbigkeit) || null);
   const anschreibenPreisTranche = anschreibenStaffelListe?.find(t => auflage >= t.min && auflage <= t.max);
-  const anschreibenPreis = berechneArtikelPreis(
-    anschreibenPreisTranche,
-   
-    auflage
-  );
+  const anschreibenPreis = slug === "c4_mailing"
+    ? getBackendArtikelPreis(artikelTarife, `A${produktGruppe}`, "Anschreiben", auflage, {
+        grammatur: anschreibenGrammatur,
+        farbigkeit: anschreibenFarbigkeit,
+      })
+    : berechneArtikelPreis(anschreibenPreisTranche, auflage);
   // --- CALCUL DU DELTA DES FLYERS ---
   let flyerPreis = 0;
   let flyerPreisTranche = null;
@@ -303,7 +333,13 @@ export function berechnePreis(params: {
         "oberflaeche": f.oberflaeche,
       });
       flyerPreisTranche = staffeln?.find(t => auflage >= t.min && auflage <= t.max);
-      flyerPreis += berechneArtikelPreis(flyerPreisTranche, auflage);
+      flyerPreis += slug === "c4_mailing"
+        ? getBackendArtikelPreis(artikelTarife, `F${produktGruppe}`, "Flyer", auflage, {
+            umfang: f.umfang,
+            grammatur: f.grammatur,
+            oberflaeche: f.oberflaeche,
+          })
+        : berechneArtikelPreis(flyerPreisTranche, auflage);
       }
     }
     console.log("flyerPreis :", flyerPreis, "Détails :", {
@@ -334,10 +370,15 @@ export function berechnePreis(params: {
     "artikelTarife": artikelTarife,
   });
   const broschuerePreisTranche = broschuerePreisTrancheListe?.find(t => auflage >= t.min && auflage <= t.max);
-  broschuerePreis = berechneArtikelPreis(
-      broschuerePreisTranche,
-      auflage
-    );
+  broschuerePreis = slug === "c4_mailing"
+    ? getBackendArtikelPreis(artikelTarife, "B1400", "Broschüre", auflage, {
+        umfang: broschuereUmfang,
+        grammatur: broschuereInhaltGrammatur,
+        oberflaeche: broschuereInhaltOberflaeche,
+        grammatur_2: broschuereUmschlagGrammatur,
+        oberflaeche_2: broschuereUmschlagOberflaeche,
+      })
+    : berechneArtikelPreis(broschuerePreisTranche, auflage);
     console.log("broschuerePreisTranche :", broschuerePreisTranche);
     console.log("Delta de la brochure calculé :", broschuerePreis);
   
@@ -349,7 +390,13 @@ export function berechnePreis(params: {
     antwortkarteOberflaeche
   );
   const antwortkartePreisTranche = antwortkartePreisTrancheListe?.find(t => auflage >= t.min && auflage <= t.max);
-  const antwortkartePreis = berechneArtikelPreis(antwortkartePreisTranche, auflage);
+  const antwortkartePreis = slug === "c4_mailing"
+    ? getBackendArtikelPreis(artikelTarife, "AK1400", "Antwortkarte", auflage, {
+        endformat: antwortkarteEndformat,
+        grammatur: antwortkarteGrammatur,
+        oberflaeche: antwortkarteOberflaeche,
+      })
+    : berechneArtikelPreis(antwortkartePreisTranche, auflage);
   console.log("antwortkartePreis :", antwortkartePreis, "Détails :", {
     "antwortkarteEndformat": antwortkarteEndformat,
     "antwortkarteGrammatur": antwortkarteGrammatur,
@@ -390,6 +437,7 @@ export function berechnePreis(params: {
   // B) Hülle (Filter über Hüllentyp & Ausstattung)
   const huellenGewichtG = getTarifGewicht(artikelTarife, huellentyp, {
     farbigkeit: huellenFarbigkeit,
+    produkt_gruppe: slug === "c4_mailing" ? huellenProduktGruppe : undefined,
   });
   console.log("Hülle Gewicht in Gramm:", huellenGewichtG, "farbigkeit:", huellenFarbigkeit);
  
@@ -398,6 +446,7 @@ export function berechnePreis(params: {
       ? getTarifGewicht(artikelTarife, "Anschreiben", {
     grammatur: anschreibenGrammatur,
     farbigkeit: anschreibenFarbigkeit,
+    produkt_gruppe: slug === "c4_mailing" ? `A${produktGruppe}` : undefined,
   }) : 0;
   console.log("Anschreiben Gewicht in Gramm:", anschreibenGewichtG);
 
@@ -409,6 +458,7 @@ export function berechnePreis(params: {
         flyerGewichtG += getTarifGewicht(artikelTarife, "Flyer", {
           umfang: f.umfang,
           grammatur: f.grammatur,
+          produkt_gruppe: slug === "c4_mailing" ? `F${produktGruppe}` : undefined,
         });
       }
     }
@@ -418,6 +468,7 @@ export function berechnePreis(params: {
   // E) Broschüre (Filter über Kategorie 'Broschüre' & Umfang)
   const broschuereGewichtG = broschuereUmfang ? getTarifGewicht(artikelTarife, "Broschüre", {
     umfang: broschuereUmfang,
+    produkt_gruppe: slug === "c4_mailing" ? `B${produktGruppe}` : undefined,
   }) : 0;
   console.log("Broschüre Gewicht in Gramm:", broschuereGewichtG);
   // F) Antwortkarte (Filter über Kategorie 'Antwortkarte', Endformat & Grammatur)
@@ -425,6 +476,7 @@ export function berechnePreis(params: {
       ? getTarifGewicht(artikelTarife, "Antwortkarte", {
     endformat: antwortkarteEndformat,
     grammatur: antwortkarteGrammatur,
+    produkt_gruppe: slug === "c4_mailing" ? `AK${produktGruppe}` : undefined,
   }) : 0;
   console.log("Antwortkarte Gewicht in Gramm:", antwortkarteGewichtG);
   const gesamtGewichtG = runden(
@@ -457,7 +509,7 @@ export function berechnePreis(params: {
   // -------------------------------------------------------------
   // 3. BERECHNUNG VON PORTO UND GESAMTSUMME
   // -------------------------------------------------------------
-  const porto = berechnePorto(auflage, gesamtGewichtG, "A");
+  const porto = runden(berechnePorto(auflage, gesamtGewichtG, "A") + 5.04);
   console.log("Porto:", porto, "Versandklasse:", versandklasse, "auflage:", auflage);
   const expressProzent = staffelHauptartikelVorauswahl.aufschlag_express_in_prozent ? (staffelHauptartikelVorauswahl.aufschlag_express_in_prozent / 100) 
     : stufenwert(EXPRESS_PROZENT_STAFFEL, auflage);

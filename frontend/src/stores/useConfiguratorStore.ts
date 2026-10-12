@@ -156,7 +156,11 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
 
   // --- Aktionen & Getter ---
   setGruppe: async (neueGruppe: string) => {
-    set({ gruppe: neueGruppe });
+    set({
+      gruppe: neueGruppe,
+      familieSlug: neueGruppe === "1400" ? "c4_mailing" : "lang_mailing",
+      name: neueGruppe === "1400" ? "Kuvertiertes Mailing DIN-C4" : "Kuvertiertes Mailing DIN lang",
+    });
     await get().loadOptions();
   },
 
@@ -663,8 +667,11 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
   setBestellOpen: (bestellOpen) => set({ bestellOpen }),
 
   getMailingPackage: () => {
-    const { artikelTarife, cfg } = get();
-    return tarifeService.buildSelectedMailingPackage(artikelTarife, cfg);
+    const { artikelTarife, cfg, gruppe } = get();
+    return tarifeService.buildSelectedMailingPackage(artikelTarife, {
+      ...cfg,
+      produktGruppe: gruppe,
+    });
   },
 
   goTo: (step) => set({ currentStep: step }),

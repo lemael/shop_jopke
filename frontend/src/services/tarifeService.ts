@@ -88,29 +88,49 @@ export const tarifeService = {
       antwortkarteEndformat: string;
       broschuereUmfang: string;
       flyerConfigs: FlyerConfig[];
+      produktGruppe: string;
     }
-  ): MailingPackage | null {
-    const huelleArticle = allTarife.find(
-      (a) => a.kategorie === cfg.huellentyp && (a.produkt_gruppe || a.produkt_name) === cfg.ausstattung
-    );
+    ): MailingPackage | null {
+      const matchesGroup = (item: ArtikelTarifDetails, prefix: string) =>
+        item.produkt_gruppe === `${prefix}${cfg.produktGruppe}`;
+
+      const huelleArticle = allTarife.find(
+        (a) =>
+          a.kategorie === cfg.huellentyp &&
+          a.produkt_gruppe === cfg.ausstattung
+      );
 
     if (!huelleArticle) return null;
 
     const anschreibenArticle = allTarife.find(
-      (a) => a.kategorie === "Anschreiben" && a.grammatur === cfg.anschreibenGrammatur
+      (a) =>
+        a.kategorie === "Anschreiben" &&
+        matchesGroup(a, "A") &&
+        a.grammatur === cfg.anschreibenGrammatur
     );
 
     const antwortkarteArticle = allTarife.find(
-      (a) => a.kategorie === "Antwortkarte" && a.endformat === cfg.antwortkarteEndformat
+      (a) =>
+        a.kategorie === "Antwortkarte" &&
+        matchesGroup(a, "AK") &&
+        a.endformat === cfg.antwortkarteEndformat
     );
 
     const broschuereArticle = allTarife.find(
-      (a) => a.kategorie === "Broschüre" && a.umfang === cfg.broschuereUmfang
+      (a) =>
+        a.kategorie === "Broschüre" &&
+        matchesGroup(a, "B") &&
+        a.umfang === cfg.broschuereUmfang
     );
 
     const flyerArticles: ArtikelTarifDetails[] = cfg.flyerConfigs
       .map((fCfg) =>
-        allTarife.find((a) => a.kategorie === "Flyer" && a.umfang === fCfg.umfang)
+        allTarife.find(
+          (a) =>
+            a.kategorie === "Flyer" &&
+            matchesGroup(a, "F") &&
+            a.umfang === fCfg.umfang
+        )
       )
       .filter((a): a is ArtikelTarifDetails => Boolean(a));
 
