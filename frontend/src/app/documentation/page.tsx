@@ -14,6 +14,7 @@ const sections = [
   ["backend", "Backend"],
   ["donnees", "Daten und Preise"],
   ["api", "API und Integration"],
+  ["einrichtung", "Repository einrichten"],
   ["lancement", "Lokaler Start"],
 ] as const;
 
@@ -119,7 +120,8 @@ export default function DocumentationPage() {
               Oberfläche verwendet Tailwind CSS und gemeinsame Komponenten.
             </p>
             <div className={styles.architecture}>
-              <div><span>Seiten</span><code>src/app</code><p>Routen, Produkt- und Informationsseiten.</p></div>
+              <div><span>Routen</span><code>src/app</code><p>Next.js-Routeneinstiege. Die Dateien exportieren die zugehörige Ansicht.</p></div>
+              <div><span>Ansichten</span><code>src/views</code><p>Wiederverwendbare Seiten für Startseite, Hilfe und Kontakt.</p></div>
               <div><span>Komponenten</span><code>src/components</code><p>Konfiguratoren, Auflagenauswahl und gemeinsame Benutzeroberfläche.</p></div>
               <div><span>Status</span><code>src/stores</code><p>Zustand-Stores für Schritte und Konfigurationsauswahl.</p></div>
               <div><span>Dienste</span><code>src/api · src/services</code><p>HTTP-Client und typisierter Zugriff auf API-Daten.</p></div>
@@ -129,6 +131,16 @@ export default function DocumentationPage() {
               Konfiguration in Zustand. Die Auswahl einer Kachel führt zum
               nächsten Schritt; eine eigene Menge aktualisiert nur den Wert,
               damit Eingaben in Ruhe korrigiert werden können.
+            </p>
+            <p>
+              Die produktiven URLs werden weiterhin durch den Next.js
+              App-Router in <code>src/app</code> aufgelöst. Das zusätzliche
+              Verzeichnis <code>src/routes</code> enthält mit
+              <code>AppRouter.jsx</code> ein Verzeichnis der drei
+              wiederverwendbaren Ansichten. <code>src/app.tsx</code> und
+              <code>src/main.tsx</code> sind dafür vorgesehene
+              Kompatibilitäts-Einstiegspunkte; sie ersetzen den Next.js
+              App-Router nicht.
             </p>
           </section>
 
@@ -141,8 +153,8 @@ export default function DocumentationPage() {
               organisiert: Anwendungsstatus, verfügbare Konfigurationen und
               Preise.
             </p>
-            <div className={styles.flow} aria-label="Architecture de traitement">
-              <span>Navigateur</span><b>→</b><span>Next.js</span><b>→</b><span>API FastAPI</span><b>→</b><span>Services Python</span><b>→</b><span>tarife.xlsx</span>
+            <div className={styles.flow} aria-label="Verarbeitungsarchitektur">
+              <span>Browser</span><b>→</b><span>Next.js</span><b>→</b><span>FastAPI</span><b>→</b><span>Python-Dienste</span><b>→</b><span>tarife.xlsx</span>
             </div>
             <p>
               FastAPI prüft Antworten mit Pydantic-Modellen. Das
@@ -158,9 +170,8 @@ export default function DocumentationPage() {
             <h2>Eine zentrale Preisquelle</h2>
             <p>
               Die fachlichen Daten liegen zentral in
-              <code> backend/tarife.xlsx</code>. Das Backend liest sie mit
-              Pandas und OpenPyXL, wandelt sie in strukturierte Objekte um und
-              sendet sie anschließend an das Frontend.
+              <code> backend/tarife.xlsx</code>. Die Excel-Datei ist die
+              Quelle für Produktdaten, Konfigurationsoptionen und Preise.
             </p>
             <ul className={styles.checkList}>
               <li>Kategorien und Produktgruppen</li>
@@ -171,6 +182,26 @@ export default function DocumentationPage() {
             <p>
               Durch diese Trennung lässt sich der Preiskatalog aktualisieren,
               ohne Konfigurationsseiten neu schreiben zu müssen.
+            </p>
+            <h3>Excel-Extraktion im Backend</h3>
+            <p>
+              Beim Start des Backends laden die Repositories
+              <code>ExcelRepository</code> und
+              <code>AusstattungConfigRepository</code> die Arbeitsblätter mit
+              Pandas und OpenPyXL. Sie lesen den zweizeiligen Excel-Kopf,
+              führen beide Ebenen zu bereinigten Spaltennamen zusammen, entfernen
+              leere Zeilen und normalisieren Textwerte. Das
+              Ausstattungs-Repository entfernt zusätzlich Vorlagenzeilen.
+            </p>
+            <p>
+              Anschließend ordnen <code>TarifeService</code> und
+              <code>AusstattungConfigService</code> die Excel-Spalten per
+              regulären Ausdrücken den Pydantic-Modellen zu. Dabei werden
+              Produktmerkmale, Mengenlimits, Gewichte, Versandklassen sowie die
+              Preisstaffeln mit Fixpreis und Preis pro tausend Stück extrahiert.
+              Die aufbereiteten Ergebnisse werden zwischengespeichert und über
+              die API an das Frontend ausgeliefert. Nach Änderungen an
+              <code>tarife.xlsx</code> muss das Backend neu gestartet werden.
             </p>
           </section>
 
@@ -194,26 +225,57 @@ export default function DocumentationPage() {
             </div>
           </section>
 
+          <section id="einrichtung">
+            <p className={styles.sectionNumber}>07 — Repository einrichten</p>
+            <h2>Projekt aus GitHub klonen</h2>
+            <p>
+              Für die lokale Entwicklung wird das Repository zuerst von GitHub
+              geklont. Der folgende Befehl erstellt eine lokale Arbeitskopie:
+            </p>
+            <div className={styles.commands}>
+              <div>
+                <h3>Repository klonen</h3>
+                <pre><code>{`git clone https://github.com/lemael/shop_jopke.git
+cd shop_jopke`}</code></pre>
+              </div>
+              <div>
+                <h3>Python-Umgebung einrichten</h3>
+                <pre><code>{`cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt`}</code></pre>
+              </div>
+              <div>
+                <h3>Frontend-Abhängigkeiten installieren</h3>
+                <pre><code>{`cd frontend
+npm install`}</code></pre>
+              </div>
+            </div>
+            <p>
+              Danach können Backend und Frontend in zwei getrennten Terminals
+              mit den untenstehenden Befehlen gestartet werden.
+            </p>
+          </section>
+
           <section id="lancement">
-            <p className={styles.sectionNumber}>07 — Lokale Entwicklung</p>
+            <p className={styles.sectionNumber}>08 — Lokale Entwicklung</p>
             <h2>Projekt starten</h2>
             <div className={styles.commands}>
               <div>
-                <h3>Backend — port 8000</h3>
+                <h3>Backend — Port 8000</h3>
                 <pre><code>{`cd backend
 source .venv/bin/activate
 uvicorn app.main:app --reload`}</code></pre>
               </div>
               <div>
-                <h3>Frontend — port 3000</h3>
+                <h3>Frontend — Port 3000</h3>
                 <pre><code>{`cd frontend
-npm install
 npm run dev`}</code></pre>
               </div>
             </div>
             <p>
               Um die lokale API zu verwenden, tragen Sie
-              <code>NEXT_PUBLIC_API_URL=http://localhost:8000/api</code> dans
+              <code>NEXT_PUBLIC_API_URL=http://localhost:8000/api</code> in
               die Datei <code>frontend/.env.local</code> ein und starten Sie
               den Next.js-Server anschließend neu. Die interaktive
               FastAPI-Dokumentation ist unter
