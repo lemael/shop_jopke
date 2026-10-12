@@ -43,6 +43,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
       selectGrammatur, 
       selectPerforation, 
       selectAuflage,
+      setCustomAuflage,
       bestellOpen, 
       setBestellOpen,
     } = store;
@@ -214,7 +215,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
                     maximalmenge={ausstattung[0]?.maximalmenge}
                     value={cfg.auflage}
                     onTileSelect={selectAuflage}
-                    onCustomChange={selectAuflage}
+                    onCustomChange={setCustomAuflage}
                   />
                 </>
               )}

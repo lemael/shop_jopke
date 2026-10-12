@@ -261,7 +261,7 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
               </div>
               <nav className="divide-y divide-[#f0f0f0]">
                 {STEPS.map((step, i) => {
-                  const done = i < stepIndex;
+                  const done = i < stepIndex; 
                   const active = step === currentStep;
                   const reachable = i <= stepIndex;
                   return (

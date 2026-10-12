@@ -38,6 +38,7 @@ interface SeflmailerConfiguratorState {
   // --- Actions ---
   goTo: (step: StepName) => void;
   selectAuflage: (a: number) => void;
+  setCustomAuflage: (a: number) => void;
   selectUmfang: (u: string) => void;
   selectGrammatur: (g: string) => void;
   selectPerforation: (p: string) => void;
@@ -137,6 +138,12 @@ export const useSelfmailerConfiguratorStore = create<SeflmailerConfiguratorState
       cfg: { ...state.cfg, auflage: a, grammatur: "", perforation: [""] },
     }));
     get().next();
+  },
+
+  setCustomAuflage: (a: number) => {
+    set((state) => ({
+      cfg: { ...state.cfg, auflage: a, grammatur: "", perforation: [""] },
+    }));
   },
 
   selectUmfang: (u: string) => {

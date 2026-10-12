@@ -42,7 +42,7 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: strin
   const STEPS = store.STEPS();
   const ausstattungen = store.ausstattungConfigs;
   
-  const { cfg, currentStep, selectPapier, selectVeredelung, selectAuflage, goTo, isStepValid, next, loadOptions, loading } = store;
+  const { cfg, currentStep, selectPapier, selectVeredelung, selectAuflage, setCustomAuflage, goTo, isStepValid, next, loadOptions, loading } = store;
 
   // API-Daten beim Komponenten-Mount laden
   useEffect(() => {
@@ -176,7 +176,7 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: strin
                     maximalmenge={ausgewaehlteVariante?.maximalmenge}
                     value={cfg.auflage}
                     onTileSelect={selectAuflage}
-                    onCustomChange={(a) => selectAuflage(a)}
+                    onCustomChange={setCustomAuflage}
                   />
                 </>
               )}

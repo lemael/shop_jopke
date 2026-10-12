@@ -29,6 +29,7 @@ interface KartenmailingConfiguratorState {
     selectPapier: (p: string) => void;
     selectVeredelung: (v: string) => void;
     selectAuflage: (a: number) => void;
+    setCustomAuflage: (a: number) => void;
 }
 
 export const useKartenmailingConfiguratorStore = create<KartenmailingConfiguratorState>((set, get) => ({
@@ -67,6 +68,11 @@ export const useKartenmailingConfiguratorStore = create<KartenmailingConfigurato
             currentStep: "Papier",
         }));
        
+    },
+    setCustomAuflage: (a: number) => {
+        set((state) => ({
+            cfg: { ...state.cfg, auflage: a, papier: '', veredelung: '' },
+        }));
     },
     
     isStepValid :(step: StepName)=> {
