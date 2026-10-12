@@ -105,6 +105,11 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
   const perforationen = Array.from(
     new Set(
       ausstattung
+        .filter(
+          (item) =>
+            item.umfang === cfg.umfang &&
+            item.grammatur === cfg.grammatur
+        )
         .map((item) => item.perforation)
         .filter((perforation): perforation is string =>
           typeof perforation === "string" && perforation.trim() !== ""
@@ -116,9 +121,13 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
   );
   const handleSelectGrammatur = (grammatur: string) => {
     selectGrammatur(grammatur);
-    if (perforationen.length === 0) {
-      goTo("Übersicht");
-    }
+    const hatPerforation = ausstattung.some(
+      (item) =>
+        item.umfang === cfg.umfang &&
+        item.grammatur === grammatur &&
+        Boolean(item.perforation?.trim())
+    );
+    goTo(hatPerforation ? "Perforation" : "Übersicht");
   };
 
   console.log("perforationen:", perforationen);

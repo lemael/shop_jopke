@@ -35,6 +35,7 @@ interface ConfiguratorState {
   // --- Berechnete/geladene Optionen ---
   anschreibenGrammaturen: string[];
   anschreibenFarbigkeiten: string[];
+  anschreibenFarbigkeitenMapped: Record<string, string[]>;
   flyerUmfaenge: string[];
   flyerGrammaturenMapped: Record<string, string[]>;
   flyerOberflaechen: string[];
@@ -140,6 +141,7 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
 
   anschreibenGrammaturen: [],
   anschreibenFarbigkeiten: [],
+  anschreibenFarbigkeitenMapped: {},
   flyerUmfaenge: [],
   flyerGrammaturenMapped: {},
   flyerOberflaechen: ["matt", "glänzend"],
@@ -329,6 +331,7 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
         ]);
 
       const flyerGrammaturenMapped: Record<string, string[]> = {};
+      const anschreibenFarbigkeitenMapped: Record<string, string[]> = {};
 
       if (flyer.map) {
         Object.entries(flyer.map).forEach(([umfang, papierMap]) => {
@@ -339,6 +342,9 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
             if (match) {
               grammaturenSet.add(match[1].trim());
             }
+            Object.entries(anschreiben.map).forEach(([grammatur, farbigkeiten]) => {
+              anschreibenFarbigkeitenMapped[grammatur] = Object.keys(farbigkeiten);
+            });
           });
 
           flyerGrammaturenMapped[umfang] = Array.from(grammaturenSet);
@@ -354,6 +360,7 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
         artikelTarife,
         anschreibenGrammaturen: anschreiben.grammaturen,
         anschreibenFarbigkeiten: anschreiben.farbigkeiten,
+        anschreibenFarbigkeitenMapped,
         flyerUmfaenge: flyer.umfaenge,
         flyerGrammaturenMapped,
         broschuereUmfaenge: broschuere.umfaenge,

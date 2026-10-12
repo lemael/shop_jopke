@@ -85,7 +85,7 @@ export function calcSelfmailerPrice(ausstattung: AusstattungConfig, cfg: Config)
   
   const gewichtProSendungG = ausstattung.gewicht_in_g ?? 0;
   const gesamtGewichtKg = runden((gewichtProSendungG * cfg.auflage) / 1000);
-  const porto = berechnePorto(cfg.auflage, gewichtProSendungG, "A");
+  const porto = runden(berechnePorto(cfg.auflage, gewichtProSendungG, "A") + 5.04);
   const gesamtNettoStandard = runden(druck + porto );
   const expressProzent = (ausstattung.tranchen[indexTranche].aufschlag_express_in_prozent ?? 0) / 100;
   const expressAufpreis = runden(druck * expressProzent);

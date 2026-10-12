@@ -32,7 +32,7 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
     cfg,
     currentStep,
     anschreibenGrammaturen,
-    anschreibenFarbigkeiten,
+    anschreibenFarbigkeitenMapped,
     flyerUmfaenge,
     flyerGrammaturenMapped,
     broschuereUmfaenge,
@@ -431,7 +431,7 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
                 <>
                   <StepHeader step={stepNumber("Farbigkeit Anschreiben")} title="Farbigkeit Anschreiben wählen" helpTab="farbigkeit" />
                   <div className="flex flex-wrap gap-3">
-                    {anschreibenFarbigkeiten.map((f) => (
+                    {(anschreibenFarbigkeitenMapped[cfg.anschreibenGrammatur] ?? []).map((f) => (
                       <OptionTile key={f} active={cfg.anschreibenFarbigkeit === f} onClick={() => selectAnschreibenFarbigkeit(f)} title={f} />
                     ))}
                   </div>
@@ -466,7 +466,7 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
                     <>
                       <StepHeader step={stepNumber(currentStep)} title={`Grammatur Flyer ${i + 1} wählen`} helpTab="grammatur" />
                       <div className="flex flex-wrap gap-3">
-                        {(flyerGrammaturenMapped[cfg.flyerConfigs[i]?.umfang ?? ""] ?? ["90 g/m²", "115 g/m²", "135 g/m²", "170 g/m²", "250 g/m²"]).map((g) => (
+                        {(flyerGrammaturenMapped[cfg.flyerConfigs[i]?.umfang ?? ""] ?? []).map((g) => (
                           <OptionTile key={g} active={cfg.flyerConfigs[i]?.grammatur === g} onClick={() => selectFlyerGrammatur(i, g)} title={g} />
                         ))}
                       </div>
