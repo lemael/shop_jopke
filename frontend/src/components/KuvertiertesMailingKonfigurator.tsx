@@ -19,6 +19,7 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
   const auflagen = store.auflagen();
   const preis = store.preis();
   const ausstattungConfigs = store.ausstattungConfigs;
+  const artikelTarife = store.artikelTarife;
   const versandklasse = store.versandklasse();
   const huelleFarbigkeiten = store.huelleFarbigkeiten();
   const ausgewaehlterArtikel = store.ausgewaehlterArtikel();
@@ -34,7 +35,6 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
     anschreibenFarbigkeiten,
     flyerUmfaenge,
     flyerGrammaturenMapped,
-    flyerOberflaechen,
     broschuereUmfaenge,
     broschuereUmschlagOberflaechen,
     broschuereUmschlagGrammaturen,
@@ -87,6 +87,23 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
     () => ausstattungConfigs.filter((a) => a.name.toLowerCase().includes(familie.toLowerCase())),
     [ausstattungConfigs, familie]
   );
+  const getFlyerOberflaechen = (index: number) => {
+    const flyerConfig = cfg.flyerConfigs[index];
+
+    return Array.from(
+      new Set(
+        artikelTarife
+          .filter(
+            (item) =>
+              item.kategorie === "Flyer" &&
+              item.umfang === flyerConfig?.umfang &&
+              item.grammatur === flyerConfig?.grammatur
+          )
+          .map((item) => item.oberflaeche)
+          .filter((oberflaeche): oberflaeche is string => Boolean(oberflaeche))
+      )
+    );
+  };
 
   // --- Verfügbare Ausstattung für den ausgewählten Umschlag abrufen ---
   const ausstattungen = () => {
@@ -125,10 +142,18 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
   ) as string[];
 
   const stepNumber = (step: StepName) => STEPS.indexOf(step) + 1;
+  const gesamtNetto = preis
+    ? cfg.verarbeitungszeit === "Express"
+      ? preis.gesamtNettoExpress
+      : preis.gesamtNettoStandard
+    : 0;
+  const mwst = Math.round(gesamtNetto * 19) / 100;
+  const gesamtBrutto = gesamtNetto + mwst;
 
   // Allgemeine Zeilen
   const allgemeinZeilen: [string, string][] = [
     ["Auflage", cfg.auflage ? `${cfg.auflage.toLocaleString("de-DE")} Stück` : "–"],
+    ["Verarbeitungszeit", cfg.verarbeitungszeit],
     ["Hüllentyp", cfg.huellentyp ?? "–"],
     ["Ausstattung", cfg.ausstattung ?? "–"],
     ["Versandklasse", versandklasse ?? "–"],
@@ -451,7 +476,7 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
                     <>
                       <StepHeader step={stepNumber(currentStep)} title={`Oberfläche Flyer ${i + 1} wählen`} helpTab="oberflaeche" />
                       <div className="flex flex-wrap gap-3">
-                        {flyerOberflaechen.map((o) => (
+                        {getFlyerOberflaechen(i).map((o) => (
                           <OptionTile key={o} active={cfg.flyerConfigs[i]?.oberflaeche === o} onClick={() => selectFlyerOberflaeche(i, o)} title={o} />
                         ))}
                       </div>
@@ -621,16 +646,16 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
                             <div className="flex justify-between px-4 py-3 border-b border-[#dcdcdc] bg-[#f9f9f9]">
                               <dt className="font-bold text-[#2b2b2b]">Gesamt (netto):</dt>
                               <dd className="font-bold text-[#822660] text-lg">
-                                {formatEuro(cfg.verarbeitungszeit === "Express" ? preis.gesamtNettoExpress : preis.gesamtNettoStandard)}
+                                {formatEuro(gesamtNetto)}
                               </dd>
                             </div>
                             <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
                               <dt className="text-xs text-[#666666]">zzgl. 19% MwSt.:</dt>
-                              <dd className="text-xs text-[#666666]">{formatEuro(preis.mwstStandard)}</dd>
+                              <dd className="text-xs text-[#666666]">{formatEuro(mwst)}</dd>
                             </div>
                             <div className="flex justify-between px-4 py-2">
                               <dt className="font-semibold text-[#2b2b2b]">Gesamt (brutto):</dt>
-                              <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preis.gesamtBruttoStandard)}</dd>
+                              <dd className="font-semibold text-[#2b2b2b]">{formatEuro(gesamtBrutto)}</dd>
                             </div>
                           </dl>
 

@@ -477,49 +477,48 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
   },
 
   selectBroschuereUmfang: (broschuereUmfang) => {
-    const { artikelTarife, gruppe, cfg } = get();
+    const { artikelTarife, gruppe } = get();
     const broschuereItems = artikelTarife.filter((a) => a.produkt_gruppe === `B${gruppe}`);
 
-    // Re-filtrer les couvertures valides pour cet Umfang et cette Grammatur d'intérieur
-    const verfuegbareUmschlagGrammaturen = extractUniqueStrings(
+    const verfuegbareInhaltGrammaturen = extractUniqueStrings(
       broschuereItems
         .filter(
           (a) =>
             a.kategorie === "Broschüre" &&
-            (!cfg.broschuereInhaltGrammatur || a.grammatur === cfg.broschuereInhaltGrammatur) &&
             a.umfang === broschuereUmfang
         )
-        .map((a) => a.grammatur_2)
+        .map((a) => a.grammatur)
     );
 
     set((state) => ({
       cfg: {
         ...state.cfg,
         broschuereUmfang,
-        // Réinitialiser si la couverture actuellement choisie n'existe pas avec cet Umfang
-        broschuereUmschlagGrammatur: verfuegbareUmschlagGrammaturen.includes(
-          state.cfg.broschuereUmschlagGrammatur
-        )
-          ? state.cfg.broschuereUmschlagGrammatur
-          : "",
+        broschuereInhaltGrammatur: "",
+        broschuereInhaltOberflaeche: "",
+        broschuereUmschlagGrammatur: "",
+        broschuereUmschlagOberflaeche: "",
       },
-      broschuereUmschlagGrammaturen: verfuegbareUmschlagGrammaturen,
+      broschuereInhaltGrammaturen: verfuegbareInhaltGrammaturen,
+      broschuereUmschlagGrammaturen: [],
+      broschuereUmschlagOberflaechen: [],
     }));
 
     get().next();
   },
 
   selectBroschuereInhaltOberflaeche: (broschuereInhaltOberflaeche) => {
-    const { artikelTarife, gruppe } = get();
+    const { artikelTarife, gruppe, cfg } = get();
     const broschuereItems = artikelTarife.filter((a) => a.produkt_gruppe === `B${gruppe}`);
 
-    // Calcul des surfaces de couverture compatibles avec l'intérieur choisi
     const verfuegbareUmschlagOberflaechen = extractUniqueStrings(
       broschuereItems
         .filter(
           (a) =>
             a.kategorie === "Broschüre" &&
-            a.oberflaeche === broschuereInhaltOberflaeche
+            a.oberflaeche === broschuereInhaltOberflaeche &&
+            a.umfang === cfg.broschuereUmfang &&
+            a.grammatur === cfg.broschuereInhaltGrammatur
         )
         .map((a) => a.oberflaeche_2)
     );
@@ -556,7 +555,16 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
     const { artikelTarife, gruppe, cfg } = get();
     const broschuereItems = artikelTarife.filter((a) => a.produkt_gruppe === `B${gruppe}`);
 
-    // Re-filtrer les couvertures valides pour cette Grammatur d'intérieur et cet Umfang
+    const verfuegbareInhaltOberflaechen = extractUniqueStrings(
+      broschuereItems
+        .filter(
+          (a) =>
+            a.kategorie === "Broschüre" &&
+            a.grammatur === broschuereInhaltGrammatur &&
+            a.umfang === cfg.broschuereUmfang
+        )
+        .map((a) => a.oberflaeche)
+    );
     const verfuegbareUmschlagGrammaturen = extractUniqueStrings(
       broschuereItems
         .filter(
@@ -572,24 +580,68 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
       cfg: {
         ...state.cfg,
         broschuereInhaltGrammatur,
+        broschuereInhaltOberflaeche: "",
+        broschuereUmschlagOberflaeche: "",
         broschuereUmschlagGrammatur: verfuegbareUmschlagGrammaturen.includes(
           state.cfg.broschuereUmschlagGrammatur
         )
           ? state.cfg.broschuereUmschlagGrammatur
           : "",
       },
+      broschuereInhaltOberflaechen: verfuegbareInhaltOberflaechen,
+      broschuereUmschlagOberflaechen: [],
       broschuereUmschlagGrammaturen: verfuegbareUmschlagGrammaturen,
     }));
 
     get().next();
   },
   selectAntwortkarteEndformat: (antwortkarteEndformat) => {
-    set((state) => ({ cfg: { ...state.cfg, antwortkarteEndformat } }));
+    const verfuegbareGrammaturen = extractUniqueStrings(
+      get()
+        .artikelTarife
+        .filter(
+          (item) =>
+            item.kategorie === "Antwortkarte" &&
+            item.endformat === antwortkarteEndformat
+        )
+        .map((item) => item.grammatur)
+    );
+
+    set((state) => ({
+      cfg: {
+        ...state.cfg,
+        antwortkarteEndformat,
+        antwortkarteGrammatur: "",
+        antwortkarteOberflaeche: "",
+      },
+      antwortkarteGrammaturen: verfuegbareGrammaturen,
+      antwortkarteOberflaechen: [],
+    }));
     get().next();
   },
 
   selectAntwortkarteGrammatur: (antwortkarteGrammatur) => {
-    set((state) => ({ cfg: { ...state.cfg, antwortkarteGrammatur } }));
+    const { antwortkarteEndformat } = get().cfg;
+    const verfuegbareOberflaechen = extractUniqueStrings(
+      get()
+        .artikelTarife
+        .filter(
+          (item) =>
+            item.kategorie === "Antwortkarte" &&
+            item.endformat === antwortkarteEndformat &&
+            item.grammatur === antwortkarteGrammatur
+        )
+        .map((item) => item.oberflaeche)
+    );
+
+    set((state) => ({
+      cfg: {
+        ...state.cfg,
+        antwortkarteGrammatur,
+        antwortkarteOberflaeche: "",
+      },
+      antwortkarteOberflaechen: verfuegbareOberflaechen,
+    }));
     get().next();
   },
 

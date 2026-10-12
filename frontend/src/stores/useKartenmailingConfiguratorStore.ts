@@ -9,6 +9,7 @@ const initialConfig: Config = {
     papier: '',
     veredelung: '',
     auflage: 0,
+    verarbeitungszeit: 'Standard',
 
 }
 interface KartenmailingConfiguratorState {
@@ -30,6 +31,7 @@ interface KartenmailingConfiguratorState {
     selectVeredelung: (v: string) => void;
     selectAuflage: (a: number) => void;
     setCustomAuflage: (a: number) => void;
+    setVerarbeitungszeit: (zeit: "Standard" | "Express") => void;
 }
 
 export const useKartenmailingConfiguratorStore = create<KartenmailingConfiguratorState>((set, get) => ({
@@ -74,6 +76,8 @@ export const useKartenmailingConfiguratorStore = create<KartenmailingConfigurato
             cfg: { ...state.cfg, auflage: a, papier: '', veredelung: '' },
         }));
     },
+    setVerarbeitungszeit: (verarbeitungszeit) =>
+        set((state) => ({ cfg: { ...state.cfg, verarbeitungszeit } })),
     
     isStepValid :(step: StepName)=> {
         const {ausstattungConfigs, cfg } = get();

@@ -44,6 +44,7 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
       selectPerforation, 
       selectAuflage,
       setCustomAuflage,
+      setVerarbeitungszeit,
       bestellOpen, 
       setBestellOpen,
     } = store;
@@ -94,7 +95,11 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
   );
 
   const grammaturen = Array.from(
-    new Set(ausstattung.flatMap(a => a.grammatur))
+    new Set(
+      ausstattung
+        .filter((item) => item.umfang === cfg.umfang)
+        .map((item) => item.grammatur)
+    )
   );
 
   const perforationen = Array.from(
@@ -127,8 +132,16 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
       (cfg.perforation[0] === "" || a.perforation === cfg.perforation[0])
   );
   const preisdetails = ausgewaehlteVariante ? calcSelfmailerPrice(ausgewaehlteVariante, cfg) : null;
+  const gesamtNetto = preisdetails
+    ? cfg.verarbeitungszeit === "Express"
+      ? preisdetails.gesamtNettoExpress
+      : preisdetails.gesamtNettoStandard
+    : 0;
+  const mwst = Math.round(gesamtNetto * 19) / 100;
+  const gesamtBrutto = gesamtNetto + mwst;
   const uebersichtZeilen: [string, string][] = [
     ["Auflage", cfg.auflage ? `${cfg.auflage.toLocaleString("de-DE")} Stück` : "–"],
+    ["Verarbeitungszeit", cfg.verarbeitungszeit],
     ["Endformat", ausgewaehlteVariante?.endformat ?? "–"],
     ["Offenes Format", ausgewaehlteVariante?.offenes_format ?? "–"],
     ["Umfang", cfg.umfang ?? "–"],
@@ -252,7 +265,9 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
                   <StepHeader step={3} title="Grammatur wählen" helpTab="grammatur" />
                   <div className="flex flex-wrap gap-3">
                     {grammaturen.map((g) => {
-                      const beispiel = ausstattung.find((v) => v.grammatur === g);
+                      const beispiel = ausstattung.find(
+                        (v) => v.umfang === cfg.umfang && v.grammatur === g
+                      );
                       return (
                         <OptionTile
                           key={g}
@@ -313,17 +328,39 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
                             <dt className="text-[#666666]">Porto (max., netto)</dt>
                             <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preisdetails.porto)}</dd>
                           </div>
+                          <div className="px-4 py-3 border-b border-[#dcdcdc]">
+                            <p className="text-xs font-semibold text-[#2b2b2b] uppercase tracking-wide mb-2">Verarbeitungszeit wählen</p>
+                            <div className="flex flex-col gap-2">
+                              {(["Standard", "Express"] as const).map((zeit) => (
+                                <button
+                                  key={zeit}
+                                  type="button"
+                                  onClick={() => setVerarbeitungszeit(zeit)}
+                                  className={`flex items-center justify-between px-3 py-2 border text-sm transition-colors cursor-pointer ${
+                                    cfg.verarbeitungszeit === zeit
+                                      ? "bg-[#822660] border-[#822660] text-white"
+                                      : "bg-white border-[#dcdcdc] text-[#333333] hover:border-[#822660]"
+                                  }`}
+                                >
+                                  <span className="font-semibold">{zeit}</span>
+                                  <span className={`text-xs ml-4 ${cfg.verarbeitungszeit === zeit ? "text-[#f0cce3]" : "text-[#888888]"}`}>
+                                    {zeit === "Standard" ? "+ 0,00 €" : `+ ${formatEuro(preisdetails.expressAufpreis)}`}
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                           <div className="flex justify-between px-4 py-3 border-t border-[#dcdcdc] bg-[#f9f9f9]">
                             <dt className="font-bold text-[#2b2b2b]">Gesamt (netto):</dt>
-                            <dd className="font-bold text-[#822660] text-lg">{formatEuro(preisdetails.gesamtNettoStandard)}</dd>
+                            <dd className="font-bold text-[#822660] text-lg">{formatEuro(gesamtNetto)}</dd>
                           </div>
                           <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
                             <dt className="text-xs text-[#666666]">zzgl. 19% MwSt.:</dt>
-                            <dd className="text-xs text-[#666666]">{formatEuro(preisdetails.mwstStandard)}</dd>
+                            <dd className="text-xs text-[#666666]">{formatEuro(mwst)}</dd>
                           </div>
                           <div className="flex justify-between px-4 py-2">
                             <dt className="font-semibold text-[#2b2b2b]">Gesamt (brutto):</dt>
-                            <dd className="font-semibold text-[#2b2b2b]">{formatEuro(preisdetails.gesamtBruttoStandard)}</dd>
+                            <dd className="font-semibold text-[#2b2b2b]">{formatEuro(gesamtBrutto)}</dd>
                           </div>
                           <div className="flex justify-between px-4 py-2 border-b border-[#f0f0f0]">
                             <dt className="text-[#666666]">Gewicht pro Sendung:</dt>

@@ -9,6 +9,7 @@ const initialConfig: Config = {
   umfang: "",
   grammatur: "",
   perforation: [""],
+  verarbeitungszeit: "Standard",
 };
 
 interface SeflmailerConfiguratorState {
@@ -42,6 +43,7 @@ interface SeflmailerConfiguratorState {
   selectUmfang: (u: string) => void;
   selectGrammatur: (g: string) => void;
   selectPerforation: (p: string) => void;
+  setVerarbeitungszeit: (zeit: "Standard" | "Express") => void;
   next: () => void;
   reset: () => void;
   loadOptions: () => Promise<void>;
@@ -172,6 +174,9 @@ export const useSelfmailerConfiguratorStore = create<SeflmailerConfiguratorState
       currentStep: "Übersicht",
     }));
   },
+
+  setVerarbeitungszeit: (verarbeitungszeit) =>
+    set((state) => ({ cfg: { ...state.cfg, verarbeitungszeit } })),
 
   isStepValid: (step: StepName): boolean => {
     const { ausstattungConfigs, cfg } = get();

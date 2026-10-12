@@ -7,6 +7,5 @@ export interface Config {
   umfang: string;
   grammatur: string;
   perforation: string[];
- 
+  verarbeitungszeit: "Standard" | "Express";
 }
-

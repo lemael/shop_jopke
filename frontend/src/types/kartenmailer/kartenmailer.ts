@@ -15,4 +15,5 @@ export interface Config {
   papier: string;
   veredelung: string;
   auflage: number;
+  verarbeitungszeit: "Standard" | "Express";
 }
