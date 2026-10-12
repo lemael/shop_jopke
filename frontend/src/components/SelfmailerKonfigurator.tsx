@@ -120,7 +120,12 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
   console.log("grammaturen:", grammaturen);
   console.log("umfangen:", umfangen);
   console.log("ausstattung:", ausstattung);
-  const ausgewaehlteVariante = ausstattung.find(a => a.umfang === cfg.umfang && a.grammatur === cfg.grammatur);
+  const ausgewaehlteVariante = ausstattung.find(
+    (a) =>
+      a.umfang === cfg.umfang &&
+      a.grammatur === cfg.grammatur &&
+      (cfg.perforation[0] === "" || a.perforation === cfg.perforation[0])
+  );
   const preisdetails = ausgewaehlteVariante ? calcSelfmailerPrice(ausgewaehlteVariante, cfg) : null;
   const uebersichtZeilen: [string, string][] = [
     ["Auflage", cfg.auflage ? `${cfg.auflage.toLocaleString("de-DE")} Stück` : "–"],
@@ -135,7 +140,9 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
     ["Papier (Umschlag)", ausgewaehlteVariante?.papier_2 ?? "–"],
     ["Oberfläche (Umschlag)", ausgewaehlteVariante?.oberflaeche_2 ?? "–"],
        
-    ...(ausgewaehlteVariante?.perforation ? ([["Perforation", ausgewaehlteVariante?.perforation ?? "–"]] as [string, string][]) : []),
+    ...(cfg.perforation[0]
+      ? ([["Perforation", cfg.perforation[0]]] as [string, string][])
+      : []),
     ["Verarbeitung", ausgewaehlteVariante?.verarbeitung ?? "–"],
   ];
 
