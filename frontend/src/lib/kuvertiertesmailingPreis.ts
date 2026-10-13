@@ -1,9 +1,4 @@
 import { berechnePorto, type Versandklasse } from "./porto";
-import {
-  berechneGesamtGewicht,
-  ermittleVersandklasse,
-  
-} from "./gewicht";
 import type { StaffelPreis } from "@/types/staffelPreis";
 import { getTarifGewicht } from "./gewicht";
 import type { AnschreibenGrammatur, AnschreibenFarbigkeit, FlyerUmfang, FlyerGrammatur, FlyerOberflaeche, BroschuereUmfang, AntwortkarteEndformat, AntwortkarteGrammatur, AntwortkarteOberflaeche, BroschuereInhaltOberflaeche, BroschuereUmschlagOberflaeche, BroschuereInhaltGrammatur, BroschuereUmschlagGrammatur } from "@/types/kuvertiertesMailing/types";
@@ -25,11 +20,6 @@ import {
 } from "@/data/staffelPreis";
 import { AusstattungConfig, AusstattungPreisTranche } from "@/types/kuvertiertesMailing/ausstattungPreisTranche";
 import { ArtikelTarifDetails } from "@/types/kuvertiertesMailing/artikelTarifDetails";
-const SLUG_TO_FORMAT_TYPE: Record<KuvertiertesMailingSlug, "DIN_LANG" | "DIN_C4"> = {
-  lang_mailing: "DIN_LANG",
-  c4_mailing: "DIN_C4",
-};
-
 export interface KuvertiertesMailingFamilie {
   slug: KuvertiertesMailingSlug;
 }
@@ -502,14 +492,19 @@ export function berechnePreis(params: {
   const gesamtGewichtKg = runden((gesamtGewichtG * auflage) / 1000);
   //console.log("Gesamtgewicht in Kilogramm:", gesamtGewichtKg);
 
-  // Automatische Ermittlung der Versandklasse (B oder C für DIN Lang, D bis H für C4)
-  const formatTyp = SLUG_TO_FORMAT_TYPE[slug];
-  const versandklasse: Versandklasse = ermittleVersandklasse(gesamtGewichtG, formatTyp);
+  const versandklasse: Versandklasse = ausstattungConfig.mindest_versandklasse;
 
   // -------------------------------------------------------------
   // 3. BERECHNUNG VON PORTO UND GESAMTSUMME
   // -------------------------------------------------------------
-  const porto = runden(berechnePorto(auflage, gesamtGewichtG, "A") + 5.04);
+  const porto = runden(
+    berechnePorto(
+      auflage,
+      gesamtGewichtG,
+      undefined,
+      ausstattungConfig.mindest_versandklasse
+    ) + 5.04
+  );
   console.log("Porto:", porto, "Versandklasse:", versandklasse, "auflage:", auflage);
   const expressProzent = staffelHauptartikelVorauswahl.aufschlag_express_in_prozent ? (staffelHauptartikelVorauswahl.aufschlag_express_in_prozent / 100) 
     : stufenwert(EXPRESS_PROZENT_STAFFEL, auflage);

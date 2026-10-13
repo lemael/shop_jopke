@@ -165,13 +165,18 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
   },
 
   selectedAusstattungConfig: () => {
-    const { ausstattungConfigs, cfg } = get();
+    const { ausstattungConfigs, cfg, gruppe } = get();
     if (!cfg.huellentyp || !cfg.ausstattung) return undefined;
 
     const targetHuellentyp = cfg.huellentyp.trim().toLowerCase();
     const targetAusstattung = cfg.ausstattung.trim().toLowerCase();
+    const targetFamilie = (
+      gruppe === "1400" ? "DIN-C4-Mailing" : "DIN-Lang-Mailing"
+    ).toLowerCase();
 
     return ausstattungConfigs.find((item) => {
+      const matchFamilie =
+        item.kategorie_2?.trim().toLowerCase() === targetFamilie;
       const matchHuellentyp =
         item.kategorie_3?.trim().toLowerCase() === targetHuellentyp ||
         item.kategorie_2?.trim().toLowerCase() === targetHuellentyp ||
@@ -181,18 +186,12 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
       const matchAusstattung =
         item.kategorie_4?.trim().toLowerCase() === targetAusstattung;
 
-      return matchHuellentyp && matchAusstattung;
+      return matchFamilie && matchHuellentyp && matchAusstattung;
     });
   },
 
   versandklasse: () => {
-    const { ausstattungConfigs, cfg } = get();
-
-    const selectedConfig = ausstattungConfigs.find(
-      (item) => item.kategorie_4 === cfg.ausstattung
-    );
-
-    return selectedConfig?.mindest_versandklasse ?? "";
+    return get().selectedAusstattungConfig()?.mindest_versandklasse ?? "";
   },
 
   huelleFarbigkeiten: () => {

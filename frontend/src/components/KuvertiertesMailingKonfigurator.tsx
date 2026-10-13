@@ -19,8 +19,9 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
   const auflagen = store.auflagen();
   const preis = store.preis();
   const ausstattungConfigs = store.ausstattungConfigs;
+  const ausstattungConfig = store.selectedAusstattungConfig();
   const artikelTarife = store.artikelTarife;
-  const versandklasse = store.versandklasse();
+  const versandklasse = ausstattungConfig?.mindest_versandklasse ?? "–";
   const huelleFarbigkeiten = store.huelleFarbigkeiten();
   const ausgewaehlterArtikel = store.ausgewaehlterArtikel();
   const mailingPackage = store.getMailingPackage();

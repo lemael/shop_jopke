@@ -80,14 +80,21 @@ function runden(wert: number): number {
   return Math.round(wert * 100) / 100;
 }
 
-export function berechnePorto(auflage: number, gesamtGewichtG: number, versandklasseVerbot?: Versandklasse): number {
+export function berechnePorto(
+  auflage: number,
+  gesamtGewichtG: number,
+  versandklasseVerbot?: Versandklasse,
+  versandklasseFixiert?: Versandklasse
+): number {
   
-  const regel = Object.values(PORTO_REGELN).find(
-    r =>
-      r !== PORTO_REGELN[versandklasseVerbot!] &&
-      gesamtGewichtG >= r.gewicht.minG &&
-      gesamtGewichtG <= r.gewicht.maxG
-  );
+  const regel = versandklasseFixiert
+    ? PORTO_REGELN[versandklasseFixiert]
+    : Object.values(PORTO_REGELN).find(
+        r =>
+          r !== PORTO_REGELN[versandklasseVerbot!] &&
+          gesamtGewichtG >= r.gewicht.minG &&
+          gesamtGewichtG <= r.gewicht.maxG
+      );
   if (!regel) return 0;
   console.table({
     "Auflage": auflage,
