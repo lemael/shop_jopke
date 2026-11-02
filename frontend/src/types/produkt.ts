@@ -5,4 +5,5 @@ export interface ProduktKarte {
   pages: string;
   href?: string;
   image?: string;
+  price?: number;
 }
