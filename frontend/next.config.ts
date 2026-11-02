@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+
+   // Utiliser frontend/ comme racine du projet
+  turbopack: {
+    root: process.cwd(),
+  },
+
   
   // Optimisation pour ton cas shop_jopke
   experimental: {
