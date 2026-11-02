@@ -10,6 +10,8 @@ import { useSelfmailerConfiguratorStore as useConfiguratorStore } from "@/stores
 import { useEffect} from "react";
 import { calcSelfmailerPrice, FAMILIEN_KATEGORIEN } from "@/lib/selfmailerPreis";
 import { DETAIL_STAFFEL_PUNKTE } from "@/data/constants";
+import { ChoiceButton } from "./ui/ChoiceButton";
+import { ChoiceGroup } from "./ui/ChoiceGroup";
 
 
 function formatEuro(value: number) {
@@ -252,11 +254,11 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
               {currentStep === "Umfang" && (
                 <>
                   <StepHeader step={2} title="Umfang wählen" helpTab="umfang" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {umfangen.map((u) => {
                       const beispiel = ausstattung.find((v) => v.umfang === u);
                       return (
-                        <OptionTile
+                        <ChoiceButton
                           key={u}
                           active={cfg.umfang === u}
                           onClick={() => selectUmfang(u)}
@@ -265,20 +267,20 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
                         />
                       );
                     })}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
 
               {currentStep === "Grammatur" && (
                 <>
                   <StepHeader step={3} title="Grammatur wählen" helpTab="grammatur" />
-                  <div className="flex flex-wrap gap-3">
+                <ChoiceGroup>
                     {grammaturen.map((g) => {
                       const beispiel = ausstattung.find(
                         (v) => v.umfang === cfg.umfang && v.grammatur === g
                       );
                       return (
-                        <OptionTile
+                        <ChoiceButton
                           key={g}
                           active={cfg.grammatur === g}
                           onClick={() => handleSelectGrammatur(g)}
@@ -287,18 +289,18 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
                         />
                       );
                     })}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
 
               {currentStep === "Perforation" && (
                 <>
                   <StepHeader step={4} title="Perforation wählen" helpTab="perforation" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {perforationen.map((p) => (
-                      <OptionTile key={p} active={cfg.perforation.includes(p)} onClick={() => selectPerforation(p)} title={p} />
+                      <ChoiceButton key={p} active={cfg.perforation.includes(p)} onClick={() => selectPerforation(p)} title={p} />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
 

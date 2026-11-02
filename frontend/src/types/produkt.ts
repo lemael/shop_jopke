@@ -3,7 +3,6 @@ export interface ProduktKarte {
   name: string;
   format: string;
   pages: string;
-  price: string;
   href?: string;
   image?: string;
 }

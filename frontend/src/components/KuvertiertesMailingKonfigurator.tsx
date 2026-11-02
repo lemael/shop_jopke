@@ -8,6 +8,8 @@ import { BestellModal } from "@/components/BestellModal";
 import { formatEuro } from "@/lib/kuvertiertesmailingPreis";
 import { useConfiguratorStore } from "@/stores/useConfiguratorStore";
 import Link from "next/link";
+import { ChoiceButton } from "./ui/ChoiceButton";
+import { ChoiceGroup } from "./ui/ChoiceGroup";
 
 export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ familie: string }>) {
   const store = useConfiguratorStore();
@@ -354,11 +356,11 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
               {currentStep === "Hüllentyp" && (
                 <>
                   <StepHeader step={stepNumber("Hüllentyp")} title="Hüllentyp wählen" helpTab="huellentyp" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {huellentypen.map((h) => {
                       const title = typeof h === "string" ? h : (h as any).name || (h as any).kategorie || String(h);
                       return (
-                        <OptionTile
+                        <ChoiceButton
                           key={title}
                           active={cfg.huellentyp === title}
                           onClick={() => selectHuellentyp(title as any)}
@@ -366,40 +368,40 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
                         />
                       );
                     })}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
 
               {currentStep === "Farbigkeit Hülle" && (
                 <>
                   <StepHeader step={stepNumber("Farbigkeit Hülle")} title={`Farbigkeit ${cfg.huellentyp ?? "Hülle"} wählen`} helpTab="farbigkeit" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {huelleFarbigkeiten.map((f: string) => (
-                      <OptionTile
+                      <ChoiceButton
                         key={f}
                         active={cfg.huelleFarbigkeit === f}
                         onClick={() => selectHuelleFarbigkeit(f)}
                         title={f}
                       />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
 
               {currentStep === "Ausstattung" && (
                 <>
                   <StepHeader step={stepNumber("Ausstattung")} title="Ausstattung wählen" helpTab="ausstattung" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {ausstattungen().length > 0 ? (
                       ausstattungen().map((a) => (
-                        <OptionTile key={a} active={cfg.ausstattung === a} onClick={() => selectAusstattung(a)} title={a} />
+                        <ChoiceButton key={a} active={cfg.ausstattung === a} onClick={() => selectAusstattung(a)} title={a} />
                       ))
                     ) : (
                       <p className="text-sm text-gray-500 py-4">
                         Keine Ausstattung für diesen Hüllentyp verfügbar.
                       </p>
                     )}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
 
@@ -420,33 +422,33 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
               {currentStep === "Grammatur Anschreiben" && (
                 <>
                   <StepHeader step={stepNumber("Grammatur Anschreiben")} title="Grammatur Anschreiben wählen" helpTab="grammatur" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {anschreibenGrammaturen.map((g) => (
-                      <OptionTile key={g} active={cfg.anschreibenGrammatur === g} onClick={() => selectAnschreibenGrammatur(g)} title={g} />
+                      <ChoiceButton key={g} active={cfg.anschreibenGrammatur === g} onClick={() => selectAnschreibenGrammatur(g)} title={g} />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
 
               {currentStep === "Farbigkeit Anschreiben" && (
                 <>
                   <StepHeader step={stepNumber("Farbigkeit Anschreiben")} title="Farbigkeit Anschreiben wählen" helpTab="farbigkeit" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {(anschreibenFarbigkeitenMapped[cfg.anschreibenGrammatur] ?? []).map((f) => (
-                      <OptionTile key={f} active={cfg.anschreibenFarbigkeit === f} onClick={() => selectAnschreibenFarbigkeit(f)} title={f} />
+                      <ChoiceButton key={f} active={cfg.anschreibenFarbigkeit === f} onClick={() => selectAnschreibenFarbigkeit(f)} title={f} />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
 
               {currentStep === "Anzahl Flyer" && (
                 <>
                   <StepHeader step={stepNumber("Anzahl Flyer")} title="Anzahl Flyer wählen" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {[1, 2, 3].map((n) => (
-                      <OptionTile key={n} active={cfg.anzahlFlyer === n} onClick={() => selectAnzahlFlyer(n)} title={`${n} Flyer`} />
+                      <ChoiceButton key={n} active={cfg.anzahlFlyer === n} onClick={() => selectAnzahlFlyer(n)} title={`${n} Flyer`} />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
 
@@ -456,31 +458,31 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
                   {currentStep === `Flyer ${i + 1} - Umfang` && (
                     <>
                       <StepHeader step={stepNumber(currentStep)} title={`Umfang Flyer ${i + 1} wählen`} helpTab="umfang" />
-                      <div className="flex flex-wrap gap-3">
+                      <ChoiceGroup>
                         {flyerUmfaenge.map((u) => (
-                          <OptionTile key={u} active={cfg.flyerConfigs[i]?.umfang === u} onClick={() => selectFlyerUmfang(i, u)} title={u} />
+                          <ChoiceButton key={u} active={cfg.flyerConfigs[i]?.umfang === u} onClick={() => selectFlyerUmfang(i, u)} title={u} />
                         ))}
-                      </div>
+                      </ChoiceGroup>
                     </>
                   )}
                   {currentStep === `Flyer ${i + 1} - Grammatur` && (
                     <>
                       <StepHeader step={stepNumber(currentStep)} title={`Grammatur Flyer ${i + 1} wählen`} helpTab="grammatur" />
-                      <div className="flex flex-wrap gap-3">
+                      <ChoiceGroup>
                         {(flyerGrammaturenMapped[cfg.flyerConfigs[i]?.umfang ?? ""] ?? []).map((g) => (
-                          <OptionTile key={g} active={cfg.flyerConfigs[i]?.grammatur === g} onClick={() => selectFlyerGrammatur(i, g)} title={g} />
+                          <ChoiceButton key={g} active={cfg.flyerConfigs[i]?.grammatur === g} onClick={() => selectFlyerGrammatur(i, g)} title={g} />
                         ))}
-                      </div>
+                      </ChoiceGroup>
                     </>
                   )}
                   {currentStep === `Flyer ${i + 1} - Oberfläche` && (
                     <>
                       <StepHeader step={stepNumber(currentStep)} title={`Oberfläche Flyer ${i + 1} wählen`} helpTab="oberflaeche" />
-                      <div className="flex flex-wrap gap-3">
+                      <ChoiceGroup>
                         {getFlyerOberflaechen(i).map((o) => (
-                          <OptionTile key={o} active={cfg.flyerConfigs[i]?.oberflaeche === o} onClick={() => selectFlyerOberflaeche(i, o)} title={o} />
+                          <ChoiceButton key={o} active={cfg.flyerConfigs[i]?.oberflaeche === o} onClick={() => selectFlyerOberflaeche(i, o)} title={o} />
                         ))}
-                      </div>
+                      </ChoiceGroup>
                     </>
                   )}
                 </Fragment>
@@ -489,83 +491,83 @@ export function KuvertiertesMailingKonfiguratorUI({ familie }: Readonly<{ famili
               {currentStep === "Umfang Broschüre" && (
                 <>
                   <StepHeader step={stepNumber("Umfang Broschüre")} title="Umfang Broschüre wählen" helpTab="umfang" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {broschuereUmfaenge.map((u) => (
-                      <OptionTile key={u} active={cfg.broschuereUmfang === u} onClick={() => selectBroschuereUmfang(u)} title={u} />
+                      <ChoiceButton key={u} active={cfg.broschuereUmfang === u} onClick={() => selectBroschuereUmfang(u)} title={u} />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
               {currentStep === "Grammatur Broschüre (Inhalt)" && (
                 <>
                   <StepHeader step={stepNumber("Grammatur Broschüre (Inhalt)")} title="Grammatur Broschüre (Inhalt) wählen" helpTab="grammatur" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {broschuereInhaltGrammaturen.map((g) => (
-                      <OptionTile key={g} active={cfg.broschuereInhaltGrammatur === g} onClick={() => selectBroschuereInhaltGrammatur(g)} title={g} />
+                      <ChoiceButton key={g} active={cfg.broschuereInhaltGrammatur === g} onClick={() => selectBroschuereInhaltGrammatur(g)} title={g} />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
               {currentStep === "Oberfläche Broschüre (Inhalt)" && (
                 <>
                   <StepHeader step={stepNumber("Oberfläche Broschüre (Inhalt)")} title="Oberfläche Broschüre (Inhalt) wählen" helpTab="oberflaeche" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {broschuereInhaltOberflaechen.map((o) => (
-                      <OptionTile key={o} active={cfg.broschuereInhaltOberflaeche === o} onClick={() => selectBroschuereInhaltOberflaeche(o)} title={o} />
+                      <ChoiceButton key={o} active={cfg.broschuereInhaltOberflaeche === o} onClick={() => selectBroschuereInhaltOberflaeche(o)} title={o} />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
               {currentStep === "Oberfläche Broschüre (Umschlag)" && (
                 <>
                   <StepHeader step={stepNumber("Oberfläche Broschüre (Umschlag)")} title="Oberfläche Broschüre (Umschlag) wählen" helpTab="oberflaeche" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {broschuereUmschlagOberflaechen.map((o) => (
-                      <OptionTile key={o} active={cfg.broschuereUmschlagOberflaeche === o} onClick={() => selectBroschuereUmschlagOberflaeche(o)} title={o} />
+                      <ChoiceButton key={o} active={cfg.broschuereUmschlagOberflaeche === o} onClick={() => selectBroschuereUmschlagOberflaeche(o)} title={o} />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
               {currentStep === "Grammatur Broschüre (Umschlag)" && (
                 <>
                   <StepHeader step={stepNumber("Grammatur Broschüre (Umschlag)")} title="Grammatur Broschüre (Umschlag) wählen" helpTab="grammatur" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {broschuereUmschlagGrammaturen.map((g) => (
-                      <OptionTile key={g} active={cfg.broschuereUmschlagGrammatur === g} onClick={() => selectBroschuereUmschlagGrammatur(g)} title={g} />
+                      <ChoiceButton key={g} active={cfg.broschuereUmschlagGrammatur === g} onClick={() => selectBroschuereUmschlagGrammatur(g)} title={g} />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
               {currentStep === "Endformat Antwortkarte" && (
                 <>
                   <StepHeader step={stepNumber("Endformat Antwortkarte")} title="Endformat Antwortkarte wählen" helpTab="endformat" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {antwortkarteEndformate.map((e) => (
-                      <OptionTile key={e} active={cfg.antwortkarteEndformat === e} onClick={() => selectAntwortkarteEndformat(e)} title={e} />
+                      <ChoiceButton key={e} active={cfg.antwortkarteEndformat === e} onClick={() => selectAntwortkarteEndformat(e)} title={e} />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
 
               {currentStep === "Grammatur Antwortkarte" && (
                 <>
                   <StepHeader step={stepNumber("Grammatur Antwortkarte")} title="Grammatur Antwortkarte wählen" helpTab="grammatur" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {antwortkarteGrammaturen.map((g) => (
-                      <OptionTile key={g} active={cfg.antwortkarteGrammatur === g} onClick={() => selectAntwortkarteGrammatur(g)} title={g} />
+                      <ChoiceButton key={g} active={cfg.antwortkarteGrammatur === g} onClick={() => selectAntwortkarteGrammatur(g)} title={g} />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
 
               {currentStep === "Oberfläche Antwortkarte" && (
                 <>
                   <StepHeader step={stepNumber("Oberfläche Antwortkarte")} title="Oberfläche Antwortkarte wählen" helpTab="oberflaeche" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {antwortkarteOberflaechen.map((o) => (
-                      <OptionTile key={o} active={cfg.antwortkarteOberflaeche === o} onClick={() => selectAntwortkarteOberflaeche(o)} title={o} />
+                      <ChoiceButton key={o} active={cfg.antwortkarteOberflaeche === o} onClick={() => selectAntwortkarteOberflaeche(o)} title={o} />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
 

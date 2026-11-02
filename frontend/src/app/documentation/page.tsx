@@ -265,7 +265,7 @@ npm install`}</code></pre>
                 <h3>Backend — Port 8000</h3>
                 <pre><code>{`cd backend
 source .venv/bin/activate
-uvicorn app.main:app --reload`}</code></pre>
+uvicorn app.main:app --reload --port 8000`}</code></pre>
               </div>
               <div>
                 <h3>Frontend — Port 3000</h3>

@@ -1,27 +1,31 @@
 @import "tailwindcss";
-
-:root {
-  --jopke-red: #822660;
-  --jopke-red-dark: #6b1f50;
-  --jopke-dark: #2b2b2b;
-  --jopke-darker: #1e1e1e;
-  --jopke-gray-bg: #f4f4f4;
-  --jopke-border: #dcdcdc;
-  --jopke-text: #333333;
-  --jopke-text-light: #666666;
-}
+@import "./theme/colors.css";
+@import "./theme/typography.css";
+@import "./theme/sizes.css";
+@import "./theme/buttons.css";
 
 @theme inline {
+  /* Typographie */
   --font-sans: var(--font-open-sans), Arial, Helvetica, sans-serif;
+
+  /* Couleurs → bg-jopke-red, text-jopke-text-light, border-jopke-border ... */
   --color-jopke-red: var(--jopke-red);
   --color-jopke-red-dark: var(--jopke-red-dark);
+  --color-jopke-red-light: var(--jopke-red-light);
   --color-jopke-dark: var(--jopke-dark);
   --color-jopke-darker: var(--jopke-darker);
   --color-jopke-gray-bg: var(--jopke-gray-bg);
+  --color-jopke-surface: var(--jopke-surface);
+  --color-jopke-surface-alt: var(--jopke-surface-alt);
   --color-jopke-border: var(--jopke-border);
+  --color-jopke-border-light: var(--jopke-border-light);
   --color-jopke-text: var(--jopke-text);
   --color-jopke-text-light: var(--jopke-text-light);
+  --color-jopke-text-subtle: var(--jopke-text-subtle);
+  --color-jopke-text-disabled: var(--jopke-text-disabled);
 }
+
+
 
 body {
   background: var(--jopke-gray-bg);

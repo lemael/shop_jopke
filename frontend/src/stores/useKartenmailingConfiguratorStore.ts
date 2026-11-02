@@ -16,11 +16,11 @@ interface KartenmailingConfiguratorState {
     loading: boolean;
     error: string | null;
     cfg: Config;
-    currentStep: string; // Replace 'string' with the actual type of your step name
+    currentStep: StepName;
     ausstattungConfigs: AusstattungConfig[];
     STEPS: () => StepName[];
-    goTo: (step: StepName) => void; // Replace 'string' with the actual type of your step name
-    isStepValid: (step: StepName) => boolean; // Replace 'string' with the actual type of your step name
+    goTo: (step: StepName) => void;
+    isStepValid: (step: StepName) => boolean;
     next: () => void;
     reset: () => void;
     bestellOpen: boolean;
@@ -82,7 +82,13 @@ export const useKartenmailingConfiguratorStore = create<KartenmailingConfigurato
     isStepValid :(step: StepName)=> {
         const {ausstattungConfigs, cfg } = get();
         if (step === "Auflage") {
-        return cfg.auflage !== 0 && cfg.auflage >= ausstattungConfigs[0].mindestmenge! && cfg.auflage <= ausstattungConfigs[0].maximalmenge!;
+        const limits = ausstattungConfigs[0];
+        return Boolean(
+            limits &&
+            cfg.auflage > 0 &&
+            cfg.auflage >= (limits.mindestmenge ?? 0) &&
+            cfg.auflage <= (limits.maximalmenge ?? Number.POSITIVE_INFINITY)
+        );
         }
         if (step === "Papier") return cfg.papier !== '';
         if (step === "Veredelung") return cfg.veredelung !== '';

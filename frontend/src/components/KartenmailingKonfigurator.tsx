@@ -10,6 +10,8 @@ import { calcSelfmailerPrice, type KartenmailingFamilie } from "@/lib/kartenmail
 import { useKartenmailingConfiguratorStore } from "@/stores/useKartenmailingConfiguratorStore";
 import { DETAIL_STAFFEL_PUNKTE } from "@/data/constants";
 import { FAMILIEN_KENNUNGEN } from "@/types/kartenmailer/kartenmailer";
+import { ChoiceButton } from "@/components/ui/ChoiceButton";
+import { ChoiceGroup } from "@/components/ui/ChoiceGroup";
 
 function unique<T>(values: (T | null | undefined)[]): T[] {
   const result: T[] = [];
@@ -198,22 +200,22 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: strin
               {currentStep === "Papier" && (
                 <>
                   <StepHeader step={2} title="Papier wählen" helpTab="papier" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {papiere.map((p) => (
-                      <OptionTile key={p} active={cfg.papier === p} onClick={() => selectPapier(p)} title={p} />
+                      <ChoiceButton key={p} active={cfg.papier === p} onClick={() => selectPapier(p)} title={p} />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
 
               {currentStep === "Veredelung" && (
                 <>
                   <StepHeader step={3} title="Veredelung wählen" helpTab="veredelung" />
-                  <div className="flex flex-wrap gap-3">
+                  <ChoiceGroup>
                     {veredelungen.map((v) => (
-                      <OptionTile key={v} active={cfg.veredelung === v} onClick={() => selectVeredelung(v)} title={v} />
+                      <ChoiceButton key={v} active={cfg.veredelung === v} onClick={() => selectVeredelung(v)} title={v} />
                     ))}
-                  </div>
+                  </ChoiceGroup>
                 </>
               )}
 
@@ -253,23 +255,17 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: strin
                           <div className="px-4 py-3 border-b border-[#dcdcdc]">
                             <p className="text-xs font-semibold text-[#2b2b2b] uppercase tracking-wide mb-2">Verarbeitungszeit wählen</p>
                             <div className="flex flex-col gap-2">
+                              <ChoiceGroup>
                               {(["Standard", "Express"] as const).map((zeit) => (
-                                <button
+                                <ChoiceButton
                                   key={zeit}
-                                  type="button"
+                                  title={zeit}
+                                  active={cfg.verarbeitungszeit === zeit}
                                   onClick={() => setVerarbeitungszeit(zeit)}
-                                  className={`flex items-center justify-between px-3 py-2 border text-sm transition-colors cursor-pointer ${
-                                    cfg.verarbeitungszeit === zeit
-                                      ? "bg-[#822660] border-[#822660] text-white"
-                                      : "bg-white border-[#dcdcdc] text-[#333333] hover:border-[#822660]"
-                                  }`}
-                                >
-                                  <span className="font-semibold">{zeit}</span>
-                                  <span className={`text-xs ml-4 ${cfg.verarbeitungszeit === zeit ? "text-[#f0cce3]" : "text-[#888888]"}`}>
-                                    {zeit === "Standard" ? "+ 0,00 €" : `+ ${formatEuro(preisdetails.expressAufpreis)}`}
-                                  </span>
-                                </button>
+                                  suffix={zeit === "Standard" ? "+ 0,00 €" : `+ ${formatEuro(preisdetails.expressAufpreis)}`}
+                                />
                               ))}
+                              </ChoiceGroup>
                             </div>
                           </div>
                           <div className="flex justify-between px-4 py-3 border-t border-[#dcdcdc] bg-[#f9f9f9]">
