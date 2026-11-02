@@ -1,0 +1,29 @@
+@layer components {
+  /* Bouton de choix (Papier, Veredelung, Standard/Express) */
+  .btn-choice {
+    @apply flex items-center justify-center gap-3 w-full border px-4 text-sm font-semibold
+           transition-colors cursor-pointer
+           bg-jopke-surface border-jopke-border text-jopke-dark hover:border-jopke-red;
+    height: var(--size-button-h);
+    max-width: var(--size-button-w);
+  }
+  .btn-choice[data-active="true"] {
+    @apply bg-jopke-red border-jopke-red text-white;
+  }
+
+  /* Boutons de navigation (Zurück / Weiter) */
+  .btn-nav {
+    @apply flex items-center justify-center text-sm font-semibold transition-colors;
+    height: var(--size-button-h);
+    width: var(--size-button-nav-w);
+  }
+  .btn-nav-primary {
+    @apply bg-jopke-red hover:bg-jopke-red-dark text-white cursor-pointer;
+  }
+  .btn-nav-secondary {
+    @apply border border-jopke-dark text-jopke-dark hover:bg-jopke-gray-bg cursor-pointer;
+  }
+  .btn-nav:disabled {
+    @apply bg-jopke-border text-jopke-text-disabled border-jopke-border cursor-default hover:bg-jopke-border;
+  }
+}

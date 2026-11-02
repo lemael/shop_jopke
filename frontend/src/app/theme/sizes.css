@@ -1,0 +1,10 @@
+:root {
+  --size-button-h: 3rem;
+  --size-button-w: 24rem;
+  --size-button-nav-w: 8rem;
+  --size-container-max: 72rem;
+  --size-container-max-wide: 80rem;
+  --size-gap-sm: 0.5rem;
+  --size-gap-md: 0.75rem;
+  --size-gap-lg: 1.5rem;
+}

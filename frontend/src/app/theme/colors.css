@@ -1,0 +1,21 @@
+:root {
+  /* Couleurs de marque */
+  --jopke-red: #822660;
+  --jopke-red-dark: #6b1f50;
+  --jopke-red-light: #f0cce3;
+  --jopke-dark: #2b2b2b;
+  --jopke-darker: #1e1e1e;
+
+  /* Surfaces & bordures */
+  --jopke-gray-bg: #f4f4f4;
+  --jopke-surface: #ffffff;
+  --jopke-surface-alt: #f9f9f9;
+  --jopke-border: #dcdcdc;
+  --jopke-border-light: #f0f0f0;
+
+  /* Texte */
+  --jopke-text: #333333;
+  --jopke-text-light: #666666;
+  --jopke-text-subtle: #888888;
+  --jopke-text-disabled: #aaaaaa;
+}
