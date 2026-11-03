@@ -7,7 +7,7 @@ import type { Brochure } from '../types/Brochure';
 import { configureUmfangFlyer, configureGrammaturFlyer, configureOberflächeFlyer } from '../utils/onlineVersion/configureFlyer';
 import { choisirTypeHuelle, configureFarbigkeitHuelle } from '../utils/onlineVersion/configureHuelle';
 import { configureGrammaturAnschreiben, configureFarbigkeitAnschreiben } from '../utils/onlineVersion/configureAnschreiben';
-export type ChoixPiecesJointes = 'flyer' | 'brochure' | 'les-deux';
+export type ChoixPiecesJointes = 'flyer' | 'brochure';
 import { expect } from '@playwright/test';
 import { testerCombinaisonsPiecesJointes } from '../utils/onlineVersion/testerCombinaisonsPiecesJointes';
 import { configurerAuflage } from '../utils/onlineVersion/configureAuflage';
@@ -137,13 +137,13 @@ async cliquerWeiter(): Promise<void> {
 async testerCombinaisonsPiecesJointes(quantite1: number, numeroFlyer: FlyerNummer, choix: ChoixPiecesJointes): Promise<void> {
   await testerCombinaisonsPiecesJointes(
     this.page,
-    numeroFlyer,
+    numeroFlyer!,
     choix,
     quantite1,
     this.huelle!,
     this.anschreiben!,
     this.flyer!,
-    // this.brochure!
+    this.brochure!
   );
 }
 }

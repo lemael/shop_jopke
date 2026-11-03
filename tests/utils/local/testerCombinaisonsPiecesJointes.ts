@@ -1,8 +1,10 @@
-import type { Flyer, FlyerNummer } from '../../types/Flyer';
-import type { ChoixPiecesJointes } from '../../pages/OnlineConfiguratorPage';
-import type { Locator, Page } from '@playwright/test';
-import { expect } from '@playwright/test';
+import type { Flyer} from '../../types/Flyer';
+
+import type {  Page } from '@playwright/test';
+
 import { configureAnzahlFlyer, configureUmfangFlyer, configureOberflächeFlyer, configureGrammaturFlyer } from '../local/configureFlyer';
+import { configureUmfangBrochure, configureGrammaturBrochure, configureOberflächeBrochure, configureUmschlagBrochure } from '../local/configureBrochure';
+
 import { configurerAustattung } from './configureAustattung';
 import { extraireRecapitulation } from './extraireRecap';
 
@@ -14,6 +16,7 @@ import { Brochure } from '../../types/Brochure';
 import { Anschreiben } from '../../types/Anschreiben';
 import { configureFarbigkeitHuelle } from './configureHuelle';
 
+
 async function testerCombinaisonsPiecesJointes(
   page: Page,
   quantite1: number,
@@ -21,7 +24,7 @@ async function testerCombinaisonsPiecesJointes(
   huelle: Huelle,
   anschreiben: Anschreiben,
   flyer: Flyer,
- // brochure: Brochure
+  brochure: Brochure
   
 ) {
 
@@ -39,7 +42,7 @@ async function testerCombinaisonsPiecesJointes(
   // 9. Choisir la couleur d'impression
   await configureFarbigkeitHuelle(page, huelle);
  console.log('===== FIN DE L’ÉTAPE  HÜLLE =====');
- 
+  if(austattung.toLowerCase().includes('flyer')) {
    console.log('===== Anzahl Flyer =====');
    await configureAnzahlFlyer(page, flyer);
    if (!flyer.anzahl) {
@@ -52,7 +55,9 @@ async function testerCombinaisonsPiecesJointes(
      await configureOberflächeFlyer(page, flyer);
    }
    console.log('===== Configuration des Flyers terminée =====');
+  }
   console.log('===== Grammatur Hülle automatique ausgefüllt =====');
+  if(austattung.toLowerCase().includes('anschreiben')) {
   console.log('===== Grammatur Anschreiben =====');
   // 11. cliquer sur 80 g/m²
   await configureGrammaturAnschreiben(page, anschreiben);
@@ -61,8 +66,16 @@ async function testerCombinaisonsPiecesJointes(
   await configureFarbigkeitAnschreiben(page, anschreiben);
  
   console.log('===== Anschreiben DIN A4 abgeschlossen =====');
-  
-
+  }
+  if(austattung.toLowerCase().includes('broschüre')) {
+    console.log('===== Configuration Brochure =====');
+    // Ajouter ici la configuration spécifique pour la Brochure si nécessaire
+    await configureUmfangBrochure(page, brochure);
+    await configureGrammaturBrochure(page, brochure);
+    await configureOberflächeBrochure(page, brochure);
+    await configureUmschlagBrochure(page, brochure, brochure.grammatur);
+    console.log('===== Configuration Brochure terminée =====');
+  }
   console.log('=====Preisübersicht =====');
 
 console.log('===== EXTRACTION DES PRIX ET DES PRODUITS =====');

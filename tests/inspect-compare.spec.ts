@@ -22,7 +22,15 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
   // 1. CONFIGURATION COMMUNE
   // ==========================================
 
-  const brochure = {
+  // Valeurs vides pour la pièce jointe non utilisée dans le scénario.
+  const brochureVide = {
+    umfang: '',
+    farbigkeit: '',
+    grammatur: '',
+    oberflaeche: '',
+    isChecked: false,
+  };
+  const flyerVide = {
     umfang: '',
     farbigkeit: '',
     grammatur: '',
@@ -35,8 +43,10 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
 
   const urlOnline =
     'https://www.jopke.de/shop/din-c4-mailing';
-  const { type, choix, ausstattung, quantite, huelle, anschreiben, flyer } =
+  const { type, choix, ausstattung, quantite, huelle, anschreiben } =
     scenario;
+  const flyer = scenario.flyer ?? flyerVide;
+  const brochure = scenario.brochure ?? brochureVide;
 
   const context = await browser.newContext();
 
@@ -117,6 +127,20 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
           .sort(([a], [b]) => Number(a.slice(6)) - Number(b.slice(6)))
           .map(([, valeur]) => valeur)
           .join(' | '),
+
+      // La Farbigkeit n'est pas affichée dans le récapitulatif local :
+      // on reprend la valeur du scénario (valeur fixe de l'application).
+      farbigkeitBrochure:
+        configurationLocale['Umfang Broschüre'] ? brochure.farbigkeit : '',
+
+      umfangBrochure:
+        configurationLocale['Umfang Broschüre'] ?? '',
+
+      grammaturBrochure:
+        configurationLocale['Grammatur Broschüre (Inhalt)'] ?? '',
+
+      oberflaecheBrochure:
+        configurationLocale['Oberfläche Broschüre (Inhalt)'] ?? '',
     };
 
 
@@ -157,7 +181,8 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
       quantite,
       huelle,
       anschreiben,
-      flyer
+      flyer,
+      brochure
     );
 
     await configurateurOnline.ouvrirPage(urlOnline);
@@ -168,7 +193,7 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
 
     await configurateurOnline.testerCombinaisonsPiecesJointes(
       quantite,
-      flyer.anzahl!,
+      flyer.anzahl ?? 1,
       choix
     );
 
@@ -196,6 +221,10 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
 
     const anschreibenOnline = recapOnline.produits.find(
       p => p.nom.includes('Anschreiben')
+    );
+
+    const brochureOnline = recapOnline.produits.find(
+      p => p.nom.includes('Broschüre')
     );
 
     const flyersOnline = recapOnline.produits
@@ -228,7 +257,7 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
         anschreibenOnline?.caracteristiques['Farbigkeit'] ?? '',
 
       anzahlFlyer:
-        String(flyersOnline.length),
+        flyersOnline.length ? String(flyersOnline.length) : '',
 
       flyers: flyersOnline.length
         ? flyersOnline
@@ -243,6 +272,18 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
             )
             .join(' | ')
         : '',
+
+      farbigkeitBrochure:
+        brochureOnline?.caracteristiques['Farbigkeit'] ?? '',
+
+      umfangBrochure:
+        brochureOnline?.caracteristiques['Umfang'] ?? '',
+
+      grammaturBrochure:
+        brochureOnline?.caracteristiques['Grammatur'] ?? '',
+
+      oberflaecheBrochure:
+        brochureOnline?.caracteristiques['Oberfläche'] ?? '',
     };
 
 

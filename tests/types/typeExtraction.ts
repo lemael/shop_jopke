@@ -7,6 +7,10 @@ export interface ConfigurationComparee {
   farbigkeitAnschreiben: string;
   anzahlFlyer: string;
   flyers: string;
+  farbigkeitBrochure: string;
+  umfangBrochure: string;
+  grammaturBrochure: string;
+  oberflaecheBrochure: string;
 }
 
 export interface PrixCompare {

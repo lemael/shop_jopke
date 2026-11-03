@@ -51,6 +51,10 @@ export async function comparerConfigurateurs(
     'grammaturAnschreiben',
     'farbigkeitAnschreiben',
     'anzahlFlyer',
+    'farbigkeitBrochure',
+    'umfangBrochure',
+    'grammaturBrochure',
+    'oberflaecheBrochure'
   ];
 
   let differences = 0;

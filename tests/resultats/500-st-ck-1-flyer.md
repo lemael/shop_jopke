@@ -11,6 +11,10 @@
 | grammaturAnschreiben | 80 g/m² | 80 g/m² | - | ✅ |
 | farbigkeitAnschreiben | 4/0-farbig Euroskala | 4/0-farbig Euroskala | - | ✅ |
 | anzahlFlyer | 1 | 1 | - | ✅ |
+| farbigkeitBrochure |  |  | - | ✅ |
+| umfangBrochure |  |  | - | ✅ |
+| grammaturBrochure |  |  | - | ✅ |
+| oberflaecheBrochure |  |  | - | ✅ |
 | Flyer 1 | 2 Seiten, 135 g/m², matt | 2 Seiten, 135 g/m², matt | - | ✅ |
 
 ## Prix et poids

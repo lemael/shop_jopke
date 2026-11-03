@@ -1,14 +1,17 @@
 
 import type { Page } from '@playwright/test';
 import type { Flyer } from '../../types/Flyer';
+import type { Brochure } from '../../types/Brochure';
 import { configureUmfangFlyer, configureGrammaturFlyer, configureOberflächeFlyer } from './configureFlyer';
 import { cliquerWeiter } from './cliquerWeiter';
 import type { PrixOnline, ProduitOnline, RecapitulationOnline } from '../../types/typeExtraction';
+import {configureUmfangBrochure, configureGrammaturBrochure, configureOberflächeBrochure } from './configureBrochure';
 
 
 async function extraireRecapitulation(
   page: Page,
-  flyer?: Flyer
+  flyer?: Flyer,
+  brochure?: Brochure
 ): Promise<RecapitulationOnline> {
 
   // Avec plusieurs Flyers, le configurateur redemande les étapes pour chaque Flyer
@@ -26,6 +29,12 @@ async function extraireRecapitulation(
       await configureOberflächeFlyer(page, flyer);
       if (i < maxFlyers) await cliquerWeiter(page);
     }
+  }
+
+  if (brochure) {
+    await configureUmfangBrochure(page, brochure);
+    await configureGrammaturBrochure(page, brochure);
+    await configureOberflächeBrochure(page, brochure);
   }
 
   await page.waitForURL('**/order-overview');

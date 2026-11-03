@@ -107,7 +107,7 @@ export class LocalConfiguratorPage {
       this.huelle!,
       this.anschreiben!,
       this.flyer!,
-      // this.brochure!
+      this.brochure!
     );
   }
 }

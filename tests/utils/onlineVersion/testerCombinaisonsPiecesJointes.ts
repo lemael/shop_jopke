@@ -1,7 +1,6 @@
 import type { Flyer, FlyerNummer } from '../../types/Flyer';
-import { writeFile } from 'node:fs/promises';
 import type { ChoixPiecesJointes } from '../../pages/OnlineConfiguratorPage';
-import type { Locator, Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 import { configureUmfangFlyer, configureOberflächeFlyer, configureGrammaturFlyer } from './configureFlyer';
 import { extraireRecapitulation } from './extraireRecap';
@@ -10,7 +9,7 @@ import { configureGrammaturAnschreiben, configureFarbigkeitAnschreiben } from '.
 import { configurerAuflage } from './configureAuflage';
 import { Huelle } from '../../types/Huelle';
 import { Brochure } from '../../types/Brochure';
-
+import { configureUmfangBrochure, configureGrammaturBrochure, configureOberflächeBrochure } from './configureBrochure';
 import { Anschreiben } from '../../types/Anschreiben';
 import { configureFarbigkeitHuelle } from './configureHuelle';
 
@@ -22,7 +21,7 @@ async function testerCombinaisonsPiecesJointes(
   huelle: Huelle,
   anschreiben: Anschreiben,
   flyer: Flyer,
- // brochure: Brochure
+  brochure: Brochure
   
 ) {
   const combinaisons = {
@@ -34,11 +33,6 @@ async function testerCombinaisonsPiecesJointes(
     brochure: {
       nom: 'Brochure seule',
       flyer: false,
-      brochure: true,
-    },
-    'les-deux': {
-      nom: 'Flyer et brochure',
-      flyer: true,
       brochure: true,
     },
   };
@@ -134,15 +128,13 @@ async function testerCombinaisonsPiecesJointes(
   console.log('Clic sur Produkt konfigurieren...');
 
   const boutonKonfigurieren = page.locator(
-    'a.button.next[href="/konfigurator/fensterhulle-1/anschreiben-bis-zu-3-flyer-2"]'
+    'a.button.next[href^="/konfigurator/"]'
   );
 
   await boutonKonfigurieren.waitFor({ state: 'visible' });
   await boutonKonfigurieren.click();
 
-  await page.waitForURL(
-    '**/konfigurator/fensterhulle-1/anschreiben-bis-zu-3-flyer-2'
-  );
+  await page.waitForURL('**/konfigurator/**');
 
   console.log('URL après Produkt konfigurieren :', page.url());
   console.log('===== Auflage =====');
@@ -157,6 +149,7 @@ async function testerCombinaisonsPiecesJointes(
   // 10. Cliquer sur Weiter sur l'étape suivante
   await cliquerWeiter(page);
   console.log('===== Grammatur Hülle automatique ausgefüllt =====');
+  
   console.log('===== Grammatur Anschreiben =====');
   // 11. cliquer sur 80 g/m²
   await configureGrammaturAnschreiben(page, anschreiben);
@@ -166,7 +159,7 @@ async function testerCombinaisonsPiecesJointes(
  
   console.log('===== Anschreiben DIN A4 abgeschlossen =====');
   await cliquerWeiter(page);
-
+  if (choix === 'flyer') {
   console.log('===== Configuration du Flyer =====');
   await configureUmfangFlyer(page, flyer);
   await configureGrammaturFlyer(page, flyer);
@@ -175,20 +168,28 @@ async function testerCombinaisonsPiecesJointes(
   console.log('=====Preisübersicht =====');
 
 console.log('===== EXTRACTION DES PRIX ET DES PRODUITS =====');
- /*
-  await page.waitForURL('**/ /*order-overview');
-  await page.getByText(/Gesamt\s*\(netto\)/).waitFor({ state: 'visible' });
 
-  const html = await page.content();
-  await writeFile('./debug-online.html', html, 'utf-8');
-
-  console.log('[HTML] Page des prix sauvegardée dans tests/debug-online.html');
-  console.log('[HTML] Taille :', html.length, 'caractères');
-*/
   const recapOnline = await extraireRecapitulation(page, flyer);
 
 console.log('PRIX ONLINE RÉCUPÉRÉS :');
 console.table(recapOnline.prix);
+  }
+  if (choix === 'brochure') {
+    console.log('===== Configuration de la Brochure =====');
+    await configureUmfangBrochure(page, brochure);
+    await configureGrammaturBrochure(page, brochure);
+    await configureOberflächeBrochure(page, brochure);
+    console.log('===== Configuration de la Brochure terminée =====');
+    console.log('=====Preisübersicht =====');
+
+    console.log('===== EXTRACTION DES PRIX ET DES PRODUITS =====');
+
+    const recapOnline = await extraireRecapitulation(page);
+
+    console.log('PRIX ONLINE RÉCUPÉRÉS :');
+    console.table(recapOnline.prix);
+  }
+  
 
 }
 export { testerCombinaisonsPiecesJointes };

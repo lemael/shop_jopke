@@ -497,15 +497,28 @@ export function berechnePreis(params: {
   // -------------------------------------------------------------
   // 3. BERECHNUNG VON PORTO UND GESAMTSUMME
   // -------------------------------------------------------------
-  const porto = runden(
-    berechnePorto(
-      auflage,
-      gesamtGewichtG,
-      undefined,
-      ausstattungConfig.mindest_versandklasse
-    ) + 5.04
-  );
-  console.log("Porto:", porto, "Versandklasse:", versandklasse, "auflage:", auflage);
+  if(slug === "c4_mailing" ) {
+    const porto = runden(
+      berechnePorto(
+        auflage,
+        gesamtGewichtG,
+        undefined,
+        ausstattungConfig.mindest_versandklasse
+      )
+    );
+    console.log("Porto:", porto, "Versandklasse:", versandklasse, "auflage:", auflage);
+  } else {
+    const porto = runden(
+      berechnePorto(
+        auflage,
+        gesamtGewichtG,
+        undefined,
+        ausstattungConfig.mindest_versandklasse
+      ) + 5.04
+    );
+    console.log("Porto:", porto, "Versandklasse:", versandklasse, "auflage:", auflage);
+  }
+
   const expressProzent = staffelHauptartikelVorauswahl.aufschlag_express_in_prozent ? (staffelHauptartikelVorauswahl.aufschlag_express_in_prozent / 100) 
     : stufenwert(EXPRESS_PROZENT_STAFFEL, auflage);
   const expressAufpreis = runden(druck * expressProzent);
