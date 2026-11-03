@@ -497,8 +497,9 @@ export function berechnePreis(params: {
   // -------------------------------------------------------------
   // 3. BERECHNUNG VON PORTO UND GESAMTSUMME
   // -------------------------------------------------------------
+  let porto = 0;
   if(slug === "c4_mailing" ) {
-    const porto = runden(
+    porto = runden(
       berechnePorto(
         auflage,
         gesamtGewichtG,
@@ -508,7 +509,7 @@ export function berechnePreis(params: {
     );
     console.log("Porto:", porto, "Versandklasse:", versandklasse, "auflage:", auflage);
   } else {
-    const porto = runden(
+    porto = runden(
       berechnePorto(
         auflage,
         gesamtGewichtG,
