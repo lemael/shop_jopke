@@ -6,7 +6,7 @@
 
 # Test info
 
-- Name: inspect-compare.spec.ts >> Comparer les configurateurs : 500 Stück – 1 Flyer – Oberfläche matt
+- Name: inspect-compare.spec.ts >> Comparer les configurateurs : 500 Stück – Broschüre
 - Location: inspect-compare.spec.ts:19:5
 
 # Error details
@@ -17,7 +17,7 @@ Error: Les configurations ou les prix des deux configurateurs sont différents.
 expect(received).toBe(expected) // Object.is equality
 
 Expected: 0
-Received: 4
+Received: 6
 ```
 
 # Test source

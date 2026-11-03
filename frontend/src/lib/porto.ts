@@ -80,6 +80,19 @@ function runden(wert: number): number {
   return Math.round(wert * 100) / 100;
 }
 
+const KLASSEN_REIHENFOLGE = Object.keys(PORTO_REGELN) as Versandklasse[];
+
+// Klasse laut Gewicht; die Mindestklasse wird nie unterschritten.
+function hoechsteKlasse(mindest: Versandklasse, gewichtG: number): Versandklasse {
+  const nachGewicht = KLASSEN_REIHENFOLGE.find(
+    k => gewichtG <= PORTO_REGELN[k].gewicht.maxG
+  );
+  if (!nachGewicht) return KLASSEN_REIHENFOLGE[KLASSEN_REIHENFOLGE.length - 1];
+  return KLASSEN_REIHENFOLGE.indexOf(nachGewicht) > KLASSEN_REIHENFOLGE.indexOf(mindest)
+    ? nachGewicht
+    : mindest;
+}
+
 export function berechnePorto(
   auflage: number,
   gesamtGewichtG: number,
@@ -88,7 +101,7 @@ export function berechnePorto(
 ): number {
   
   const regel = versandklasseFixiert
-    ? PORTO_REGELN[versandklasseFixiert]
+    ? PORTO_REGELN[hoechsteKlasse(versandklasseFixiert, gesamtGewichtG)]
     : Object.values(PORTO_REGELN).find(
         r =>
           r !== PORTO_REGELN[versandklasseVerbot!] &&
