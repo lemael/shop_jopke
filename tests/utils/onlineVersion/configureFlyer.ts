@@ -1,5 +1,5 @@
 import {  type Page } from '@playwright/test';
-import { Flyer } from '../types/Flyer';
+import { Flyer } from '../../types/Flyer';
 async function configureUmfangFlyer(
     page: Page,
   flyer: Flyer
@@ -14,6 +14,21 @@ async function configureUmfangFlyer(
   console.log('URL après le choix de Umfang Flyer :', page.url());
 
   console.log('===== FIN DE L’ÉTAPE UMFANG FLYER =====');
+}
+async function configureAnzahlFlyer(
+  page: Page,
+  flyer: Flyer
+): Promise<void> {
+  console.log('===== ANZAHL FLYER =====');
+
+  const anzahlFlyer = page.locator(`button[name="quantity"][value="${flyer.anzahl}"]`);
+  await anzahlFlyer.waitFor({ state: 'visible' });
+  await anzahlFlyer.click();
+
+  console.log('Anzahl sélectionnée :', flyer.anzahl);
+  console.log('URL après le choix de Anzahl Flyer :', page.url());
+
+  console.log('===== FIN DE L’ÉTAPE ANZAHL FLYER =====');
 }
 async function configureGrammaturFlyer(
   page: Page,
@@ -57,4 +72,4 @@ async function configureOberflächeFlyer(
 
     console.log('===== FIN DE L’ÉTAPE OBERFLÄCHE FLYER =====');
   }
-export { configureUmfangFlyer, configureGrammaturFlyer, configureOberflächeFlyer };
+export {configureAnzahlFlyer, configureUmfangFlyer, configureGrammaturFlyer, configureOberflächeFlyer };

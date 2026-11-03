@@ -1,5 +1,5 @@
-import type { Flyer, FlyerNummer } from '../types/Flyer';
-import type { ChoixPiecesJointes } from '../pages/OnlineConfiguratorPage';
+import type { Flyer, FlyerNummer } from '../../types/Flyer';
+import type { ChoixPiecesJointes } from '../../pages/OnlineConfiguratorPage';
 import type { Locator, Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 import { configureUmfangFlyer, configureOberflächeFlyer, configureGrammaturFlyer } from './configureFlyer';
@@ -7,10 +7,10 @@ import { extraireRecapitulation } from './extraireRecap';
 import { cliquerWeiter } from './cliquerWeiter';
 import { configureGrammaturAnschreiben, configureFarbigkeitAnschreiben } from './configureAnschreiben';
 import { configurerAuflage } from './configureAuflage';
-import { Huelle } from '../types/Huelle';
-import { Brochure } from '../types/Brochure';
+import { Huelle } from '../../types/Huelle';
+import { Brochure } from '../../types/Brochure';
 
-import { Anschreiben } from '../types/Anschreiben';
+import { Anschreiben } from '../../types/Anschreiben';
 import { configureFarbigkeitHuelle } from './configureHuelle';
 
 async function testerCombinaisonsPiecesJointes(
@@ -21,7 +21,7 @@ async function testerCombinaisonsPiecesJointes(
   huelle: Huelle,
   anschreiben: Anschreiben,
   flyer: Flyer,
-  brochure: Brochure
+ // brochure: Brochure
   
 ) {
   const combinaisons = {
@@ -182,7 +182,10 @@ async function testerCombinaisonsPiecesJointes(
 
 console.log('===== EXTRACTION DES PRIX ET DES PRODUITS =====');
 
-await extraireRecapitulation(page);
+const recapOnline = await extraireRecapitulation(page);
+
+console.log('PRIX ONLINE RÉCUPÉRÉS :');
+console.table(recapOnline.prix);
 
 }
 export { testerCombinaisonsPiecesJointes };

@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { Huelle, TypHuelle } from '../types/Huelle';
+import { Huelle, TypHuelle } from '../../types/Huelle';
 
 async function configureFarbigkeitHuelle(page: Page, huelle: Huelle): Promise<void> {
   const couleur = page.locator(

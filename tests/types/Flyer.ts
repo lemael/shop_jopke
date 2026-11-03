@@ -1,4 +1,5 @@
 export interface Flyer {
+  anzahl?: FlyerNummer;
   umfang: string;
   farbigkeit: string;
   grammatur: string;

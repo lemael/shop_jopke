@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { Anschreiben } from '../types/Anschreiben';
+import { Anschreiben } from '../../types/Anschreiben';
 
 async function configureGrammaturAnschreiben(
   page: Page,

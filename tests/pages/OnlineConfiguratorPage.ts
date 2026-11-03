@@ -1,16 +1,16 @@
 import type { Page } from '@playwright/test';
-import { cliquerWeiter } from '../utils/cliquerWeiter';
+import { cliquerWeiter } from '../utils/onlineVersion/cliquerWeiter';
 import type { Huelle, TypHuelle } from '../types/Huelle';
 import type { Anschreiben } from '../types/Anschreiben';
 import type { Flyer, FlyerNummer } from '../types/Flyer';
 import type { Brochure } from '../types/Brochure';
-import { configureUmfangFlyer, configureGrammaturFlyer, configureOberflächeFlyer } from '../utils/configureFlyer';
-import { choisirTypeHuelle, configureFarbigkeitHuelle } from '../utils/configureHuelle';
-import { configureGrammaturAnschreiben, configureFarbigkeitAnschreiben } from '../utils/configureAnschreiben';
+import { configureUmfangFlyer, configureGrammaturFlyer, configureOberflächeFlyer } from '../utils/onlineVersion/configureFlyer';
+import { choisirTypeHuelle, configureFarbigkeitHuelle } from '../utils/onlineVersion/configureHuelle';
+import { configureGrammaturAnschreiben, configureFarbigkeitAnschreiben } from '../utils/onlineVersion/configureAnschreiben';
 export type ChoixPiecesJointes = 'flyer' | 'brochure' | 'les-deux';
 import { expect } from '@playwright/test';
-import { testerCombinaisonsPiecesJointes } from '../utils/testerCombinaisonsPiecesJointes';
-import { configurerAuflage } from '../utils/configureAuflage';
+import { testerCombinaisonsPiecesJointes } from '../utils/onlineVersion/testerCombinaisonsPiecesJointes';
+import { configurerAuflage } from '../utils/onlineVersion/configureAuflage';
 
 
 class OnlineConfiguratorPage {
@@ -134,16 +134,16 @@ async cliquerWeiter(): Promise<void> {
   await cliquerWeiter(this.page);
 }
 
-async testerCombinaisonsPiecesJointes(combinaison: any, quantite1: number, numeroFlyer: FlyerNummer): Promise<void> {
+async testerCombinaisonsPiecesJointes(quantite1: number, numeroFlyer: FlyerNummer, choix: ChoixPiecesJointes): Promise<void> {
   await testerCombinaisonsPiecesJointes(
     this.page,
     numeroFlyer,
-    combinaison,
+    choix,
     quantite1,
     this.huelle!,
     this.anschreiben!,
     this.flyer!,
-    this.brochure!
+    // this.brochure!
   );
 }
 }
