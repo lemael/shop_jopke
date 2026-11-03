@@ -1,32 +1,41 @@
 
 import type { Page } from '@playwright/test';
+import type { Flyer } from '../../types/Flyer';
+import { configureUmfangFlyer, configureGrammaturFlyer, configureOberflächeFlyer } from './configureFlyer';
+import { cliquerWeiter } from './cliquerWeiter';
+import type { PrixOnline, ProduitOnline, RecapitulationOnline } from '../../types/typeExtraction';
 
-export interface PrixOnline {
-  produit: string;
-  porto: string;
-  totalNet: string;
-  tva: string;
-  totalBrut: string;
-}
-
-export interface ProduitOnline {
-  nom: string;
-  caracteristiques: Record<string, string>;
-}
-
-export interface RecapitulationOnline {
-  prix: PrixOnline;
-  quantite: string;
-  produits: ProduitOnline[];
-}
 
 async function extraireRecapitulation(
-  page: Page
+  page: Page,
+  flyer?: Flyer
 ): Promise<RecapitulationOnline> {
+
+  // Avec plusieurs Flyers, le configurateur redemande les étapes pour chaque Flyer
+  // jusqu'à l'arrivée sur la page de récapitulation.
+  if (flyer) {
+    const maxFlyers = flyer.anzahl ?? 1;
+
+    // Weiter après chaque Flyer rempli, sauf le dernier (il mène à order-overview).
+    if (maxFlyers > 1) await cliquerWeiter(page);
+
+    for (let i = 2; i <= maxFlyers; i++) {
+      console.log(`===== Configuration du Flyer ${i} =====`);
+      await configureUmfangFlyer(page, flyer);
+      await configureGrammaturFlyer(page, flyer);
+      await configureOberflächeFlyer(page, flyer);
+      if (i < maxFlyers) await cliquerWeiter(page);
+    }
+  }
+
+  await page.waitForURL('**/order-overview');
+  await page.getByText(/Gesamt\s*\(netto\)/).waitFor({ state: 'visible' });
 
   console.log('===== EXTRACTION DES PRIX ET DES PRODUITS =====');
 
-  const textePage = await page.locator('body').innerText();
+  const textePage = (await page.locator('body').innerText())
+    .replace(/\s+/g, ' ')
+    .trim();
 
   // ==========================================
   // 1. EXTRAIRE LES PRIX
@@ -41,34 +50,73 @@ async function extraireRecapitulation(
 
     return resultat[1];
   };
+  const extrairePrixTraitement = async (nom: string): Promise<string> => {
+    const label = page.locator(
+      `label[for="delivery-selection-${nom.toLowerCase()}"]`
+    );
+    const valeur = label
+      .locator('xpath=..')
+      .locator('xpath=following-sibling::dd[1]');
 
-  const prix: PrixOnline = {
-    produit: extrairePrix(
-      /DIN-C4-Mailing\s+([\d.]+,\d{2})\s*€/,
-      'DIN-C4-Mailing'
-    ),
+    const texte = await valeur.innerText();
 
-    porto: extrairePrix(
-      /Porto:\s*([\d.]+,\d{2})\s*€/,
-      'Porto'
-    ),
+    const resultat = texte.match(/([\d.]+,\d{2})\s*€/);
 
-    totalNet: extrairePrix(
-      /Gesamt\s*\(netto\):\s*([\d.]+,\d{2})\s*€/,
-      'Gesamt netto'
-    ),
+    if (!resultat?.[1]) {
+      throw new Error(`Prix "${nom}" introuvable.`);
+    }
 
-    tva: extrairePrix(
-      /zzgl\.\s*19%\s*MwSt\.?:\s*([\d.]+,\d{2})\s*€/,
-      'TVA'
-    ),
-
-    totalBrut: extrairePrix(
-      /Gesamt\s*\(brutto\):\s*([\d.]+,\d{2})\s*€/,
-      'Gesamt brutto'
-    ),
+    return resultat[1];
   };
+  const extraireValeur = (regex: RegExp, nom: string): string => {
+    const resultat = textePage.match(regex);
 
+    if (!resultat?.[1]) {
+      throw new Error(`Valeur "${nom}" introuvable.`);
+    }
+
+    return resultat[1];
+  };
+  const prix: PrixOnline = {
+  produit: extrairePrix(
+    /DIN-C4-Mailing\s+([\d.]+,\d{2})\s*€/,
+    'DIN-C4-Mailing'
+  ),
+
+  standard: await extrairePrixTraitement('Standard'),
+
+  express: await extrairePrixTraitement('Express'),
+
+  porto: extrairePrix(
+    /Porto:\s*([\d.]+,\d{2})\s*€/,
+    'Porto'
+  ),
+
+  totalNet: extrairePrix(
+    /Gesamt\s*\(netto\):\s*([\d.]+,\d{2})\s*€/,
+    'Gesamt netto'
+  ),
+
+  tva: extrairePrix(
+    /zzgl\.\s*19%\s*MwSt\.?:\s*([\d.]+,\d{2})\s*€/,
+    'TVA'
+  ),
+
+  totalBrut: extrairePrix(
+    /Gesamt\s*\(brutto\):\s*([\d.]+,\d{2})\s*€/,
+    'Gesamt brutto'
+  ),
+
+  gewichtProSendung: extraireValeur(
+    /Gewicht pro Sendung:\s*(?:ca\.\s*)?([\d.,]+)\s*g/,
+    'Gewicht pro Sendung'
+  ),
+
+  gesamtgewicht: extraireValeur(
+    /Gesamtgewicht:\s*(?:ca\.\s*)?([\d.,]+)\s*kg/,
+    'Gesamtgewicht'
+  ),
+};
   console.log('===== PRIX =====');
   console.table(prix);
 

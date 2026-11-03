@@ -6,15 +6,18 @@ export interface ConfigurationComparee {
   grammaturAnschreiben: string;
   farbigkeitAnschreiben: string;
   anzahlFlyer: string;
-  flyer1: string;
+  flyers: string;
 }
 
 export interface PrixCompare {
   produit: string;
   porto: string;
+  express: string;
   totalNet: string;
   tva: string;
   totalBrut: string;
+  gewichtProSendung: string;
+  gesamtgewicht: string;
 }
 
 export interface ProduitOnline {
@@ -25,9 +28,13 @@ export interface ProduitOnline {
 export interface PrixOnline {
   produit: string;
   porto: string;
+  standard: string;
+  express: string;
   totalNet: string;
   tva: string;
   totalBrut: string;
+  gewichtProSendung: string;
+  gesamtgewicht: string;
 }
 
 export interface RecapitulationOnline {

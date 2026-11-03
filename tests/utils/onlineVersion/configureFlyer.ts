@@ -6,7 +6,10 @@ async function configureUmfangFlyer(
 ): Promise<void> {
   console.log('===== UMFANG FLYER =====');
 
-  const umfangFlyer = page.locator(`button[name="pages"][value="${flyer.umfang} Seiten"]`);
+  const umfangFlyer = page.getByRole('button', {
+    name: `${flyer.umfang} Seiten`,
+    exact: true,
+  });
   await umfangFlyer.waitFor({ state: 'visible' });
   await umfangFlyer.click();
 
@@ -36,9 +39,10 @@ async function configureGrammaturFlyer(
 ): Promise<void> {
   console.log('===== GRAMMATUR FLYER =====');
 
-  const boutonGrammatur = page.locator(
-    `button[name="grammage"][value="${flyer.grammatur}"]`
-  );
+  const boutonGrammatur = page.getByRole('button', {
+    name: flyer.grammatur,
+    exact: true,
+  });
 
   await boutonGrammatur.waitFor({ state: 'visible' });
   await boutonGrammatur.click();
@@ -57,9 +61,10 @@ async function configureOberflächeFlyer(
   ): Promise<void> {
     console.log('===== OBERFLÄCHE FLYER =====');
 
-    const boutonOberfläche = page.locator(
-      `button[name="finish"][value="${flyer.oberflaeche}"]`
-    );
+    const boutonOberfläche = page.getByRole('button', {
+      name: flyer.oberflaeche,
+      exact: true,
+    });
 
     await boutonOberfläche.waitFor({ state: 'visible' });
     await boutonOberfläche.click();

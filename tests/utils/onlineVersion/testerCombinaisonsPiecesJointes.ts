@@ -1,4 +1,5 @@
 import type { Flyer, FlyerNummer } from '../../types/Flyer';
+import { writeFile } from 'node:fs/promises';
 import type { ChoixPiecesJointes } from '../../pages/OnlineConfiguratorPage';
 import type { Locator, Page } from '@playwright/test';
 import { expect } from '@playwright/test';
@@ -166,23 +167,25 @@ async function testerCombinaisonsPiecesJointes(
   console.log('===== Anschreiben DIN A4 abgeschlossen =====');
   await cliquerWeiter(page);
 
-  console.log('===== Umfang Flyer =====');
+  console.log('===== Configuration du Flyer =====');
   await configureUmfangFlyer(page, flyer);
-
-
-  console.log('===== Grammatur Flyer =====');
   await configureGrammaturFlyer(page, flyer);
- 
-  console.log('===== Oberfläche Flyer =====');
-  
   await configureOberflächeFlyer(page, flyer);
-  
-  console.log('===== Flyer configuration terminée =====');
+  console.log('===== Configuration du Flyer terminée =====');
   console.log('=====Preisübersicht =====');
 
 console.log('===== EXTRACTION DES PRIX ET DES PRODUITS =====');
+ /*
+  await page.waitForURL('**/ /*order-overview');
+  await page.getByText(/Gesamt\s*\(netto\)/).waitFor({ state: 'visible' });
 
-const recapOnline = await extraireRecapitulation(page);
+  const html = await page.content();
+  await writeFile('./debug-online.html', html, 'utf-8');
+
+  console.log('[HTML] Page des prix sauvegardée dans tests/debug-online.html');
+  console.log('[HTML] Taille :', html.length, 'caractères');
+*/
+  const recapOnline = await extraireRecapitulation(page, flyer);
 
 console.log('PRIX ONLINE RÉCUPÉRÉS :');
 console.table(recapOnline.prix);

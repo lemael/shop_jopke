@@ -41,19 +41,17 @@ async function testerCombinaisonsPiecesJointes(
  console.log('===== FIN DE L’ÉTAPE  HÜLLE =====');
  
    console.log('===== Anzahl Flyer =====');
-  await configureAnzahlFlyer(page, flyer);
-  console.log('===== Umfang Flyer =====');
-  await configureUmfangFlyer(page, flyer);
-
-
-  console.log('===== Grammatur Flyer =====');
-  await configureGrammaturFlyer(page, flyer);
- 
-  console.log('===== Oberfläche Flyer =====');
-  
-  await configureOberflächeFlyer(page, flyer);
-  
-  console.log('===== Flyer configuration terminée =====');
+   await configureAnzahlFlyer(page, flyer);
+   if (!flyer.anzahl) {
+     throw new Error('Le nombre de Flyers doit être défini.');
+   }
+   for (let numeroFlyer = 1; numeroFlyer <= flyer.anzahl; numeroFlyer++) {
+     console.log(`===== Configuration du Flyer ${numeroFlyer} =====`);
+     await configureUmfangFlyer(page, flyer);
+     await configureGrammaturFlyer(page, flyer);
+     await configureOberflächeFlyer(page, flyer);
+   }
+   console.log('===== Configuration des Flyers terminée =====');
   console.log('===== Grammatur Hülle automatique ausgefüllt =====');
   console.log('===== Grammatur Anschreiben =====');
   // 11. cliquer sur 80 g/m²

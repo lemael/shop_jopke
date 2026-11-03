@@ -84,6 +84,25 @@ async function extraireRecapitulation(
     'Porto :',
     informationsPrix['Porto'] ?? 'Non trouvé'
   );
+ const optionsVerarbeitung = await page
+  .getByRole('button', { name: /Standard|Express/ })
+  .evaluateAll(boutons =>
+    boutons.map(bouton => ({
+      option: bouton.querySelector('span:first-child')
+        ?.textContent?.trim() ?? '',
+
+      prix: bouton.querySelector('span:nth-child(2)')
+        ?.textContent?.trim() ?? ''
+    }))
+  );
+
+console.log('===== VERARBEITUNGSZEITEN =====');
+console.log(JSON.stringify(optionsVerarbeitung, null, 2));
+
+  console.log(
+    'Express :',
+    optionsVerarbeitung.find(option => option.option === 'Express')?.prix?.trim() ?? 'Non trouvé'
+  );
 
   console.log(
     'Gesamt (netto) :',
