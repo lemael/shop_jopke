@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { OnlineConfiguratorPage } from './pages/OnlineConfiguratorPage';
+import { OnlineConfiguratorPage } from './pages/online/OnlineConfiguratorPageDin-c4-Mailing';
 
 
 // Usage : npx playwright test inspect-webseite.spec.ts --headed

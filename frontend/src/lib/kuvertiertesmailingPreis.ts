@@ -458,6 +458,10 @@ export function berechnePreis(params: {
   // E) Broschüre (Filter über Kategorie 'Broschüre' & Umfang)
   const broschuereGewichtG = broschuereUmfang ? getTarifGewicht(artikelTarife, "Broschüre", {
     umfang: broschuereUmfang,
+    grammatur: broschuereInhaltGrammatur,
+    oberflaeche: broschuereInhaltOberflaeche,
+    grammatur_2: broschuereUmschlagGrammatur,
+    oberflaeche_2: broschuereUmschlagOberflaeche,
     produkt_gruppe: slug === "c4_mailing" ? `B${produktGruppe}` : undefined,
   }) : 0;
   console.log("Broschüre Gewicht in Gramm:", broschuereGewichtG);

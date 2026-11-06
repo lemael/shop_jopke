@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { LocalConfiguratorPage } from './pages/LocalConfiguratorPage';
+import { LocalConfiguratorPage } from './pages/local/LocalConfiguratorPageDin-c4-Mailing';
 import type { Flyer } from './types/Flyer';
 
 

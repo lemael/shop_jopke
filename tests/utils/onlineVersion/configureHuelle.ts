@@ -13,7 +13,7 @@ async function configureFarbigkeitHuelle(page: Page, huelle: Huelle): Promise<vo
   console.log('URL après le choix de couleur :', page.url());
 }
 
-async function choisirTypeHuelle(
+async function wähleTypeHuelle(
     page: Page,
     type: TypHuelle
   ) {
@@ -48,4 +48,4 @@ async function choisirTypeHuelle(
 
     console.log('Nouvelle URL :', page.url());
   }
-export { configureFarbigkeitHuelle, choisirTypeHuelle };
+export { configureFarbigkeitHuelle, wähleTypeHuelle };

@@ -4,12 +4,12 @@
 
 | Champ | Local | Online | Écart | Résultat |
 |---|---|---|---|---|
-| huellentyp | Fensterhülle | Fensterhülle | - | ✅ |
-| ausstattung | Anschreiben + bis zu 3 Flyer | Anschreiben + bis zu 3 Flyer | - | ✅ |
+| huellentyp | Hülle ohne Fenster | Hülle ohne Fenster | - | ✅ |
+| ausstattung | bis zu 3 Flyer | bis zu 3 Flyer | - | ✅ |
 | auflage | 500 Stück | 500 Stück | - | ✅ |
 | farbigkeitHuelle | 1/1-farbig Schwarz | 1/1-farbig Schwarz | - | ✅ |
-| grammaturAnschreiben | 80 g/m² | 80 g/m² | - | ✅ |
-| farbigkeitAnschreiben | 4/0-farbig Euroskala | 4/0-farbig Euroskala | - | ✅ |
+| grammaturAnschreiben |  |  | - | ✅ |
+| farbigkeitAnschreiben |  |  | - | ✅ |
 | anzahlFlyer | 1 | 1 | - | ✅ |
 | farbigkeitBrochure |  |  | - | ✅ |
 | umfangBrochure |  |  | - | ✅ |
@@ -21,13 +21,13 @@
 
 | Champ | Local | Online | Écart | Résultat |
 |---|---|---|---|---|
-| produit | 468,55 € | 468,55 € | 0,00 € | ✅ |
+| produit | 426,55 € | 426,55 € | 0,00 € | ✅ |
 | porto | 365,00 € | 365,00 € | 0,00 € | ✅ |
-| express | + 154,62 € | 154,62 € | 0,00 € | ✅ |
-| totalNet | 833,55 € | 833,55 € | 0,00 € | ✅ |
-| tva | 158,37 € | 158,37 € | 0,00 € | ✅ |
-| totalBrut | 991,92 € | 991,92 € | 0,00 € | ✅ |
-| gewichtProSendung | 34.2 g | 34,2 g | 0,00 g | ✅ |
-| gesamtgewicht | 17.1 kg | 17,1 kg | 0,00 kg | ✅ |
+| express | + 140,76 € | 140,76 € | 0,00 € | ✅ |
+| totalNet | 791,55 € | 791,55 € | 0,00 € | ✅ |
+| tva | 150,39 € | 150,39 € | 0,00 € | ✅ |
+| totalBrut | 941,94 € | 941,94 € | 0,00 € | ✅ |
+| gewichtProSendung | 29.2 g | 29,2 g | 0,00 g | ✅ |
+| gesamtgewicht | 14.6 kg | 14,6 kg | 0,00 kg | ✅ |
 
 **Nombre de différences : 0**

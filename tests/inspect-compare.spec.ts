@@ -5,9 +5,9 @@ import type {
   RecapitulationOnline,
 } from './types/typeExtraction';
 
-import { LocalConfiguratorPage } from './pages/LocalConfiguratorPage';
-import { OnlineConfiguratorPage } from './pages/OnlineConfiguratorPage';
-import { scenarios } from './data/test-scenarios';
+import { LocalConfiguratorPage } from './pages/local/LocalConfiguratorPageDin-c4-Mailing';
+import { OnlineConfiguratorPage } from './pages/online/OnlineConfiguratorPageDin-c4-Mailing';
+import { scenarios } from './data/test-scenariosDinC4FensterHuelle';
 
 import { extraireConfiguration } from './utils/comparison/extraireConfiguration';
 import { extraireInformationsPrix } from './utils/comparison/extraireInformationsPrix';

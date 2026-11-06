@@ -33,6 +33,12 @@ async function configureGrammaturBrochure(
 ): Promise<void> {
   console.log('===== GRAMMATUR BROCHURE =====');
 
+  // Dès 12 Seiten, l'étape Grammatur est sautée en ligne.
+  if (brochure.grammaturUmschlag) {
+    console.log('Étape Grammatur absente en ligne pour cet Umfang.');
+    return;
+  }
+
   const boutonGrammatur = page.getByRole('button', {
     name: brochure.grammatur,
     exact: true,
@@ -71,4 +77,16 @@ async function configureOberflächeBrochure(
 
     console.log('===== FIN DE L’ÉTAPE OBERFLÄCHE BROCHURE =====');
   }
-export {configureUmfangBrochure, configureGrammaturBrochure, configureOberflächeBrochure };
+// Dès 12 Seiten : seule la Grammatur de l'Umschlag est demandée en ligne.
+async function configureUmschlagBrochure(page: Page, brochure: Brochure): Promise<void> {
+  if (!brochure.grammaturUmschlag) return;
+  console.log('===== UMSCHLAG BROCHURE =====');
+
+  const grammatur = page.getByRole('button', { name: brochure.grammaturUmschlag, exact: true });
+  await grammatur.waitFor({ state: 'visible' });
+  await grammatur.click();
+
+  console.log('===== FIN DE L’ÉTAPE UMSCHLAG BROCHURE =====');
+}
+
+export {configureUmschlagBrochure, configureUmfangBrochure, configureGrammaturBrochure, configureOberflächeBrochure };
