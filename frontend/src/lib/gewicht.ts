@@ -93,6 +93,9 @@ export function getTarifGewicht(
   criteria: {
     grammatur?: string | null;
     umfang?: string | null;
+    oberflaeche?: string | null;
+    grammatur_2?: string | null;
+    oberflaeche_2?: string | null;
     endformat?: string | null;
     farbigkeit?: string | null;
     produkt_gruppe?: string | null;
@@ -107,6 +110,9 @@ export function getTarifGewicht(
     // 2. Kriterien-Matching (prüft nur gesetzte Werte)
     if (criteria.grammatur && item.grammatur !== criteria.grammatur) return false;
     if (criteria.umfang && item.umfang !== criteria.umfang) return false;
+    if (criteria.oberflaeche && item.oberflaeche !== criteria.oberflaeche) return false;
+    if (criteria.grammatur_2 && item.grammatur_2 !== criteria.grammatur_2) return false;
+    if (criteria.oberflaeche_2 && item.oberflaeche_2 !== criteria.oberflaeche_2) return false;
     if (criteria.endformat && item.endformat !== criteria.endformat) return false;
     if (criteria.farbigkeit && item.farbigkeit !== criteria.farbigkeit) return false;
     if (criteria.produkt_gruppe && item.produkt_gruppe !== criteria.produkt_gruppe) return false;
