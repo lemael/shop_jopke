@@ -26,7 +26,7 @@
 | totalNet | 1.240,12 € | 1240,12 € | 0,00 € | ✅ |
 | tva | 235,62 € | 235,62 € | 0,00 € | ✅ |
 | totalBrut | 1.475,74 € | 1475,74 € | 0,00 € | ✅ |
-| gewichtProSendung | 57.5 g | 67,6 g | -10,10 g | ❌ |
-| gesamtgewicht | 28.75 kg | 33,8 kg | -5,05 kg | ❌ |
+| gewichtProSendung | 67.6 g | 67,6 g | 0,00 g | ✅ |
+| gesamtgewicht | 33.8 kg | 33,8 kg | 0,00 kg | ✅ |
 
-**Nombre de différences : 2**
+**Nombre de différences : 0**

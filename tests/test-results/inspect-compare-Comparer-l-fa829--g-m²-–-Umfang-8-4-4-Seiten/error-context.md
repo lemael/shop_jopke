@@ -6,7 +6,7 @@
 
 # Test info
 
-- Name: inspect-compare.spec.ts >> Comparer les configurateurs : 500 Stück – Broschüre – Umfang 24(4+20)Seiten
+- Name: inspect-compare.spec.ts >> Comparer les configurateurs : 500 Stück – Broschüre – Grammatur Inhalt/Umschlag 115 g/m² – Umfang 8(4+4)Seiten
 - Location: inspect-compare.spec.ts:19:5
 
 # Error details
@@ -17,7 +17,7 @@ Error: Les configurations ou les prix des deux configurateurs sont différents.
 expect(received).toBe(expected) // Object.is equality
 
 Expected: 0
-Received: 6
+Received: 1
 ```
 
 # Test source

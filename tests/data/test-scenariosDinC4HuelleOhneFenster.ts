@@ -47,15 +47,17 @@ const scenariosFlyer: TestScenarioDinC4HuelleOhneFenster[] = ([1, 2, 3] as const
   },
 }));
 
-const scenarioBrochure: TestScenarioDinC4HuelleOhneFenster = {
-  name: '500 Stück – Broschüre',
+const grammaturenBrochure = ['90 g/m²', '115 g/m²', '135 g/m²'];
+
+const scenariosGrammaturBrochure: TestScenarioDinC4HuelleOhneFenster[] = grammaturenBrochure.map(grammatur => ({
+  name: `500 Stück – Broschüre – Grammatur Inhalt/Umschlag ${grammatur} – Umfang ${brochure.umfang}`,
   type: 'Hülle ohne Fenster',
   choix: 'brochure',
   ausstattung: 'Broschüre',
   quantite: 500,
   huelle,
-  brochure,
-};
+  brochure: { ...brochure, grammatur },
+}));
 
 const farbigkeitenHuelle = [
   'unbedruckt',
@@ -115,7 +117,7 @@ const scenariosOberflaecheFlyer: TestScenarioDinC4HuelleOhneFenster[] = oberflae
 
 export const scenarios: TestScenarioDinC4HuelleOhneFenster[] = [
   ...scenariosFlyer,
-  scenarioBrochure,
+  ...scenariosGrammaturBrochure,
   ...scenariosFarbigkeitHuelle,
   ...scenariosUmfangFlyer,
   ...scenariosGrammaturFlyer,
