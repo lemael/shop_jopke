@@ -2,6 +2,8 @@
 import { Config, StepName, ALL_STEPS } from '@/types/kartenmailer/kartenmailer';
 import { create } from 'zustand'
 import { ausstattungConfigService } from '@/services/ausstattungConfigService';
+import { portoApi } from '@/api/portoApi';
+import type { PortoKonfiguration } from '@/types/porto';
 import { AusstattungConfig } from '@/types/kuvertiertesMailing/ausstattungPreisTranche';
 
 
@@ -18,6 +20,7 @@ interface KartenmailingConfiguratorState {
     cfg: Config;
     currentStep: StepName;
     ausstattungConfigs: AusstattungConfig[];
+    portoKonfiguration: PortoKonfiguration | null;
     STEPS: () => StepName[];
     goTo: (step: StepName) => void;
     isStepValid: (step: StepName) => boolean;
@@ -40,6 +43,7 @@ export const useKartenmailingConfiguratorStore = create<KartenmailingConfigurato
     cfg: initialConfig,
     currentStep: 'Auflage',
     ausstattungConfigs: [],
+    portoKonfiguration: null,
     bestellOpen: false,
     STEPS: () => ALL_STEPS,
     stepIndex: () => {
@@ -114,9 +118,12 @@ export const useKartenmailingConfiguratorStore = create<KartenmailingConfigurato
     loadOptions: async () => {
         set({ loading: true, error: null });
         try {
-            const ausstattungConfigs = await ausstattungConfigService.getAll();
+            const [ausstattungConfigs, portoKonfiguration] = await Promise.all([
+                ausstattungConfigService.getAll(),
+                portoApi.getKonfiguration(),
+            ]);
 
-            set({ ausstattungConfigs, loading: false });
+            set({ ausstattungConfigs, portoKonfiguration, loading: false });
         } catch (err: any) {
         set({ error: err.message || "Fehler beim Laden der Optionen", loading: false });
         }

@@ -1,5 +1,9 @@
 import { expect } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+
+// Toujours à côté du spec, quel que soit le dossier d'où Playwright est lancé.
+const DOSSIER_RESULTATS = path.join(__dirname, '../../../inspect-compare-selfmailer/resultats');
 
 import type {
   ConfigurationCompareeSelfmailer,
@@ -123,9 +127,10 @@ export async function comparerConfigurateurs(
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
-  await mkdir('./resultats', { recursive: true });
-  await writeFile(`./resultats/${nomFichier}.md`, rapport.join('\n'), 'utf-8');
-  console.log(`[MD] Résultat sauvegardé dans tests/resultats/${nomFichier}.md`);
+  await mkdir(DOSSIER_RESULTATS, { recursive: true });
+  const fichier = path.join(DOSSIER_RESULTATS, `${nomFichier}.md`);
+  await writeFile(fichier, rapport.join('\n'), 'utf-8');
+  console.log(`[MD] Résultat sauvegardé dans ${path.relative(process.cwd(), fichier)}`);
 
   expect(
     differences,

@@ -81,7 +81,9 @@ export function KartenmailingKonfigurator({ familie }: Readonly<{ familie: strin
   const auflagen: number[] = DETAIL_STAFFEL_PUNKTE;
   const ausgewaehlteVariante = ausstattung.find((v) => v.papier === cfg.papier && v.veredelung === cfg.veredelung);
 
-  const preisdetails = ausgewaehlteVariante ? calcSelfmailerPrice(ausgewaehlteVariante, cfg) : null;
+  const preisdetails = ausgewaehlteVariante
+    ? calcSelfmailerPrice(ausgewaehlteVariante, cfg, store.portoKonfiguration)
+    : null;
   const gesamtNetto = preisdetails
     ? cfg.verarbeitungszeit === "Express"
       ? preisdetails.gesamtNettoExpress

@@ -103,8 +103,9 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
       grammatur:
         configurationLocale['Grammatur'],
 
+      // Certains produits (INATA, MEGALO, ANDIGO, Bestseller) n'ont pas de Perforation.
       perforation:
-        configurationLocale['Perforation'],
+        configurationLocale['Perforation'] ?? '',
 
 
     };
