@@ -6,6 +6,7 @@ import { configureUmfangFlyer, configureGrammaturFlyer, configureOberflächeFlye
 import { cliquerWeiter } from './cliquerWeiter';
 import type { PrixOnline, ProduitOnline, RecapitulationOnline } from '../../types/typeExtraction';
 import {configureUmfangBrochure, configureGrammaturBrochure, configureOberflächeBrochure } from './configureBrochure';
+import { PRIX_NON_DISPONIBLE } from '../comparison/comparerConfigurateurs';
 
 
 async function extraireRecapitulation(
@@ -63,6 +64,14 @@ async function extraireRecapitulation(
     const label = page.locator(
       `label[for="delivery-selection-${nom.toLowerCase()}"]`
     );
+
+    // Pour les grosses quantités (ex. Broschüre 20.000 Stück, Flyer 100.000 Stück),
+    // jopke.de ne propose que "Standard" : il n'y a pas de libellé Express.
+    // La page est déjà chargée (Gesamt (netto) visible), on peut donc tester tout de suite.
+    if ((await label.count()) === 0) {
+      console.log(`Verarbeitungszeit "${nom}" non proposée par jopke.de.`);
+      return PRIX_NON_DISPONIBLE;
+    }
     const valeur = label
       .locator('xpath=..')
       .locator('xpath=following-sibling::dd[1]');
@@ -134,8 +143,10 @@ async function extraireRecapitulation(
   // 2. EXTRAIRE LA QUANTITÉ
   // ==========================================
 
+  // Le séparateur de milliers allemand ("1.000 Stück") fait partie du nombre capturé,
+  // afin de correspondre au format affiché par le configurateur local.
   const quantite = textePage.match(
-    /Auflage:\s*(\d+)\s*Stück/
+    /Auflage:\s*([\d.]+)\s*Stück/
   )?.[1];
 
   if (!quantite) {

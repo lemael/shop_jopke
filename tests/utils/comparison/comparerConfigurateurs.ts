@@ -7,6 +7,13 @@ import type {
 } from '../../types/typeExtraction';
 
 /**
+ * Valeur utilisée quand un configurateur ne propose pas une option
+ * (ex. pas d'Express sur jopke.de pour les grosses quantités).
+ * Elle est comparée comme texte et compte comme une différence.
+ */
+export const PRIX_NON_DISPONIBLE = 'nicht verfügbar';
+
+/**
  * Convertit un prix au format allemand (ex. 1.250,50 €)
  * en nombre (1250.50).
  */
@@ -102,6 +109,18 @@ export async function comparerConfigurateurs(
   for (const cle of clesPrix) {
     const local = prixLocal[cle];
     const online = prixOnline[cle];
+
+    // Option proposée d'un seul côté : comparaison textuelle, sans écart chiffré.
+    if (local === PRIX_NON_DISPONIBLE || online === PRIX_NON_DISPONIBLE) {
+      const identique = local === online;
+      console.log(`\n${cle}:`);
+      console.log(`  Local  : ${local}`);
+      console.log(`  Online : ${online}`);
+      console.log(identique ? '✓ Identique' : '✗ Différent (option proposée d’un seul côté)');
+      rapport.push(`| ${cle} | ${local} | ${online} | - | ${identique ? '✅' : '❌'} |`);
+      if (!identique) differences++;
+      continue;
+    }
 
     const valeurLocale = convertirValeurEnNombre(local, cle, 'local');
     const valeurOnline = convertirValeurEnNombre(online, cle, 'en ligne');

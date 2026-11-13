@@ -8,6 +8,8 @@ import { berechnePreis } from "@/lib/kuvertiertesmailingPreis";
 import { auflagenFuer } from "@/lib/auflage";
 import type { AusstattungConfig } from "@/types/kuvertiertesMailing/ausstattungPreisTranche";
 import { ausstattungConfigService } from "@/services/ausstattungConfigService";
+import { portoApi } from "@/api/portoApi";
+import type { PortoKonfiguration } from "@/types/porto";
 import {
   ALL_STEPS,
   FLYER_STEPS,
@@ -29,6 +31,7 @@ interface ConfiguratorState {
   // --- Ausstattung-Konfiguration & API-Daten --- 
   ausstattungConfigs: AusstattungConfig[];
   artikelTarife: ArtikelTarifDetails[];
+  portoKonfiguration: PortoKonfiguration | null;
   loading: boolean;
   error: string | null;
 
@@ -136,6 +139,7 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
 
   artikelTarife: [],
   ausstattungConfigs: [],
+  portoKonfiguration: null,
   loading: true,
   error: null,
 
@@ -302,6 +306,7 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
       broschuereUmschlagGrammatur: cfg.broschuereUmschlagGrammatur,
       artikelTarife: get().artikelTarife,
       ausstattungConfig: get().selectedAusstattungConfig(),
+      portoKonfiguration: get().portoKonfiguration,
     });
   },
 
@@ -323,7 +328,7 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
     set({ loading: true, error: null });
     console.log("Lade Optionen für Gruppe:", gruppe);
     try {
-      const [ausstattungConfigs, artikelTarife, anschreiben, flyer, broschuere, antwortkarte] =
+      const [ausstattungConfigs, artikelTarife, anschreiben, flyer, broschuere, antwortkarte, portoKonfiguration] =
         await Promise.all([
           ausstattungConfigService.getAll(),
           tarifeService.getAll(),
@@ -331,6 +336,7 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
           tarifeService.getFlyerOptions(`F${gruppe}`),
           tarifeService.getBroschuereOptions(`B${gruppe}`),
           tarifeService.getAntwortkarteOptions(`AK${gruppe}`),
+          portoApi.getKonfiguration(),
         ]);
 
       const flyerGrammaturenMapped: Record<string, string[]> = {};
@@ -361,6 +367,7 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
       console.log("Selected Broschüre Umfang:", selectedBroschuereUmfang);
       set({
         artikelTarife,
+        portoKonfiguration,
         anschreibenGrammaturen: anschreiben.grammaturen,
         anschreibenFarbigkeiten: anschreiben.farbigkeiten,
         anschreibenFarbigkeitenMapped,

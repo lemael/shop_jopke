@@ -180,6 +180,39 @@ const scenariosOberflaecheFlyer: TestScenariosDinC4FensterHuelle[] = oberflaeche
   flyer: { ...flyer, oberflaeche, anzahl: 1 },
 }));
 
+// Toutes les tranches de prix (1–5.000, 5.001–10.000, 10.001–50.000, 50.001–100.000)
+// et les zones de Porto (Easy, Aufzahlung auf 5.000, Dialogpost), comme dans le
+// rapport « Kalkulator-Vergleich ».
+const QUANTITES_VARIANTE_1 = [500, 1000, 1234, 5000, 5001, 10000, 10001, 20000, 50000, 100000];
+
+const scenariosStaffelFlyer: TestScenariosDinC4FensterHuelle[] = QUANTITES_VARIANTE_1.map(quantite => ({
+  name: `${quantite} Stück – Staffel – Anschreiben + 1 Flyer`,
+  type: 'Fensterhülle',
+  choix: 'flyer',
+  ausstattung: 'Anschreiben + bis zu 3 Flyer',
+  quantite,
+  huelle,
+  anschreiben,
+  flyer: { ...flyer, anzahl: 1 },
+}));
+
+// Maximalmenge des configurations avec Broschüre dans tarife.xlsx (140.131 / 140.531) :
+// jopke.de refuse au-delà de 20.000 Stück.
+const MAXIMALMENGE_BROSCHUERE = 20000;
+
+const scenariosStaffelBrochure: TestScenariosDinC4FensterHuelle[] = QUANTITES_VARIANTE_1
+  .filter(quantite => quantite <= MAXIMALMENGE_BROSCHUERE)
+  .map(quantite => ({
+  name: `${quantite} Stück – Staffel – Anschreiben + Broschüre ${brochure.umfang}`,
+  type: 'Fensterhülle',
+  choix: 'brochure',
+  ausstattung: 'Anschreiben + Broschüre',
+  quantite,
+  huelle,
+  anschreiben,
+  brochure,
+}));
+
 export const scenarios: TestScenariosDinC4FensterHuelle[] = [
   ...scenariosFlyer,
   scenarioBrochure,
@@ -190,4 +223,6 @@ export const scenarios: TestScenariosDinC4FensterHuelle[] = [
   ...scenariosUmfangFlyer,
   ...scenariosGrammaturFlyer,
   ...scenariosOberflaecheFlyer,
+  ...scenariosStaffelFlyer,
+  ...scenariosStaffelBrochure,
 ];

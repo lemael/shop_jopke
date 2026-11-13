@@ -31,6 +31,29 @@ function geteiltDurchDiviseurInCent(wert: number): number {
   return rundenCent(zehntausendstel / (DIVISEUR_VK * 100));
 }
 
+/**
+ * Prix de vente d'UN article (en centimes), à partir de ses colonnes « Extern » :
+ * runden(Fixpreis / 1,5) + runden(Auflage / 1000 × runden(Preis o/oo / 1,5)).
+ */
+function verkaufspreisInCent(fixpreis: number, preisPro1000: number, auflage: number): number {
+  const fixCent = geteiltDurchDiviseurInCent(fixpreis);
+  const pro1000Cent = geteiltDurchDiviseurInCent(preisPro1000);
+  return fixCent + rundenCent((auflage * pro1000Cent) / 1000);
+}
+
+/**
+ * Prix de vente d'un article en euros (même formule que jopke.de).
+ * Un mailing composé (Kuvertiertes Mailing) = somme des prix de ses articles :
+ * Hauptartikel + Hülle + Anschreiben + Flyer + Broschüre + Antwortkarte.
+ */
+export function berechneVerkaufspreis(
+  fixpreis: number | undefined,
+  preisPro1000: number | undefined,
+  auflage: number
+): number {
+  return verkaufspreisInCent(fixpreis ?? 0, preisPro1000 ?? 0, auflage) / 100;
+}
+
 export function findeTranche(
   ausstattung: AusstattungConfig,
   auflage: number
@@ -56,10 +79,7 @@ export function berechneDruckPreis(
     return null;
   }
 
-  const fixCent = geteiltDurchDiviseurInCent(tranche.fixpreis ?? 0);
-  const pro1000Cent = geteiltDurchDiviseurInCent(tranche.preisPro1000 ?? 0);
-
-  const druckCent = fixCent + rundenCent((auflage * pro1000Cent) / 1000);
+  const druckCent = verkaufspreisInCent(tranche.fixpreis ?? 0, tranche.preisPro1000 ?? 0, auflage);
 
   // Supplément Express = runden(Druck × Aufschlag Express % de la tranche).
   const expressProzent = tranche.aufschlag_express_in_prozent ?? 0;

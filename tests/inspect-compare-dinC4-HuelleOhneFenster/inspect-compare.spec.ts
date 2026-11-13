@@ -11,12 +11,14 @@ import { scenarios } from '../data/test-scenariosDinC4HuelleOhneFenster';
 
 import { extraireConfiguration } from '../utils/comparison/extraireConfiguration';
 import { extraireInformationsPrix } from '../utils/comparison/extraireInformationsPrix';
-import { comparerConfigurateurs } from '../utils/comparison/comparerConfigurateurs';
+import { comparerConfigurateurs, PRIX_NON_DISPONIBLE } from '../utils/comparison/comparerConfigurateurs';
 
 import { extraireRecapitulation } from '../utils/onlineVersion/extraireRecap';
 
 for (const scenario of scenarios) {
 test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
+  // Local + online enchaînés : 30 s par défaut ne suffisent pas.
+  test.setTimeout(120_000);
 
   // ==========================================
   // 1. CONFIGURATION COMMUNE
@@ -291,6 +293,9 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
     // 8. NORMALISATION PRIX ONLINE
     // ==========================================
    function normaliserPrix(prix: string): string {
+      // Option non proposée par jopke.de (ex. pas d'Express) : valeur conservée telle quelle.
+      if (prix === PRIX_NON_DISPONIBLE) return prix;
+
       const valeur = Number(
         prix
           .replace(/\s/g, '')

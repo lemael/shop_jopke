@@ -1,4 +1,7 @@
-import { berechnePorto, type Versandklasse } from "./porto";
+import { type Versandklasse } from "./porto";
+import { berechnePortoAusKonfiguration } from "./portoKonfiguration";
+import { berechneVerkaufspreis } from "./druckPreis";
+import type { PortoKonfiguration } from "@/types/porto";
 import type { StaffelPreis } from "@/types/staffelPreis";
 import { getTarifGewicht } from "./gewicht";
 import type { AnschreibenGrammatur, AnschreibenFarbigkeit, FlyerUmfang, FlyerGrammatur, FlyerOberflaeche, BroschuereUmfang, AntwortkarteEndformat, AntwortkarteGrammatur, AntwortkarteOberflaeche, BroschuereInhaltOberflaeche, BroschuereUmschlagOberflaeche, BroschuereInhaltGrammatur, BroschuereUmschlagGrammatur } from "@/types/kuvertiertesMailing/types";
@@ -150,13 +153,17 @@ function parseGrammatur(val: string | null | undefined, fallback: number): numbe
   const match = val.match(/(\d+)/);
   return match ? parseInt(match[1], 10) : fallback;
 }
+/**
+ * Prix de vente d'un article du mailing (Hülle, Anschreiben, Flyer, ...),
+ * calculé comme sur jopke.de : voir berechneVerkaufspreis (druckPreis.ts).
+ */
 function berechneArtikelPreis(
   tranche: StaffelPreis | undefined,
   auflage: number
 ): number {
   if (!tranche) return 0;
-  
-  return runden(tranche.fixpreis + (auflage / 1000) * tranche.preisPro1000);
+
+  return berechneVerkaufspreis(tranche.fixpreis, tranche.preisPro1000, auflage);
 }
 
 function getBackendArtikelPreis(
@@ -235,7 +242,13 @@ export function berechnePreis(params: {
   broschuereUmschlagOberflaeche?: string | null;
   ausstattungConfig?: AusstattungConfig;
   artikelTarife: ArtikelTarifDetails[];
+  /** Règles de Porto du backend (GET /api/porto/regeln). */
+  portoKonfiguration: PortoKonfiguration | null;
 }): PreisDetails | null {
+  // Sans les règles de Porto du backend, on n'affiche pas de prix.
+  if (!params.portoKonfiguration) return null;
+  const portoKonfiguration = params.portoKonfiguration;
+
   const {
     slug,
     huellentyp,
@@ -394,12 +407,12 @@ export function berechnePreis(params: {
   });
 
  function berechneHauptartikelVorauswahlPreis(staffel: AusstattungPreisTranche, auflage: number): number {
-  const fix = staffel.fixpreis ?? 0;
-  const p1000 = staffel.preisPro1000 ?? 0;
-  return runden(fix + (auflage / 1000) * p1000);
+  return berechneVerkaufspreis(staffel.fixpreis, staffel.preisPro1000, auflage);
 }
   const hauptartikelPreis = berechneHauptartikelVorauswahlPreis(staffelHauptartikelVorauswahl, auflage);
-  const gesamtPreisTranche = runden(
+  // Druck = somme des prix de vente de chaque article (déjà divisés par 1,5 et arrondis
+  // article par article, comme sur jopke.de). Vérifié : 36/36 prix DIN-C4 identiques.
+  const druck = runden(
     hauptartikelPreis +
       huellenPreis +
       broschuerePreis +
@@ -407,7 +420,6 @@ export function berechnePreis(params: {
       anschreibenPreis +
       flyerPreis
   );
-  const druck = runden( gesamtPreisTranche/1.5 );
   console.log("Prix total d'impression calculé :", druck, "€");
 
   console.table({
@@ -493,7 +505,8 @@ export function berechnePreis(params: {
 
   // Gesamtgewicht berechnen
   
-  const gesamtGewichtKg = runden((gesamtGewichtG * auflage) / 1000);
+  // jopke.de affiche le poids total avec une décimale (ex. 28,75 kg -> 28,8 kg).
+  const gesamtGewichtKg = Math.round((gesamtGewichtG * auflage) / 100) / 10;
   //console.log("Gesamtgewicht in Kilogramm:", gesamtGewichtKg);
 
   const versandklasse: Versandklasse = ausstattungConfig.mindest_versandklasse;
@@ -501,28 +514,15 @@ export function berechnePreis(params: {
   // -------------------------------------------------------------
   // 3. BERECHNUNG VON PORTO UND GESAMTSUMME
   // -------------------------------------------------------------
-  let porto = 0;
-  if(slug === "c4_mailing" ) {
-    porto = runden(
-      berechnePorto(
-        auflage,
-        gesamtGewichtG,
-        undefined,
-        ausstattungConfig.mindest_versandklasse
-      )
-    );
-    console.log("Porto:", porto, "Versandklasse:", versandklasse, "auflage:", auflage);
-  } else {
-    porto = runden(
-      berechnePorto(
-        auflage,
-        gesamtGewichtG,
-        undefined,
-        ausstattungConfig.mindest_versandklasse
-      ) + 5.04
-    );
-    console.log("Porto:", porto, "Versandklasse:", versandklasse, "auflage:", auflage);
-  }
+  // Porto selon tarife.xlsx (via le backend), pour le C4 comme pour le DIN-Lang :
+  // classe selon le poids total, jamais en dessous de la Mindest-Versandklasse de l'article.
+  const porto = berechnePortoAusKonfiguration(
+    portoKonfiguration,
+    auflage,
+    gesamtGewichtG,
+    ausstattungConfig.mindest_versandklasse
+  );
+  console.log("Porto:", porto, "Versandklasse:", versandklasse, "auflage:", auflage);
 
   const expressProzent = staffelHauptartikelVorauswahl.aufschlag_express_in_prozent ? (staffelHauptartikelVorauswahl.aufschlag_express_in_prozent / 100) 
     : stufenwert(EXPRESS_PROZENT_STAFFEL, auflage);

@@ -51,14 +51,18 @@ class TarifeService:
 
             if fix_val_str is not None and p1000_val_str is not None:
                 try:
-                    fix_val = float(fix_val_str.replace(",", "."))
-                    p1000_val = float(p1000_val_str.replace(",", "."))
+                    # round(..., 6) supprime le bruit flottant des formules Excel
+                    # (99.23249999999999 -> 99.2325) sans perdre de précision :
+                    # le ‰ n'est PAS arrondi à 2 décimales, le prix de vente se calcule
+                    # à partir de la valeur exacte.
+                    fix_val = round(float(fix_val_str.replace(",", ".")), 6)
+                    p1000_val = round(float(p1000_val_str.replace(",", ".")), 6)
                     tranchen.append(
                         StaffelTranche(
                             min=min_qty,
                             max=max_qty,
                             fixpreis=fix_val,
-                            preisPro1000=round(p1000_val, 2),
+                            preisPro1000=p1000_val,
                         )
                     )
                 except ValueError:

@@ -13,13 +13,13 @@
 
 | Champ | Local | Online | Écart | Résultat |
 |---|---|---|---|---|
-| produit | 227,96 € | 227,95 € | +0,01 € | ❌ |
-| porto | 550,04 € | 550,00 € | +0,04 € | ❌ |
+| produit | 227,95 € | 227,95 € | 0,00 € | ✅ |
+| porto | 550,00 € | 550,00 € | 0,00 € | ✅ |
 | express | + 54,71 € | 54,71 € | 0,00 € | ✅ |
-| totalNet | 778,00 € | 777,95 € | +0,05 € | ❌ |
-| tva | 147,82 € | 147,81 € | +0,01 € | ❌ |
-| totalBrut | 925,82 € | 925,76 € | +0,06 € | ❌ |
+| totalNet | 777,95 € | 777,95 € | 0,00 € | ✅ |
+| tva | 147,81 € | 147,81 € | 0,00 € | ✅ |
+| totalBrut | 925,76 € | 925,76 € | 0,00 € | ✅ |
 | gewichtProSendung | 5.4 g | 5,4 g | 0,00 g | ✅ |
 | gesamtgewicht | 5.4 kg | 5,4 kg | 0,00 kg | ✅ |
 
-**Nombre de différences : 5**
+**Nombre de différences : 0**
