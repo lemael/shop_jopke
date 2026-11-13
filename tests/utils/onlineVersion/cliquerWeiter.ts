@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 async function cliquerWeiter(
     page: Page
 ): Promise<void> {
-  const boutonWeiter = page.locator('button.button.next');
+  const boutonWeiter = page.locator('.button.next');
 
   await boutonWeiter.waitFor({ state: 'visible' });
   await boutonWeiter.click();

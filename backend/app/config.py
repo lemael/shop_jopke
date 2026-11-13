@@ -20,6 +20,10 @@ EXCEL_FILE_PATH = Path(excel_filename) if Path(excel_filename).is_absolute() els
 
 SHEET_NAME = os.getenv("SHEET_NAME", "Einzelteile und Beilagen")
 
+# jopke.de facture le Porto 0,01 € de plus par Sendung que les tarifs de la
+# feuille « Porto » de tarife.xlsx (ex. classe B : 0,39 € au lieu de 0,38 €).
+PORTO_AUFSCHLAG_JOPKE = float(os.getenv("PORTO_AUFSCHLAG_JOPKE", "0.01"))
+
 # Gestion propre des origines CORS
 origins_str = os.getenv(
     "ALLOWED_ORIGINS", 

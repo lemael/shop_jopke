@@ -142,7 +142,9 @@ export function SelfmailerKonfigurator({ familie }: Readonly<{ familie: Selfmail
       a.grammatur === cfg.grammatur &&
       (cfg.perforation[0] === "" || a.perforation === cfg.perforation[0])
   );
-  const preisdetails = ausgewaehlteVariante ? calcSelfmailerPrice(ausgewaehlteVariante, cfg) : null;
+  const preisdetails = ausgewaehlteVariante
+    ? calcSelfmailerPrice(ausgewaehlteVariante, cfg, store.portoKonfiguration)
+    : null;
   const gesamtNetto = preisdetails
     ? cfg.verarbeitungszeit === "Express"
       ? preisdetails.gesamtNettoExpress

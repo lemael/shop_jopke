@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import ALLOWED_ORIGINS
 from app.routers import health_router, tarife_router
 from app.routers import ausstattung_config_router
+from app.routers import porto_router
 
 # Affichage des origines autorisées dans les logs Railway au démarrage
 print(f"DEBUG - Origines CORS autorisées : {ALLOWED_ORIGINS}")
@@ -29,3 +30,4 @@ app.add_middleware(
 app.include_router(health_router.router)
 app.include_router(tarife_router.router)
 app.include_router(ausstattung_config_router.router)
+app.include_router(porto_router.router)

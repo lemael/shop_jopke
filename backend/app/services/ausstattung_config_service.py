@@ -169,7 +169,16 @@ class AusstattungConfigService:
             fix_val_str = self._find_col(row, fix_pat)
             p1000_val_str = self._find_col(row, p1000_pat)
 
+            # Dans tarife.xlsx, l'en-tête « Fixpreis 10.001 - 50.000 » (cellule BC3) est vide :
+            # la colonne Fixpreis est alors celle qui précède directement la colonne Preis o/oo.
+            if not fix_val_str and p1000_val_str:
+                fix_val_str = self._find_col_before(row, p1000_pat)
+
             if not fix_val_str or not p1000_val_str:
+                print(
+                    f"⚠️ Tranche {min_qty}-{max_qty} ignorée pour "
+                    f"{self._find_col(row, r'Produkt-Nummer$')} : Fixpreis ou Preis o/oo introuvable"
+                )
                 continue
 
             try:
@@ -191,8 +200,10 @@ class AusstattungConfigService:
                     StaffelTranche(
                         min=min_qty,
                         max=max_qty,
+                        # Pas d'arrondi à 2 décimales ici : le prix de vente se calcule
+                        # à partir de la valeur exacte (ex. 156,9975 €/1000).
                         fixpreis=fix_val,
-                        preisPro1000=round(p1000_val, 2),
+                        preisPro1000=p1000_val,
                         lz_standard=lz_std,
                         lz_express=lz_exp,
                         aufschlag_express_in_prozent=aufschlag_val,
@@ -212,6 +223,21 @@ class AusstattungConfigService:
                 if value_str and value_str.lower() != "nan":
                     return value_str
 
+        return None
+
+    def _find_col_before(self, row: pd.Series, pattern: str) -> Optional[str]:
+        """Valeur de la colonne située juste avant la première colonne correspondant à `pattern`."""
+        columns = list(row.index)
+        for column in self._matching_columns(row, pattern):
+            position = columns.index(column)
+            if position == 0:
+                return None
+            value = row.iloc[position - 1]
+            if pd.notna(value):
+                value_str = str(value).strip()
+                if value_str and value_str.lower() != "nan":
+                    return value_str
+            return None
         return None
 
     def _get_int(self, row: pd.Series, pattern: str) -> Optional[int]:
@@ -286,7 +312,9 @@ class AusstattungConfigService:
         elif "," in cleaned:
             cleaned = cleaned.replace(",", ".")
 
-        return float(cleaned)
+        # Les formules Excel laissent du bruit flottant (99.2325 -> 99.23249999999999) :
+        # sans ce nettoyage, 99,2325 / 1,5 = 66,155 s'arrondirait à 66,15 au lieu de 66,16.
+        return round(float(cleaned), 6)
 
 
 ausstattung_config_service = AusstattungConfigService()

@@ -16,14 +16,20 @@ export async function configurerAuflage(
     exact: true
   });
 
-  // Vérifier que le bouton existe et est visible.
-  await expect(bouton).toBeVisible();
+  if (await bouton.isVisible().catch(() => false)) {
+    // Vérifier le texte du span.
+    await expect(bouton.locator('span')).toHaveText(quantiteFormatee);
 
-  // Vérifier le texte du span.
-  await expect(bouton.locator('span')).toHaveText(quantiteFormatee);
-
-  // Sélectionner la quantité.
-  await bouton.click();
+    // Sélectionner la quantité.
+    await bouton.click();
+  } else {
+    // Quantité sans bouton prédéfini (ex. 1234, 2500, 5001, ...) :
+    // on passe par le champ "Eigene Menge eingeben".
+    const champ = page.getByRole('spinbutton', { name: 'Eigene Menge eingeben' });
+    await expect(champ).toBeVisible();
+    await champ.fill(String(quantite));
+    await page.getByRole('button', { name: 'Weiter →' }).click();
+  }
 
 
 

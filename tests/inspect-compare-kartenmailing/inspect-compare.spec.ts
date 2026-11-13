@@ -1,55 +1,52 @@
 import { test } from '@playwright/test';
-import type {
-  ConfigurationComparee,
-  PrixCompare,
-  RecapitulationOnline,
-} from '../types/typeExtraction';
 
-import { LocalConfiguratorPage } from '../pages/local/LocalConfiguratorPageDin-c4-Mailing';
-import { OnlineConfiguratorPage } from '../pages/online/OnlineConfiguratorPageDin-c4-Mailing';
-import { scenarios } from '../data/test-scenariosDinC4FensterHuelle';
+import { LocalConfiguratorPageKartenmailing } from '../pages/local/kartenmailing/LocalConfiguratorPageKartenmailing';
+import { OnlineConfiguratorPageKartenmailing } from '../pages/online/kartenmailing/OnlineConfiguratorPageKartenmailing';
+import { scenarios } from '../data/test-scenariosKartenmailing';
 
 import { extraireConfiguration } from '../utils/comparison/extraireConfiguration';
 import { extraireInformationsPrix } from '../utils/comparison/extraireInformationsPrix';
-import { comparerConfigurateurs } from '../utils/comparison/comparerConfigurateurs';
+import { comparerConfigurateurs } from '../utils/comparison/kartenmailing/comparerConfigurateursKartenmailing';
 
-import { extraireRecapitulation } from '../utils/onlineVersion/extraireRecap';
+import { extraireRecapitulation } from '../utils/onlineVersion/Kartenmailing/extraireRecap';
+import type {
+  ConfigurationCompareeKartenmailing,
+  PrixCompare,
+  RecapitulationOnline,
+} from '../types/typeExtractionKartenmailing';
+
+// Convertit "1.234,56" (format online, sans €) en "1234,56 €".
+function normaliserPrix(prix: string): string {
+  const valeur = Number(
+    prix
+      .replace(/\s/g, '')
+      .replace(/\./g, '')
+      .replace(',', '')
+      .replace(/[^\d-]/g, '')
+  );
+
+  if (Number.isNaN(valeur)) {
+    throw new Error(`Prix invalide : ${prix}`);
+  }
+
+  return `${(valeur / 100).toFixed(2).replace('.', ',')} €`;
+}
 
 for (const scenario of scenarios) {
 test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
+  // Local + online enchaînés : 30 s par défaut ne suffisent pas.
+  test.setTimeout(120_000);
 
   // ==========================================
   // 1. CONFIGURATION COMMUNE
   // ==========================================
 
-  // Valeurs vides pour la pièce jointe non utilisée dans le scénario.
-  const brochureVide = {
-    umfang: '',
-    farbigkeit: '',
-    grammatur: '',
-    oberflaeche: '',
-    isChecked: false,
-  };
-  const flyerVide = {
-    umfang: '',
-    farbigkeit: '',
-    grammatur: '',
-    oberflaeche: '',
-    isChecked: false,
-  };
+  const urlLocal = 'https://frontend-production-d09b.up.railway.app/shop';
+  const urlOnline = 'https://www.jopke.de/shop';
 
-  const urlLocal =
-    'https://frontend-production-d09b.up.railway.app/shop/c4_mailing';
-
-  const urlOnline =
-    'https://www.jopke.de/shop/din-c4-mailing';
-  const { type, choix, ausstattung, quantite, huelle, anschreiben } =
-    scenario;
-  const flyer = scenario.flyer ?? flyerVide;
-  const brochure = scenario.brochure ?? brochureVide;
+  const { type, typeOnline, quantite, kartenmailing } = scenario;
 
   const context = await browser.newContext();
-
   const pageLocal = await context.newPage();
   const pageOnline = await context.newPage();
 
@@ -61,34 +58,22 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
 
     console.log('\n========== CONFIGURATEUR LOCAL ==========');
 
-    const configurateurLocal = new LocalConfiguratorPage(
+    const configurateurLocal = new LocalConfiguratorPageKartenmailing(
       pageLocal,
       urlLocal,
       type,
       quantite,
-      ausstattung,
-      huelle,
-      anschreiben,
-      brochure,
-      flyer
+      kartenmailing
     );
 
     await configurateurLocal.öffnenPage();
 
-    await configurateurLocal.wählenTypeHuelle();
+    // Enchaîne Auflage → Papier → Veredelung → Übersicht.
+    await configurateurLocal.testerKartenmailing();
 
-    await configurateurLocal.testerCombinaisonsPiecesJointes();
-
-
-    // Extraction de la configuration locale
-
-    const configurationLocale =
-      await extraireConfiguration(pageLocal);
-
-    // Extraction des prix locaux
-
-    const prixLocal =
-      await extraireInformationsPrix(pageLocal);
+    const configurationLocale = await extraireConfiguration(pageLocal);
+    const prixLocal = await extraireInformationsPrix(pageLocal);
+    const endformatLocal = await configurateurLocal.lireEndformat();
 
     console.log('CONFIGURATION LOCALE :', configurationLocale);
     console.log('PRIX LOCAL :', prixLocal);
@@ -98,74 +83,22 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
     // 3. NORMALISATION LOCALE
     // ==========================================
 
-    const configurationLocaleComparee: ConfigurationComparee = {
-
-      huellentyp:
-        configurationLocale['Hüllentyp'],
-
-      ausstattung:
-        configurationLocale['Ausstattung'],
-
-      auflage:
-        configurationLocale['Auflage'],
-
-      farbigkeitHuelle:
-        configurationLocale['Farbigkeit Hülle'],
-
-      grammaturAnschreiben:
-        configurationLocale['Grammatur Anschreiben'],
-
-      farbigkeitAnschreiben:
-        configurationLocale['Farbigkeit Anschreiben'],
-
-      anzahlFlyer:
-        configurationLocale['Anzahl Flyer'] ?? '',
-
-      flyers:
-        Object.entries(configurationLocale)
-          .filter(([libelle]) => /^Flyer \d+$/.test(libelle))
-          .sort(([a], [b]) => Number(a.slice(6)) - Number(b.slice(6)))
-          .map(([, valeur]) => valeur)
-          .join(' | '),
-
-      // La Farbigkeit n'est pas affichée dans le récapitulatif local :
-      // on reprend la valeur du scénario (valeur fixe de l'application).
-      farbigkeitBrochure:
-        configurationLocale['Umfang Broschüre'] ? brochure.farbigkeit : '',
-
-      umfangBrochure:
-        configurationLocale['Umfang Broschüre'] ?? '',
-
-      grammaturBrochure:
-        configurationLocale['Grammatur Broschüre (Inhalt)'] ?? '',
-
-      oberflaecheBrochure:
-        configurationLocale['Oberfläche Broschüre (Inhalt)'] ?? '',
+    const configurationLocaleComparee: ConfigurationCompareeKartenmailing = {
+      auflage: configurationLocale['Auflage'],
+      endformat: endformatLocal,
+      papier: configurationLocale['Papier'],
+      veredelung: configurationLocale['Veredelung'],
     };
 
-
     const prixLocalCompare: PrixCompare = {
-
-      produit:
-        prixLocal['Kuvertiertes Mailing DIN-C4'],
-
-      porto:
-        prixLocal['Porto'],
-      express:
-        prixLocal['Express'],
-
-      totalNet:
-        prixLocal['Gesamt (netto)'],
-
-      tva:
-        prixLocal['zzgl. 19% MwSt.'],
-
-      totalBrut:
-        prixLocal['Gesamt (brutto)'],
-      gewichtProSendung:
-        prixLocal['Gewicht pro Sendung'],
-      gesamtgewicht:
-        prixLocal['Gesamtgewicht'],
+      produit: prixLocal['Druck (netto)'],
+      porto: prixLocal['Porto (max., netto)'],
+      express: prixLocal['Express'],
+      totalNet: prixLocal['Gesamt (netto)'],
+      tva: prixLocal['zzgl. 19% MwSt.'],
+      totalBrut: prixLocal['Gesamt (brutto)'],
+      gewichtProSendung: prixLocal['Gewicht pro Sendung'],
+      gesamtgewicht: prixLocal['Gesamtgewicht'],
     };
 
 
@@ -175,156 +108,55 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
 
     console.log('\n========== CONFIGURATEUR ONLINE ==========');
 
-    const configurateurOnline = new OnlineConfiguratorPage(
+    const configurateurOnline = new OnlineConfiguratorPageKartenmailing(
       pageOnline,
-      choix,
+      typeOnline,
       quantite,
-      huelle,
-      anschreiben,
-      flyer,
-      brochure
+      kartenmailing
     );
 
-    await configurateurOnline.ouvrirPage(urlOnline);
-
+    await configurateurOnline.öffnenPage(urlOnline);
     await configurateurOnline.accepterCookiesNecessaires();
 
-    await configurateurOnline.choisirTypeHuelle(type);
-
-    await configurateurOnline.testerCombinaisonsPiecesJointes(
-      quantite,
-      flyer.anzahl ?? 1,
-      choix
-    );
+    // Enchaîne Produkt konfigurieren → Auflage → Papier → Veredelung → order-overview.
+    await configurateurOnline.testerKartenmailing();
 
 
     // ==========================================
     // 5. EXTRACTION ONLINE
     // ==========================================
 
-    // On récupère directement les données détaillées
-    // depuis la page après sa configuration.
-    const recapOnline: RecapitulationOnline =
-      await extraireRecapitulation(pageOnline);
+    const recapOnline: RecapitulationOnline = await extraireRecapitulation(pageOnline);
 
     console.log('\nRÉCAPITULATION ONLINE :');
     console.log(JSON.stringify(recapOnline, null, 2));
 
 
     // ==========================================
-    // 6. RECHERCHE DES PRODUITS ONLINE
+    // 6. NORMALISATION ONLINE
     // ==========================================
 
-    const huelleOnline = recapOnline.produits.find(
-      p => p.nom.includes('Fensterhülle')
-    );
-
-    const anschreibenOnline = recapOnline.produits.find(
-      p => p.nom.includes('Anschreiben')
-    );
-
-    const brochureOnline = recapOnline.produits.find(
-      p => p.nom.includes('Broschüre')
-    );
-
-    const flyersOnline = recapOnline.produits
-      .filter(p => p.nom.includes('Flyer'))
-      .sort((a, b) => a.nom.localeCompare(b.nom));
-
-
-    // ==========================================
-    // 7. NORMALISATION CONFIGURATION ONLINE
-    // ==========================================
-
-    const configurationOnlineComparee: ConfigurationComparee = {
-
-      huellentyp:
-        type,
-
-      ausstattung:
-        ausstattung,
-
-      auflage:
-        `${recapOnline.quantite} Stück`,
-
-      farbigkeitHuelle:
-        huelleOnline?.caracteristiques['Farbigkeit'] ?? '',
-
-      grammaturAnschreiben:
-        anschreibenOnline?.caracteristiques['Grammatur'] ?? '',
-
-      farbigkeitAnschreiben:
-        anschreibenOnline?.caracteristiques['Farbigkeit'] ?? '',
-
-      anzahlFlyer:
-        flyersOnline.length ? String(flyersOnline.length) : '',
-
-      flyers: flyersOnline.length
-        ? flyersOnline
-            .map(flyerOnline =>
-              [
-                flyerOnline.caracteristiques['Umfang'],
-                flyerOnline.caracteristiques['Grammatur'],
-                flyerOnline.caracteristiques['Oberfläche'],
-              ]
-            .filter(Boolean)
-            .join(', ')
-            )
-            .join(' | ')
-        : '',
-
-      farbigkeitBrochure:
-        brochureOnline?.caracteristiques['Farbigkeit'] ?? '',
-
-      umfangBrochure:
-        brochureOnline?.caracteristiques['Umfang'] ?? '',
-
-      grammaturBrochure:
-        brochureOnline?.caracteristiques['Grammatur'] ?? '',
-
-      oberflaecheBrochure:
-        brochureOnline?.caracteristiques['Oberfläche'] ?? '',
+    const configurationOnlineComparee: ConfigurationCompareeKartenmailing = {
+      auflage: `${recapOnline.quantite} Stück`,
+      endformat: recapOnline.caracteristiques['Endformat'] ?? '',
+      papier: recapOnline.caracteristiques['Papier'] ?? '',
+      veredelung: recapOnline.caracteristiques['Veredelung'] ?? '',
     };
 
-
-    // ==========================================
-    // 8. NORMALISATION PRIX ONLINE
-    // ==========================================
-   function normaliserPrix(prix: string): string {
-      const valeur = Number(
-        prix
-          .replace(/\s/g, '')
-          .replace(/\./g, '')
-          .replace(',', '')
-          .replace(/[^\d-]/g, '')
-      );
-
-      if (Number.isNaN(valeur)) {
-        throw new Error(`Prix invalide : ${prix}`);
-      }
-
-      return `${(valeur / 100).toFixed(2).replace('.', ',')} €`;
-    }
     const prixOnlineCompare: PrixCompare = {
-
-        produit: normaliserPrix(recapOnline.prix.produit),
-
-        porto: normaliserPrix(recapOnline.prix.porto),
-        express: normaliserPrix(recapOnline.prix.express),
-
-        totalNet: normaliserPrix(recapOnline.prix.totalNet),
-
-        tva: normaliserPrix(recapOnline.prix.tva),
-
-        totalBrut: normaliserPrix(recapOnline.prix.totalBrut),
-        gewichtProSendung: `${recapOnline.prix.gewichtProSendung} g`,
-        gesamtgewicht: `${recapOnline.prix.gesamtgewicht} kg`,
-
+      produit: normaliserPrix(recapOnline.prix.produit),
+      porto: normaliserPrix(recapOnline.prix.porto),
+      express: normaliserPrix(recapOnline.prix.express),
+      totalNet: normaliserPrix(recapOnline.prix.totalNet),
+      tva: normaliserPrix(recapOnline.prix.tva),
+      totalBrut: normaliserPrix(recapOnline.prix.totalBrut),
+      gewichtProSendung: `${recapOnline.prix.gewichtProSendung} g`,
+      gesamtgewicht: `${recapOnline.prix.gesamtgewicht} kg`,
     };
 
 
     // ==========================================
-    // 9. AFFICHAGE DES DONNÉES NORMALISÉES
+    // 7. AFFICHAGE DES DONNÉES NORMALISÉES
     // ==========================================
 
     console.log('\n========== OBJETS NORMALISÉS ==========');
@@ -343,7 +175,7 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
 
 
     // ==========================================
-    // 10. COMPARAISON
+    // 8. COMPARAISON
     // ==========================================
 
     console.log('\n========== COMPARAISON DES CONFIGURATEURS ==========');
@@ -359,9 +191,7 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
     console.log('\n========== FIN DE LA COMPARAISON ==========');
 
   } finally {
-
     await context.close();
-
   }
 });
 }

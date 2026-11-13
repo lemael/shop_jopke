@@ -1,52 +1,44 @@
 import { test } from '@playwright/test';
-import type {
-  ConfigurationComparee,
-  PrixCompare,
-  RecapitulationOnline,
-} from '../types/typeExtraction';
+import type { Selfmailer } from '../types/Selfmailer';
 
-import { LocalConfiguratorPage } from '../pages/local/LocalConfiguratorPageDin-c4-Mailing';
-import { OnlineConfiguratorPage } from '../pages/online/OnlineConfiguratorPageDin-c4-Mailing';
-import { scenarios } from '../data/test-scenariosDinC4FensterHuelle';
+import { LocalConfiguratorPageSelfmailer } from '../pages/local/selfmailer/LocalConfiguratorPageSelfmailer';
+import { OnlineConfiguratorPageSelfmailer } from '../pages/online/selfmailer/OnlineConfiguratorPageSelfmailer';
+import { scenarios } from '../data/test-scenariosSelfmailer';
 
 import { extraireConfiguration } from '../utils/comparison/extraireConfiguration';
 import { extraireInformationsPrix } from '../utils/comparison/extraireInformationsPrix';
-import { comparerConfigurateurs } from '../utils/comparison/comparerConfigurateurs';
+import { comparerConfigurateurs } from '../utils/comparison/selfmailer/comparerConfigurateursSelfmailer';
 
-import { extraireRecapitulation } from '../utils/onlineVersion/extraireRecap';
+import { extraireRecapitulation } from '../utils/onlineVersion/Selfmailer/extraireRecap';
+import { PrixCompare, RecapitulationOnline,ConfigurationCompareeSelfmailer } from '../types/typeExtractionSelfmailer';
 
 for (const scenario of scenarios) {
 test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
+  // Local + online enchaînés : 30 s par défaut ne suffisent pas.
+  test.setTimeout(120_000);
 
   // ==========================================
   // 1. CONFIGURATION COMMUNE
   // ==========================================
 
   // Valeurs vides pour la pièce jointe non utilisée dans le scénario.
-  const brochureVide = {
+  const selfmailerVide: Selfmailer = {
+    type: '',
     umfang: '',
-    farbigkeit: '',
     grammatur: '',
-    oberflaeche: '',
-    isChecked: false,
+    perforation: '',
   };
-  const flyerVide = {
-    umfang: '',
-    farbigkeit: '',
-    grammatur: '',
-    oberflaeche: '',
-    isChecked: false,
-  };
+
 
   const urlLocal =
-    'https://frontend-production-d09b.up.railway.app/shop/c4_mailing';
+    'https://frontend-production-d09b.up.railway.app/shop';
 
   const urlOnline =
-    'https://www.jopke.de/shop/din-c4-mailing';
-  const { type, choix, ausstattung, quantite, huelle, anschreiben } =
+    'https://www.jopke.de/shop';
+  const { type, typeOnline, quantite } =
     scenario;
-  const flyer = scenario.flyer ?? flyerVide;
-  const brochure = scenario.brochure ?? brochureVide;
+  const selfmailer = scenario.selfmailer ?? selfmailerVide;
+  
 
   const context = await browser.newContext();
 
@@ -61,22 +53,17 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
 
     console.log('\n========== CONFIGURATEUR LOCAL ==========');
 
-    const configurateurLocal = new LocalConfiguratorPage(
+    const configurateurLocal = new LocalConfiguratorPageSelfmailer(
       pageLocal,
       urlLocal,
       type,
       quantite,
-      ausstattung,
-      huelle,
-      anschreiben,
-      brochure,
-      flyer
+      selfmailer
     );
 
-    await configurateurLocal.öffnenPage();
+    await configurateurLocal.öffnenPage(type);
 
-    await configurateurLocal.wählenTypeHuelle();
-
+    // Enchaîne Auflage → Umfang → Grammatur → Perforation → Übersicht.
     await configurateurLocal.testerCombinaisonsPiecesJointes();
 
 
@@ -98,59 +85,38 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
     // 3. NORMALISATION LOCALE
     // ==========================================
 
-    const configurationLocaleComparee: ConfigurationComparee = {
+    const configurationLocaleComparee: ConfigurationCompareeSelfmailer = {
 
-      huellentyp:
-        configurationLocale['Hüllentyp'],
+      // La récap locale n'affiche pas le type : on reprend celui du scénario.
+      typ:
+        type,
 
-      ausstattung:
-        configurationLocale['Ausstattung'],
 
       auflage:
         configurationLocale['Auflage'],
 
-      farbigkeitHuelle:
-        configurationLocale['Farbigkeit Hülle'],
 
-      grammaturAnschreiben:
-        configurationLocale['Grammatur Anschreiben'],
+      umfang:
+        configurationLocale['Umfang'],
 
-      farbigkeitAnschreiben:
-        configurationLocale['Farbigkeit Anschreiben'],
 
-      anzahlFlyer:
-        configurationLocale['Anzahl Flyer'] ?? '',
+      grammatur:
+        configurationLocale['Grammatur'],
 
-      flyers:
-        Object.entries(configurationLocale)
-          .filter(([libelle]) => /^Flyer \d+$/.test(libelle))
-          .sort(([a], [b]) => Number(a.slice(6)) - Number(b.slice(6)))
-          .map(([, valeur]) => valeur)
-          .join(' | '),
+      perforation:
+        configurationLocale['Perforation'],
 
-      // La Farbigkeit n'est pas affichée dans le récapitulatif local :
-      // on reprend la valeur du scénario (valeur fixe de l'application).
-      farbigkeitBrochure:
-        configurationLocale['Umfang Broschüre'] ? brochure.farbigkeit : '',
 
-      umfangBrochure:
-        configurationLocale['Umfang Broschüre'] ?? '',
-
-      grammaturBrochure:
-        configurationLocale['Grammatur Broschüre (Inhalt)'] ?? '',
-
-      oberflaecheBrochure:
-        configurationLocale['Oberfläche Broschüre (Inhalt)'] ?? '',
     };
 
 
     const prixLocalCompare: PrixCompare = {
 
       produit:
-        prixLocal['Kuvertiertes Mailing DIN-C4'],
+        prixLocal['Druck (netto)'],
 
       porto:
-        prixLocal['Porto'],
+        prixLocal['Porto (max., netto)'],
       express:
         prixLocal['Express'],
 
@@ -175,27 +141,19 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
 
     console.log('\n========== CONFIGURATEUR ONLINE ==========');
 
-    const configurateurOnline = new OnlineConfiguratorPage(
+    const configurateurOnline = new OnlineConfiguratorPageSelfmailer(
       pageOnline,
-      choix,
+      typeOnline,
       quantite,
-      huelle,
-      anschreiben,
-      flyer,
-      brochure
+      selfmailer
     );
 
-    await configurateurOnline.ouvrirPage(urlOnline);
+    await configurateurOnline.öffnenPage(urlOnline);
 
+    // Le bandeau cookies recouvre le bouton "Produkt konfigurieren".
     await configurateurOnline.accepterCookiesNecessaires();
 
-    await configurateurOnline.choisirTypeHuelle(type);
-
-    await configurateurOnline.testerCombinaisonsPiecesJointes(
-      quantite,
-      flyer.anzahl ?? 1,
-      choix
-    );
+    await configurateurOnline.testerCombinaisonsPiecesJointes();
 
 
     // ==========================================
@@ -215,75 +173,33 @@ test(`Comparer les configurateurs : ${scenario.name}`, async ({ browser }) => {
     // 6. RECHERCHE DES PRODUITS ONLINE
     // ==========================================
 
-    const huelleOnline = recapOnline.produits.find(
-      p => p.nom.includes('Fensterhülle')
-    );
-
-    const anschreibenOnline = recapOnline.produits.find(
-      p => p.nom.includes('Anschreiben')
-    );
-
-    const brochureOnline = recapOnline.produits.find(
-      p => p.nom.includes('Broschüre')
-    );
-
-    const flyersOnline = recapOnline.produits
-      .filter(p => p.nom.includes('Flyer'))
-      .sort((a, b) => a.nom.localeCompare(b.nom));
 
 
     // ==========================================
     // 7. NORMALISATION CONFIGURATION ONLINE
     // ==========================================
 
-    const configurationOnlineComparee: ConfigurationComparee = {
+    const configurationOnlineComparee: ConfigurationCompareeSelfmailer = {
 
-      huellentyp:
+      typ:
         type,
 
-      ausstattung:
-        ausstattung,
+    
 
       auflage:
         `${recapOnline.quantite} Stück`,
 
-      farbigkeitHuelle:
-        huelleOnline?.caracteristiques['Farbigkeit'] ?? '',
+      // Le Selfmailer est un produit unique : toutes ses caractéristiques
+      // sont dans recapOnline.caracteristiques.
+      umfang:
+        recapOnline.caracteristiques['Umfang'] ?? '',
 
-      grammaturAnschreiben:
-        anschreibenOnline?.caracteristiques['Grammatur'] ?? '',
+      grammatur:
+        recapOnline.caracteristiques['Grammatur'] ?? '',
 
-      farbigkeitAnschreiben:
-        anschreibenOnline?.caracteristiques['Farbigkeit'] ?? '',
+      perforation:
+        recapOnline.caracteristiques['Perforation'] ?? '',
 
-      anzahlFlyer:
-        flyersOnline.length ? String(flyersOnline.length) : '',
-
-      flyers: flyersOnline.length
-        ? flyersOnline
-            .map(flyerOnline =>
-              [
-                flyerOnline.caracteristiques['Umfang'],
-                flyerOnline.caracteristiques['Grammatur'],
-                flyerOnline.caracteristiques['Oberfläche'],
-              ]
-            .filter(Boolean)
-            .join(', ')
-            )
-            .join(' | ')
-        : '',
-
-      farbigkeitBrochure:
-        brochureOnline?.caracteristiques['Farbigkeit'] ?? '',
-
-      umfangBrochure:
-        brochureOnline?.caracteristiques['Umfang'] ?? '',
-
-      grammaturBrochure:
-        brochureOnline?.caracteristiques['Grammatur'] ?? '',
-
-      oberflaecheBrochure:
-        brochureOnline?.caracteristiques['Oberfläche'] ?? '',
     };
 
 

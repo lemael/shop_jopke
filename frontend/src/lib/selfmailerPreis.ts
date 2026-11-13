@@ -3,7 +3,9 @@ import type { Config} from "@/types/selfmailer/selfmailer";
 import { SELFMAILER_PRICE_MATRIX, GRAMMATUR_FACTOR, PORTO_RATE } from "@/data/selfmailing";
 import { PreisDetails } from "@/types/preisDetails";
 import { AusstattungConfig } from "@/types/kuvertiertesMailing/ausstattungPreisTranche";
-import { berechnePorto } from "@/lib/porto";
+import { berechnePortoAusKonfiguration } from "@/lib/portoKonfiguration";
+import { berechneDruckPreis } from "@/lib/druckPreis";
+import type { PortoKonfiguration } from "@/types/porto";
 
 export interface SelfmailerFamilie {
   slug: SelfmailerSlug;
@@ -56,39 +58,31 @@ export function getSelfmailerFamilie(
 function runden(wert: number): number {
   return Math.round(wert * 100) / 100;
 }
-function berechneHauptartikelVorauswahlPreis(
-    staffel: AusstattungConfig,
-    auflage: number
-): number {
-    const indexTranche =
-        auflage <= 5000 ? 0 :
-        auflage <= 10000 ? 1 :
-        auflage <= 50000 ? 2 : 3;
+export function calcSelfmailerPrice(
+  ausstattung: AusstattungConfig,
+  cfg: Config,
+  portoKonfiguration: PortoKonfiguration | null
+): PreisDetails | null {
+  // Sans les règles de Porto du backend, on n'affiche pas de prix.
+  if (!portoKonfiguration) return null;
 
-    const tranche = staffel.tranchen[indexTranche];
+  // Druck et supplément Express selon la formule de jopke.de (voir druckPreis.ts).
+  // La tranche est choisie par min/max (et non par sa position dans le tableau).
+  const druckPreis = berechneDruckPreis(ausstattung, cfg.auflage);
+  if (!druckPreis) return null;
+  const { druck, expressAufpreis } = druckPreis;
 
-    const fixpreis = tranche.fixpreis ?? 0;
-    const preisPro1000 = tranche.preisPro1000 ?? 0;
-    console.log(`Berechne Hauptartikelpreis für Auflage ${auflage}: Tranche ${indexTranche}, Fixpreis ${fixpreis}, Preis pro 1000 ${preisPro1000}`);
-    return runden(
-        fixpreis + (auflage / 1000) * preisPro1000
-    );
-}
-export function calcSelfmailerPrice(ausstattung: AusstattungConfig, cfg: Config): PreisDetails | null {
-
-   const indexTranche =
-        cfg.auflage <= 5000 ? 0 :
-        cfg.auflage <= 10000 ? 1 :
-        cfg.auflage <= 50000 ? 2 : 3;
-  const druck = runden( berechneHauptartikelVorauswahlPreis(ausstattung, cfg.auflage)/1.5 ) + 0.01;
- 
-  
   const gewichtProSendungG = ausstattung.gewicht_in_g ?? 0;
-  const gesamtGewichtKg = runden((gewichtProSendungG * cfg.auflage) / 1000);
-  const porto = runden(berechnePorto(cfg.auflage, gewichtProSendungG, "A") + 5.04);
+  // jopke.de affiche le poids total avec une décimale (ex. 4,56 kg -> 4,6 kg).
+  const gesamtGewichtKg = Math.round((gewichtProSendungG * cfg.auflage) / 100) / 10;
+  // Porto selon tarife.xlsx (via le backend), classe d'envoi minimale de l'article incluse.
+  const porto = berechnePortoAusKonfiguration(
+    portoKonfiguration,
+    cfg.auflage,
+    gewichtProSendungG,
+    ausstattung.mindest_versandklasse
+  );
   const gesamtNettoStandard = runden(druck + porto );
-  const expressProzent = (ausstattung.tranchen[indexTranche].aufschlag_express_in_prozent ?? 0) / 100;
-  const expressAufpreis = runden(druck * expressProzent);
   const gesamtNettoExpress = runden(gesamtNettoStandard + expressAufpreis);
   const mwstStandard = runden(gesamtNettoStandard * 0.19);
 

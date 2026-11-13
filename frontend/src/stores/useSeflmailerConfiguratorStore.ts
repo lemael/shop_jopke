@@ -1,6 +1,8 @@
 import type { AusstattungConfig } from "@/types/kuvertiertesMailing/ausstattungPreisTranche";
 import { create } from "zustand";
 import { ausstattungConfigService } from "@/services/ausstattungConfigService";
+import { portoApi } from "@/api/portoApi";
+import type { PortoKonfiguration } from "@/types/porto";
 import { ALL_STEPS, type Config, type StepName } from "@/types/selfmailer/selfmailer";
 import type { SelfmailerFamilie } from "@/lib/selfmailerPreis";
 
@@ -15,6 +17,7 @@ const initialConfig: Config = {
 interface SeflmailerConfiguratorState {
   familieSlug: SelfmailerFamilie["slug"];
   ausstattungConfigs: AusstattungConfig[];
+  portoKonfiguration: PortoKonfiguration | null;
   loading: boolean;
   cfg: Config;
   currentStep: StepName;
@@ -56,6 +59,7 @@ interface SeflmailerConfiguratorState {
 export const useSelfmailerConfiguratorStore = create<SeflmailerConfiguratorState>((set, get) => ({
   familieSlug: "levi",
   ausstattungConfigs: [],
+  portoKonfiguration: null,
   cfg: initialConfig,
   currentStep: "Auflage",
   loading: false,
@@ -125,8 +129,11 @@ export const useSelfmailerConfiguratorStore = create<SeflmailerConfiguratorState
   loadOptions: async () => {
     set({ loading: true, error: null });
     try {
-      const ausstattungConfigs = await ausstattungConfigService.getAll();
-      set({ ausstattungConfigs, loading: false });
+      const [ausstattungConfigs, portoKonfiguration] = await Promise.all([
+        ausstattungConfigService.getAll(),
+        portoApi.getKonfiguration(),
+      ]);
+      set({ ausstattungConfigs, portoKonfiguration, loading: false });
     } catch (err: any) {
       set({ error: err.message || "Fehler beim Laden der Optionen", loading: false });
     }
